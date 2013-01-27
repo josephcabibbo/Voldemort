@@ -1,0 +1,124 @@
+/*  ------------------------ 
+ *	Filename: stylesheet.css
+ *	Author: Joey Cabibbo 
+ *	------------------------ */
+
+ 
+/* -------------------- *
+ * - General Elements - *
+ * -------------------- */
+
+body
+{
+    font-family: Tahoma, Arial;
+    font-size: 11pt;
+    font-weight: normal;
+    font-style:normal;
+}
+
+#mainContainer
+{
+	position: relative;
+	margin: auto;
+    width: 1000px;
+    top: 35px;
+    border: 2px solid #666;
+}
+
+.container
+{
+	position: absolute;
+}
+
+.button
+{
+	width: 404px;
+	margin-top: 3px;
+	border: 2px solid #666;
+	text-align: center;
+}
+
+.button:hover
+{
+	cursor: pointer;
+	background-color: #0066AA;
+}
+
+/* -------------------- *
+ * --- Main Content --- *
+ * -------------------- */
+
+#mainContent
+{
+	margin: auto;
+	position: relative;
+    width: 900px;
+    min-height: 600px;
+}
+
+#bannerContainer
+{
+	position: absolute;
+	left: 50px;
+	top: 20px;
+	width: 900px;
+	height: 100px;
+	text-align: center;
+}
+
+#projectName
+{
+	font-size: 72pt;
+}
+
+#projectDesription
+{
+	font-size: 42pt;
+}
+
+#interactionPanelContainer
+{
+	margin-top: 165px;
+}
+
+#title
+{
+	width: 404px;
+	font-size: x-large;
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+#sourceCodeContainer
+{
+	width:  400px;
+	height: 250px;
+	border: 2px solid #666;
+	resize: none;
+	/*color: #0066AA;*/
+}
+
+#grammarContainer
+{
+	width:  404px;
+	height: 254px;
+	border: 2px solid #666;
+	resize: none;
+	background-color: white;
+	overflow: scroll;
+}
+
+#testCaseContainer
+{
+	width:  404px;
+	height: 254px;
+	border: 2px solid #666;
+	resize: none;
+	background-color: white;
+	overflow: scroll;
+}
+
+#buttonContainer
+{
+	top: 300px;
+}

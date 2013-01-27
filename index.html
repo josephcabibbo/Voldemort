@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta name="author"             content="Joey Cabibbo" />
+	<link rel="stylesheet" href="stylesheet.css" type="text/css" media="screen" />
+	<title>
+		J(COMP) by Joey Cabibbo
+    </title>
+
+    <!-- JQuery -->
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js">
+
+    <!-- Globals CONSTANTS and _Variables. Must included be first. -->
+    <script type="text/javascript" src="globals.js"></script>
+
+    <!-- Main Scripts -->
+    <script type="text/javascript" src="scripts/control.js"></script>
+
+    <!-- Utility Scripts -->
+    <script type="text/javascript" src="scripts/utils.js"></script>
+</head>
+
+<body>
+	<div id="mainContainer">
+
+		<!-- Banner -->
+		<div id="bannerContainer" class="container">
+			<span id="projectName">J(COMP)</span>
+			<span id="projectDescription">{ a simple compiler by Joey Cabibbo }</span>
+		</div>
+
+		<!-- Main Content -->
+		<div id="mainContent">
+			<!-- Interaction Panel -->
+			<div id="interactionPanelContainer" class="container">
+				<!-- Title -->
+				<div id="title"></div>
+				<!-- Source Code -->
+				<textarea id="sourceCodeContainer"
+				          class="container"
+						  placeholder="Enter source code here..."
+				></textarea>
+				<!-- Grammar -->
+				<div id="grammarContainer" class="container">
+					<table id="grammarTable"></table>
+				</div>
+				<!-- Test Cases (Might need to change this to a textarea)-->
+				<div id="testCaseContainer" class="container">
+				</div>
+				<!-- Buttons -->
+				<div id="buttonContainer" class="container">
+					<div id="btnCompile" class="button">Compile Source Code</div>
+					<div id="btnShowGrammar" class="button">Show Language Grammar</div>
+					<div id="btnShowTestCases" class="button">Show Test Cases</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>
