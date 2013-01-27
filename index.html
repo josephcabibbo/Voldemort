@@ -5,7 +5,7 @@
 	<meta name="author"             content="Joey Cabibbo" />
 	<link rel="stylesheet" href="stylesheet.css" type="text/css" media="screen" />
 	<title>
-		J(COMP) by Joey Cabibbo
+		COMPILER_NAME by Joey Cabibbo
     </title>
 
     <!-- JQuery -->
@@ -25,35 +25,44 @@
 	<div id="mainContainer">
 
 		<!-- Banner -->
-		<div id="bannerContainer" class="container">
-			<span id="projectName">J(COMP)</span>
-			<span id="projectDescription">{ a simple compiler by Joey Cabibbo }</span>
-		</div>
+		<div id="banner" class="container">Title Goes Here</div>
 
 		<!-- Main Content -->
 		<div id="mainContent">
 			<!-- Interaction Panel -->
-			<div id="interactionPanelContainer" class="container">
-				<!-- Title -->
-				<div id="title"></div>
+			<div id="interactionPanel" class="container">
+				<!-- Label -->
+				<div id="interactionPanelLabel" class="label">Source Code</div>
 				<!-- Source Code -->
-				<textarea id="sourceCodeContainer"
+				<textarea id="sourceCode"
 				          class="container"
 						  placeholder="Enter source code here..."
 				></textarea>
 				<!-- Grammar -->
-				<div id="grammarContainer" class="container">
+				<div id="languageGrammer" class="container">
 					<table id="grammarTable"></table>
 				</div>
 				<!-- Test Cases (Might need to change this to a textarea)-->
-				<div id="testCaseContainer" class="container">
-				</div>
+				<div id="testCases" class="container"></div>
 				<!-- Buttons -->
 				<div id="buttonContainer" class="container">
 					<div id="btnCompile" class="button">Compile Source Code</div>
 					<div id="btnShowGrammar" class="button">Show Language Grammar</div>
 					<div id="btnShowTestCases" class="button">Show Test Cases</div>
 				</div>
+			</div>
+			<!-- Results Panel -->
+			<div id="resultsPanel" class="container">
+				<!-- Label -->
+				<div class="label">Results</div>
+				<!-- Errors -->
+				<div id="errors" class="container"></div>
+				<!-- Trace -->
+				<div id="trace" class="container"></div>
+				<!-- Syntax Tree OR Symbol Table -->
+				<div id="symbolTable" class="container"></div>
+				<!-- Output -->
+				<div id="output" class="container"></div>
 			</div>
 		</div>
 

@@ -1,8 +1,8 @@
-/*  ------------------------------------------------- 
+/*  -------------------------------------------------
  *	Filename: control.js
  *	Author: Joey Cabibbo
  *	Description: The "controller" if you will..
- *		     Initializes and responds to the page 
+ *		     Initializes and responds to the page
  *	------------------------------------------------- */
 
 $(document).ready(function() {
@@ -10,10 +10,8 @@ $(document).ready(function() {
 	//
 	// Initalization
 	//
-	$("#title").text("Source Code");
-
-	$("#grammarContainer").hide();
-	$("#testCaseContainer").hide();
+	$("#languageGrammer").hide();
+	$("#testCases").hide();
 
 	displayGrammerTable();
 
@@ -29,7 +27,7 @@ $(document).ready(function() {
 		}
 
 		displayCorrectElement(this);
-		dispayCorrectTitle();
+		dispayCorrectLabel();
 		displayCorrectButton();
 	});
 
@@ -41,48 +39,48 @@ $(document).ready(function() {
 		if(button.id === "btnCompile")
 		{
 			// Show source code
-			$("#sourceCodeContainer").show("slow");
+			$("#sourceCode").show("slow");
 			// Hide others
-			$("#grammarContainer").hide();
-			$("#testCaseContainer").hide();
+			$("#languageGrammer").hide();
+			$("#testCases").hide();
 		}
 		else if(button.id === "btnShowGrammar")
 		{
 			// Show grammar
-			$("#grammarContainer").show("slow");
+			$("#languageGrammer").show("slow");
 			// Hide others
-			$("#sourceCodeContainer").hide();
-			$("#testCaseContainer").hide();
+			$("#sourceCode").hide();
+			$("#testCases").hide();
 		}
 		else if(button.id === "btnShowTestCases")
 		{
 			// Show test cases
-			$("#testCaseContainer").show("slow");
+			$("#testCases").show("slow");
 			// Hide others
-			$("#sourceCodeContainer").hide();
-			$("#grammarContainer").hide();
+			$("#sourceCode").hide();
+			$("#languageGrammer").hide();
 
 		}
 	}
 
-	function dispayCorrectTitle()
+	function dispayCorrectLabel()
 	{
-		if( $("#sourceCodeContainer").is(":visible") && $("#title").text() != "Source Code" )
+		if( $("#sourceCode").is(":visible") && $("#interactionPanelLabel").text() != "Source Code" )
 		{
-			$("#title").fadeOut(400, function() {
-				$("#title").text("Source Code").fadeIn(400);
+			$("#interactionPanelLabel").fadeOut(400, function() {
+				$("#interactionPanelLabel").text("Source Code").fadeIn(400);
 			});
 		}
-		else if( $("#grammarContainer").is(":visible") && $("#title").text() != "Language Grammar" )
+		else if( $("#languageGrammer").is(":visible") && $("#interactionPanelLabel").text() != "Language Grammar" )
 		{
-			$("#title").fadeOut(400, function() {
-				$("#title").text("Language Grammar").fadeIn(400);
+			$("#interactionPanelLabel").fadeOut(400, function() {
+				$("#interactionPanelLabel").text("Language Grammar").fadeIn(400);
 			});
 		}
-		else if( $("#testCaseContainer").is(":visible") && $("#title").text() != "Test Cases" )
+		else if( $("#testCases").is(":visible") && $("#interactionPanelLabel").text() != "Test Cases" )
 		{
-			$("#title").fadeOut(400, function() {
-				$("#title").text("Test Cases").fadeIn(400);
+			$("#interactionPanelLabel").fadeOut(400, function() {
+				$("#interactionPanelLabel").text("Test Cases").fadeIn(400);
 			});
 		}
 	}
@@ -90,7 +88,7 @@ $(document).ready(function() {
 	// Only applies to compile / show source code button
 	function displayCorrectButton()
 	{
-		if( $("#sourceCodeContainer").is(":visible") )
+		if( $("#sourceCode").is(":visible") )
 			$("#btnCompile").text("Compile Source Code");
 		else
 			$("#btnCompile").text("Show Source Code");

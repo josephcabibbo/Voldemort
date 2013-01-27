@@ -1,9 +1,9 @@
-/*  ------------------------ 
+/*  ------------------------
  *	Filename: stylesheet.css
- *	Author: Joey Cabibbo 
+ *	Author: Joey Cabibbo
  *	------------------------ */
 
- 
+
 /* -------------------- *
  * - General Elements - *
  * -------------------- */
@@ -21,13 +21,22 @@ body
 	position: relative;
 	margin: auto;
     width: 1000px;
-    top: 35px;
+    top: 30px;
     border: 2px solid #666;
 }
 
 .container
 {
 	position: absolute;
+}
+
+.label
+{
+	font-size: 24pt;
+	text-align: center;
+	width: 404px;
+	margin-bottom: 10px;
+	position: relative;
 }
 
 .button
@@ -53,10 +62,10 @@ body
 	margin: auto;
 	position: relative;
     width: 900px;
-    min-height: 600px;
+    min-height: 570px;
 }
 
-#bannerContainer
+#banner
 {
 	position: absolute;
 	left: 50px;
@@ -64,41 +73,28 @@ body
 	width: 900px;
 	height: 100px;
 	text-align: center;
-}
-
-#projectName
-{
+	border: 2px solid #666;
 	font-size: 72pt;
 }
 
-#projectDesription
+/* --------------------- *
+ * - Interaction Panel - *
+ * --------------------- */
+
+#interactionPanel
 {
-	font-size: 42pt;
+	margin-top: 150px;
 }
 
-#interactionPanelContainer
-{
-	margin-top: 165px;
-}
-
-#title
-{
-	width: 404px;
-	font-size: x-large;
-	text-align: center;
-	margin-bottom: 10px;
-}
-
-#sourceCodeContainer
+#sourceCode
 {
 	width:  400px;
 	height: 250px;
 	border: 2px solid #666;
 	resize: none;
-	/*color: #0066AA;*/
 }
 
-#grammarContainer
+#languageGrammer
 {
 	width:  404px;
 	height: 254px;
@@ -108,7 +104,7 @@ body
 	overflow: scroll;
 }
 
-#testCaseContainer
+#testCases
 {
 	width:  404px;
 	height: 254px;
@@ -120,5 +116,15 @@ body
 
 #buttonContainer
 {
-	top: 300px;
+	top: 315px;
+}
+
+/* -------------------- *
+ * --- Results Panel--- *
+ * -------------------- */
+
+ #resultsPanel
+{
+	margin-top: 150px;
+	margin-left: 475px;
 }
