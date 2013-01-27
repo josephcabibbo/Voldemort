@@ -2,7 +2,7 @@
  *	Filename: control.js
  *	Author: Joey Cabibbo
  *	Description: The "controller" if you will..
- *				 Initializes and responds to the page 
+ *		     Initializes and responds to the page 
  *	------------------------------------------------- */
 
 $(document).ready(function() {
