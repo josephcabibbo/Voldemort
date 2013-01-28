@@ -21,13 +21,27 @@ body
 	position: relative;
 	margin: auto;
     width: 1000px;
-    top: 30px;
+    top: 50px;
     border: 2px solid #666;
 }
 
 .container
 {
 	position: absolute;
+}
+
+.resultBox
+{
+	height: 153px;
+	width: 200px;
+	border: 2px solid #666;
+	padding: 5px;
+}
+
+.resultBox:hover
+{
+	cursor: pointer;
+	background-color: #0066AA;
 }
 
 .label
@@ -73,7 +87,6 @@ body
 	width: 900px;
 	height: 100px;
 	text-align: center;
-	border: 2px solid #666;
 	font-size: 72pt;
 }
 
@@ -99,7 +112,6 @@ body
 	width:  404px;
 	height: 254px;
 	border: 2px solid #666;
-	resize: none;
 	background-color: white;
 	overflow: scroll;
 }
@@ -109,7 +121,6 @@ body
 	width:  404px;
 	height: 254px;
 	border: 2px solid #666;
-	resize: none;
 	background-color: white;
 	overflow: scroll;
 }
@@ -123,8 +134,29 @@ body
  * --- Results Panel--- *
  * -------------------- */
 
- #resultsPanel
+#resultsPanel
 {
 	margin-top: 150px;
-	margin-left: 475px;
+	margin-left: 470px;
+}
+
+#resultsLabel
+{
+	margin-left: 15px;
+}
+
+#trace
+{
+	left: 220px;
+}
+
+#symbolTable
+{
+	top: 221px;
+}
+
+#output
+{
+	left: 220px;
+	top: 221px;
 }
