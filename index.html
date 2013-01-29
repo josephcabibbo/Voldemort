@@ -9,9 +9,9 @@
     </title>
 
     <!-- JQuery -->
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 
-    <!-- Globals CONSTANTS and _Variables. Must included be first. -->
+    <!-- Global CONSTANTS and _Variables.  Must be included first. -->
     <script type="text/javascript" src="globals.js"></script>
 
     <!-- Main Scripts -->
@@ -54,15 +54,25 @@
 			<!-- Results Panel -->
 			<div id="resultsPanel" class="container">
 				<!-- Label -->
-				<div id="resultsLabel"class="label">Results</div>
+				<div id="resultsPanelLabel"class="label">Results</div>
 				<!-- Errors -->
-				<div id="errors" class="container resultBox">Errors</div>
+				<div id="errors" class="container resultBox">
+					<div>Errors</div>
+				</div>
 				<!-- Trace -->
-				<div id="trace" class="container resultBox">Trace</div>
+				<div id="trace" class="container resultBox">
+					<div>Trace</div>
+				</div>
 				<!-- Syntax Tree or Symbol Table -->
-				<div id="symbolTable" class="container resultBox">Symbol Table</div>
+				<div id="symbolTable" class="container resultBox">
+					<div>Symbol Table</div>
+				</div>
 				<!-- Output -->
-				<div id="output" class="container resultBox">Output</div>
+				<div id="output" class="container resultBox">
+					<div>Output</div>
+				</div>
+				<!-- Restore Button -->
+				<div id="btnRestore" class="container"></div>
 			</div>
 		</div>
 
