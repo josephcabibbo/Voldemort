@@ -17,13 +17,16 @@ $(document).ready(function() {
 	$("#trace div").hide();
 	$("#symbolTable div").hide();
 	$("#output div").hide();
+
 	$("#btnRestore").hide();
 
-	displayGrammerTable();
+	createGrammerTable();
 
 	//
 	// Interaction Panel Events
 	//
+
+	// Click event to show the appropriate interaction element and compile if necessary
 	$(".button").click(function() {
 
 		// Compile code if necessary
@@ -40,16 +43,8 @@ $(document).ready(function() {
 	//
 	// Results Panel Events
 	//
-	$(".resultBox").hover(function() {
 
-		// Perform actions only if targeted result box it is not enlarged
-		if($(this).height() === RESULTBOX_DEF_HEIGHT && $(this).width() === RESULTBOX_DEF_WIDTH)
-		{
-			$(this).toggleClass("resultBoxHighlight");
-			$(this).children().fadeToggle(400);
-		}
-	});
-
+	// Click event to enlarge the selected result box
 	$(".resultBox").click(function() {
 
 		// Perform actions only if targeted result box it is not already enlarged
@@ -62,6 +57,7 @@ $(document).ready(function() {
 		}
 	});
 
+	// Click event to restore the enlarged result box
 	$("#btnRestore").click(function() {
 
 		// Perform actions only if targeted result box it is already enlarged
@@ -74,10 +70,23 @@ $(document).ready(function() {
 		}
 	});
 
+	// Hover event to color the result box and show it title
+	$(".resultBox").hover(function() {
+
+	// Perform actions only if targeted result box it is not enlarged
+	if($(this).height() === RESULTBOX_DEF_HEIGHT && $(this).width() === RESULTBOX_DEF_WIDTH)
+	{
+		$(this).toggleClass("resultBoxHighlight");
+		$(this).children().fadeToggle(400);
+	}
+	});
+
 
 	//
 	// Interaction Panel Helper Functions
 	//
+
+	// Display the selected interaction element
 	function displayCorrectElement(button)
 	{
 		if(button.id === "btnCompile")
@@ -107,6 +116,7 @@ $(document).ready(function() {
 		}
 	}
 
+	// Display an interaction label to reflect the currently showing interaction element
 	function dispayCorrectInteractionLabel()
 	{
 		if( $("#sourceCode").is(":visible") && $("#interactionPanelLabel").text() != "Source Code" )
@@ -138,7 +148,8 @@ $(document).ready(function() {
 			$("#btnCompile").text("Show Source Code");
 	}
 
-	function displayGrammerTable()
+	// Create and show the table containing the language grammar
+	function createGrammerTable()
 	{
 		// Build table to show the language grammer
 		$("#grammarTable").html("<tr>" + "<td>Program</td><td>::== Statement $</td>" 						 + "</tr>" +
@@ -166,14 +177,17 @@ $(document).ready(function() {
 	//
 	// Results Panel Helper Functions
 	//
+
+	// Enlarge the selected result box and perform necessary back-end work
 	function enlargeResultBox(targetBox)
 	{
 		// Change the box's z-index before animating in order to cover the other boxes
 		targetBox.css("z-index", "2");
 
+		// Get the id name of the currect target
 	    var targetBoxId = targetBox[0].id;
 
-	    // Perform animation on the targeted box
+	    // Perform animation on the targeted box and show the restore button
 	    switch(targetBoxId)
 	    {
 		    case "errors": targetBox.animate({
@@ -220,6 +234,7 @@ $(document).ready(function() {
 		targetBox.children().hide();
 	}
 
+	// Restore the currently enlarged result box and perform necessary back-end work
 	function restoreResultBox()
 	{
 		var targetBox = null;
@@ -247,8 +262,7 @@ $(document).ready(function() {
 	    	targetBoxId = "output";
 	    }
 
-	    // Do i need to check each case bc all boxes are doing the same thing?
-	    // Perform animation on the targeted box
+	    // Perform animation on the targeted box and hide the restore button
 	    switch(targetBoxId)
 	    {
 		    case "errors": targetBox.animate({
@@ -302,6 +316,7 @@ $(document).ready(function() {
 	    }
 	}
 
+	// Display a result label to reflect the currently showing result box (if any)
 	function displayCorrectResultsLabel(boxId)
 	{
 		// Change title to reflect the currently enlarged box
