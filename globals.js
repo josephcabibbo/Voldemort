@@ -12,6 +12,9 @@
 var RESULTBOX_DEF_WIDTH  = 200;
 var RESULTBOX_DEF_HEIGHT = 153;
 
+var RESULTBOX_DEF_FONTSIZE = "8pt";
+var RESULTBOX_ENL_FONTSIZE = "14pt";
+
 //
 // Global Variables
 //

@@ -1,6 +1,7 @@
 /*  -------------------------------------------------
  *	Filename: control.js
  *	Author: Joey Cabibbo
+ *	Requires: globals.js
  *	Description: The "controller" if you will..
  *		     Initializes and responds to the page
  *	------------------------------------------------- */
@@ -10,16 +11,8 @@ $(document).ready(function() {
 	//
 	// General Initalization
 	//
-	$("#languageGrammer").hide();
-	$("#testCases").hide();
 
-	$("#errors div").hide();
-	$("#trace div").hide();
-	$("#symbolTable div").hide();
-	$("#output div").hide();
-
-	$("#btnRestore").hide();
-
+	// Build an HTML table to display the language grammar
 	createGrammerTable();
 
 	//
@@ -54,6 +47,10 @@ $(document).ready(function() {
 			enlargeResultBox($(this));
 			// Change title to reflect the currently enlarged box
 			displayCorrectResultsLabel($(this)[0].id);
+
+			// Toggle the highlight class matching the target box
+			var targetBoxId = $(this)[0].id;
+			$(this).removeClass(targetBoxId + "BoxHighlight");
 		}
 	});
 
@@ -73,12 +70,13 @@ $(document).ready(function() {
 	// Hover event to color the result box and show it title
 	$(".resultBox").hover(function() {
 
-	// Perform actions only if targeted result box it is not enlarged
-	if($(this).height() === RESULTBOX_DEF_HEIGHT && $(this).width() === RESULTBOX_DEF_WIDTH)
-	{
-		$(this).toggleClass("resultBoxHighlight");
-		$(this).children().fadeToggle(400);
-	}
+		// Perform actions only if targeted result box it is not enlarged
+		if($(this).height() === RESULTBOX_DEF_HEIGHT && $(this).width() === RESULTBOX_DEF_WIDTH)
+		{
+			// Toggle the highlight class matching the target box
+			var targetBoxId = $(this)[0].id;
+			$(this).toggleClass(targetBoxId + "BoxHighlight");
+		}
 	});
 
 
@@ -92,7 +90,7 @@ $(document).ready(function() {
 		if(button.id === "btnCompile")
 		{
 			// Show source code
-			$("#sourceCode").show("slow");
+			$("#sourceCode").show(400);
 			// Hide others
 			$("#languageGrammer").hide();
 			$("#testCases").hide();
@@ -100,7 +98,7 @@ $(document).ready(function() {
 		else if(button.id === "btnShowGrammar")
 		{
 			// Show grammar
-			$("#languageGrammer").show("slow");
+			$("#languageGrammer").show(400);
 			// Hide others
 			$("#sourceCode").hide();
 			$("#testCases").hide();
@@ -108,7 +106,7 @@ $(document).ready(function() {
 		else if(button.id === "btnShowTestCases")
 		{
 			// Show test cases
-			$("#testCases").show("slow");
+			$("#testCases").show(400);
 			// Hide others
 			$("#sourceCode").hide();
 			$("#languageGrammer").hide();
@@ -187,7 +185,7 @@ $(document).ready(function() {
 		// Get the id name of the currect target
 	    var targetBoxId = targetBox[0].id;
 
-	    // Perform animation on the targeted box and show the restore button
+	    // Perform enlarge animation on the targeted box and show the restore button
 	    switch(targetBoxId)
 	    {
 		    case "errors": targetBox.animate({
@@ -198,15 +196,17 @@ $(document).ready(function() {
 									$("#btnRestore").show();
 								});
 							break;
+
 			case "trace":	targetBox.animate({
 								left: "0px",
 								width: "417px",
 								height: "322px",
-								borderWidth: "4px"
+								borderWidth: "4px",
 								}, 400, function() {
 									$("#btnRestore").show();
 								});
 							break;
+
 			case "symbolTable":	targetBox.animate({
 									top: "49px",
 									left: "0px",
@@ -217,6 +217,7 @@ $(document).ready(function() {
 										$("#btnRestore").show();
 									});
 								break;
+
 			case "output":	targetBox.animate({
 								top: "49px",
 								left: "0px",
@@ -229,8 +230,8 @@ $(document).ready(function() {
 							break;
 	    }
 
-	    // Remove label and highlight hover event when enlarged
-		targetBox.removeClass("resultBoxHighlight");
+	    // Hide label and toggle highlight hover event when enlarged
+		targetBox.toggleClass("resultBoxHighlight");
 		targetBox.children().hide();
 	}
 
@@ -262,7 +263,7 @@ $(document).ready(function() {
 	    	targetBoxId = "output";
 	    }
 
-	    // Perform animation on the targeted box and hide the restore button
+	    // Perform restore animation on the targeted box and hide the restore button
 	    switch(targetBoxId)
 	    {
 		    case "errors": targetBox.animate({
@@ -276,6 +277,7 @@ $(document).ready(function() {
 
 								$("#btnRestore").hide();
 							break;
+
 			case "trace":	targetBox.animate({
 								left: "220px",
 								width: RESULTBOX_DEF_WIDTH.toString(),
@@ -288,6 +290,7 @@ $(document).ready(function() {
 
 								$("#btnRestore").hide();
 							break;
+
 			case "symbolTable":	targetBox.animate({
 									top: "221px",
 									width: RESULTBOX_DEF_WIDTH.toString(),
@@ -300,6 +303,7 @@ $(document).ready(function() {
 
 								$("#btnRestore").hide();
 								break;
+
 			case "output":	targetBox.animate({
 								top: "221px",
 								left: "220px",
@@ -316,6 +320,19 @@ $(document).ready(function() {
 	    }
 	}
 
+/*
+	function toggleMatchingHighlight(targetBoxId)
+	{
+		switch(targetBoxId)
+		{
+			case "errors": $(this).toggleClass("errorsBoxHighlight");
+						   break;
+		}
+
+		targetBoxId
+	}
+*/
+
 	// Display a result label to reflect the currently showing result box (if any)
 	function displayCorrectResultsLabel(boxId)
 	{
@@ -325,12 +342,15 @@ $(document).ready(function() {
 			case "errors": $("#resultsPanelLabel").fadeOut(400, function() {
 								$("#resultsPanelLabel").text("Errors").fadeIn(400);
 							}); break;
+
 			case "trace": $("#resultsPanelLabel").fadeOut(400, function() {
 								$("#resultsPanelLabel").text("Trace").fadeIn(400);
 							}); break;
+
 			case "symbolTable": $("#resultsPanelLabel").fadeOut(400, function() {
 								$("#resultsPanelLabel").text("Symbol Table").fadeIn(400);
 							}); break;
+
 			case "output": $("#resultsPanelLabel").fadeOut(400, function() {
 								$("#resultsPanelLabel").text("Generated Output").fadeIn(400);
 							}); break;
