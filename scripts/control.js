@@ -320,19 +320,6 @@ $(document).ready(function() {
 	    }
 	}
 
-/*
-	function toggleMatchingHighlight(targetBoxId)
-	{
-		switch(targetBoxId)
-		{
-			case "errors": $(this).toggleClass("errorsBoxHighlight");
-						   break;
-		}
-
-		targetBoxId
-	}
-*/
-
 	// Display a result label to reflect the currently showing result box (if any)
 	function displayCorrectResultsLabel(boxId)
 	{

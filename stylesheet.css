@@ -46,14 +46,6 @@ body
 	font-size: 8pt;
 }
 
-/*
-.resultBoxHighlight
-{
-	cursor: pointer;
-	background-color: #0066AA;
-}
-*/
-
 .button
 {
 	width: 404px;
@@ -65,8 +57,32 @@ body
 .button:hover
 {
 	cursor: pointer;
-	background-color: #0066AA;
+	background-color: #06A;
 	color: white;
+}
+
+/* --------------------- *
+ * -- Logging Classes -- *
+ * --------------------- */
+
+.errorText
+{
+	color: #C00;
+}
+
+.warningText
+{
+	color: #FD0;
+}
+
+.successText
+{
+	color: #272;
+}
+
+.regularText
+{
+	color: #666;
 }
 
 /* -------------------- *
@@ -211,6 +227,6 @@ body
 #btnRestore:hover
 {
 	cursor: pointer;
-	background-color: #0066AA;
+	background-color: #06A;
 	background-image: url("images/restoreSymbolHover.png");
 }
