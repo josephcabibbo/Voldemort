@@ -18,8 +18,8 @@ function Logger()
 			if($("#errors").html())
 			{
 				var newContent = "<tr>" +
-									"<td><span class='errorText'>Error:</td>" +
-									"<td><span class='regularText'>" + message + "</td>" +
+									"<td><span class='errorText'>Error:</span></td>" +
+									"<td><span class='regularText'>" + message + "</span></td>" +
 								 "</tr>";
 
 				$("#errorsTable").append(newContent);
@@ -29,8 +29,8 @@ function Logger()
 				// First add, creates the table
 				var newContent = "<table id='errorsTable'>" +
 									"<tr>" +
-									"<td><span class='errorText'>Error:</td>" +
-									"<td><span class='regularText'>" + message + "</td>" +
+									"<td><span class='errorText'>Error:</span></td>" +
+									"<td><span class='regularText'>" + message + "</span></td>" +
 									"</tr>" +
 								 "</table>";
 
@@ -48,8 +48,8 @@ function Logger()
 			if($("#errors").html())
 			{
 				var newContent = "<tr>" +
-									"<td><span class='warningText'>Warning:</td>" +
-									"<td><span class='regularText'>" + message + "</td>" +
+									"<td><span class='warningText'>Warning:</span></td>" +
+									"<td><span class='regularText'>" + message + "</span></td>" +
 								 "</tr>";
 
 				$("#errorsTable").append(newContent);
@@ -59,8 +59,8 @@ function Logger()
 				// First add, creates the table
 				var newContent = "<table id='errorsTable'>" +
 									"<tr>" +
-									"<td><span class='warningText'>Error:</td>" +
-									"<td><span class='regularText'>" + message + "</td>" +
+									"<td><span class='warningText'>Error:</span></td>" +
+									"<td><span class='regularText'>" + message + "</span></td>" +
 									"</tr>" +
 								 "</table>";
 
@@ -99,5 +99,36 @@ function Logger()
 	this.displayOutput = function(opcodeList)
 	{
 		// TODO
+	}
+
+	// Log the appropriate success messages
+	this.denoteSuccess = function()
+	{
+		// Error Box
+		if($("#errors").html())
+		{
+			// Use this only if context already exists
+			var newContent = $("#errors").html() + "<span class='successText'>No errors found!</span>";
+			$("#errors").html(newContent);
+		}
+		else
+		{
+			var newContent = "<span class='successText'>No errors found!</span>";
+			$("#errors").html(newContent);
+		}
+
+		// Trace Box
+		if($("#trace").html())
+		{
+			// Use this only if context already exists
+			var newContent = $("#trace").html() + "<br /><span class='successText'>Compilation Successful!</span>";
+			$("#trace").html(newContent);
+		}
+		else
+		{
+			// No need to add old content and a line break if there is no content yet
+			var newContent = "<span class='successText'>Compilation Successful!</span>";
+			$("#trace").html(newContent);
+		}
 	}
 }

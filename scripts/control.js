@@ -27,6 +27,7 @@ $(document).ready(function() {
 	_Logger.addTraceEvent("Compiler loaded and ready...");
 	_Logger.addTraceEvent("Trace 1");
 	_Logger.addTraceEvent("Trace 2");
+	_Logger.denoteSuccess();
 
 	//
 	// Interaction Panel Events
