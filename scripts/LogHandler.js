@@ -1,10 +1,10 @@
 /*  -------------------------------------------------
- *	Filename: resultsHandler.js
+ *	Filename: logHandler.js
  *	Author: Joey Cabibbo
  *	Requires: globals.js
- *	Description: Responsible for all output to the user
- *				 such as errors, trace, symbol tables,
- *				 and output.
+ *	Description: Responsible for all logging events such as
+ *				 errors, warnings, trace, symbol table, and
+ *				 output.
  *	------------------------------------------------- */
 
 function Logger()

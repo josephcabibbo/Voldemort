@@ -12,21 +12,21 @@ $(document).ready(function() {
 	// General Initalization
 	//
 
-	// Initialize Objects
-	_Logger = new Logger(); // Object responsible for all output to user
+	// Initialize Global Variables in globals.js
+	initializeGlobalVariables();
 
 	// Build an HTML table to display the language grammar
 	createGrammerTable();
 
 	_Logger.addError("This is a test error1");
-	_Logger.addWarning("This is a test warning");
+	_Logger.addWarning("Type Error (Line 12), expecting int...");
 	_Logger.addError("This is a test error2");
 	_Logger.addWarning("This is a test warning");
 	_Logger.addError("This is a test error3");
 
+	_Logger.addTraceEvent("Compiler loaded and ready...");
 	_Logger.addTraceEvent("Trace 1");
 	_Logger.addTraceEvent("Trace 2");
-	_Logger.addTraceEvent("Trace 3");
 
 	//
 	// Interaction Panel Events
@@ -92,6 +92,14 @@ $(document).ready(function() {
 		}
 	});
 
+	//
+	//	General Helper Functions
+	//
+
+	function initializeGlobalVariables()
+	{
+		_Logger = new Logger(); // Object responsible for all output to user
+	}
 
 	//
 	// Interaction Panel Helper Functions
