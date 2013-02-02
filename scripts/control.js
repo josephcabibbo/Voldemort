@@ -12,8 +12,21 @@ $(document).ready(function() {
 	// General Initalization
 	//
 
+	// Initialize Objects
+	_Logger = new Logger(); // Object responsible for all output to user
+
 	// Build an HTML table to display the language grammar
 	createGrammerTable();
+
+	_Logger.addError("This is a test error1");
+	_Logger.addWarning("This is a test warning");
+	_Logger.addError("This is a test error2");
+	_Logger.addWarning("This is a test warning");
+	_Logger.addError("This is a test error3");
+
+	_Logger.addTraceEvent("Trace 1");
+	_Logger.addTraceEvent("Trace 2");
+	_Logger.addTraceEvent("Trace 3");
 
 	//
 	// Interaction Panel Events
@@ -140,6 +153,7 @@ $(document).ready(function() {
 	// Only applies to compile / show source code button
 	function displayCorrectButton()
 	{
+		// If the source code is visible give the user the option to compile the code
 		if( $("#sourceCode").is(":visible") )
 			$("#btnCompile").text("Compile Source Code");
 		else
@@ -191,7 +205,8 @@ $(document).ready(function() {
 		    case "errors": targetBox.animate({
 								width: "417px",
 								height: "322px",
-								borderWidth: "4px"
+								"font-size": RESULTBOX_ENL_FONTSIZE,
+								borderWidth: "4px",
 								}, 400, function() {
 									$("#btnRestore").show();
 								});
@@ -201,6 +216,7 @@ $(document).ready(function() {
 								left: "0px",
 								width: "417px",
 								height: "322px",
+								"font-size": RESULTBOX_ENL_FONTSIZE,
 								borderWidth: "4px",
 								}, 400, function() {
 									$("#btnRestore").show();
@@ -212,6 +228,7 @@ $(document).ready(function() {
 									left: "0px",
 									width: "417px",
 									height: "322px",
+									"font-size": RESULTBOX_ENL_FONTSIZE,
 									borderWidth: "4px"
 									}, 400, function() {
 										$("#btnRestore").show();
@@ -223,16 +240,13 @@ $(document).ready(function() {
 								left: "0px",
 								width: "417px",
 								height: "322px",
+								"font-size": RESULTBOX_ENL_FONTSIZE,
 								borderWidth: "4px"
 								}, 400, function() {
 									$("#btnRestore").show();
 								});
 							break;
 	    }
-
-	    // Hide label and toggle highlight hover event when enlarged
-		targetBox.toggleClass("resultBoxHighlight");
-		targetBox.children().hide();
 	}
 
 	// Restore the currently enlarged result box and perform necessary back-end work
@@ -269,6 +283,7 @@ $(document).ready(function() {
 		    case "errors": targetBox.animate({
 								width: RESULTBOX_DEF_WIDTH.toString(),
 								height: RESULTBOX_DEF_HEIGHT.toString(),
+								"font-size": RESULTBOX_DEF_FONTSIZE,
 								borderWidth: "2px"
 								}, 400, function() {
 									// Change the box's z-index back to original value after restoring
@@ -282,6 +297,7 @@ $(document).ready(function() {
 								left: "220px",
 								width: RESULTBOX_DEF_WIDTH.toString(),
 								height: RESULTBOX_DEF_HEIGHT.toString(),
+								"font-size": RESULTBOX_DEF_FONTSIZE,
 								borderWidth: "2px"
 								}, 400, function() {
 									// Change the box's z-index back to original value after restoring
@@ -295,6 +311,7 @@ $(document).ready(function() {
 									top: "221px",
 									width: RESULTBOX_DEF_WIDTH.toString(),
 									height: RESULTBOX_DEF_HEIGHT.toString(),
+									"font-size": RESULTBOX_DEF_FONTSIZE,
 									borderWidth: "2px"
 									}, 400, function() {
 									// Change the box's z-index back to original value after restoring
@@ -309,6 +326,7 @@ $(document).ready(function() {
 								left: "220px",
 								width: RESULTBOX_DEF_WIDTH.toString(),
 								height: RESULTBOX_DEF_HEIGHT.toString(),
+								"font-size": RESULTBOX_DEF_FONTSIZE,
 								borderWidth: "2px"
 								}, 400, function() {
 									// Change the box's z-index back to original value after restoring

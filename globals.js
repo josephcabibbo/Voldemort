@@ -18,3 +18,6 @@ var RESULTBOX_ENL_FONTSIZE = "14pt";
 //
 // Global Variables
 //
+
+// Object responsible for all output to user
+var _Logger = null;
