@@ -40,6 +40,12 @@ $(document).ready(function() {
 		if(this.innerText === "Compile Source Code")
 		{
 			// Compile
+			_Lexer.lex();
+			/*
+			var lexSuccessful = _Lexer.lex();
+			if(lexSuccessful)
+				var parseSuccessful = _Parser.parse();
+			*/
 		}
 
 		displayCorrectElement(this);
@@ -120,6 +126,7 @@ $(document).ready(function() {
 	function initializeGlobalVariables()
 	{
 		_Logger = new Logger(); // Object responsible for all output to user
+		_Lexer  = new Lexer();	// Object responsible for all lexical analysis
 	}
 
 	//
