@@ -65,6 +65,9 @@ $(document).ready(function() {
 			// Toggle the highlight class matching the target box
 			var targetBoxId = $(this)[0].id;
 			$(this).removeClass(targetBoxId + "BoxHighlight");
+
+			// Show text within div so it shows when clicking
+			$(this).children().show();
 		}
 	});
 
@@ -81,17 +84,34 @@ $(document).ready(function() {
 		}
 	});
 
-	// Hover event to color the result box and show it title
-	$(".resultBox").hover(function() {
+	// Hover event to color the result box and show its title
+	$(".resultBox").hover(
+		// Hover on
+		function() {
+			// Perform actions only if targeted result box it is not enlarged
+			if($(this).height() === RESULTBOX_DEF_HEIGHT && $(this).width() === RESULTBOX_DEF_WIDTH)
+			{
+				// Add the highlight class matching the target box
+				var targetBoxId = $(this)[0].id;
+				$(this).addClass(targetBoxId + "BoxHighlight");
 
-		// Perform actions only if targeted result box it is not enlarged
-		if($(this).height() === RESULTBOX_DEF_HEIGHT && $(this).width() === RESULTBOX_DEF_WIDTH)
-		{
-			// Toggle the highlight class matching the target box
-			var targetBoxId = $(this)[0].id;
-			$(this).toggleClass(targetBoxId + "BoxHighlight");
-		}
-	});
+				// Hide text within div so it doesnt obstruct the label
+				$(this).children().hide();
+			}
+		},
+		// Hover off
+		function() {
+			// Perform actions only if targeted result box it is not enlarged
+			if($(this).height() === RESULTBOX_DEF_HEIGHT && $(this).width() === RESULTBOX_DEF_WIDTH)
+			{
+				// Remove the highlight class matching the target box
+				var targetBoxId = $(this)[0].id;
+				$(this).removeClass(targetBoxId + "BoxHighlight");
+
+				// Show text when hover animation is over
+				$(this).children().show();
+			}
+		});
 
 	//
 	//	General Helper Functions
