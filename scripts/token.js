@@ -1,7 +1,7 @@
 /*  -------------------------------------------------
  *	Filename: token.js
  *	Author: Joey Cabibbo
- *	Description: A token object
+ *	Description: A token object constructor
  *	------------------------------------------------- */
 
 function Token(k, n, v, t, l)

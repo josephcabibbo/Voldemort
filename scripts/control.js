@@ -126,7 +126,7 @@ $(document).ready(function() {
 	function initializeGlobalVariables()
 	{
 		_Logger = new Logger(); // Object responsible for all output to user
-		_Lexer  = new Lexer();	// Object responsible for all lexical analysis
+		_Lexer  = new Lexer();	// Object responsible for lexical analysis
 	}
 
 	//
@@ -201,25 +201,25 @@ $(document).ready(function() {
 	{
 		// Build table to show the language grammer
 		$("#grammarTable").html("<tr>" + "<td>Program</td><td>::== Statement $</td>" 						 + "</tr>" +
-								"<tr>" + "<td>Statement</td><td>::== P ( Expr )</td>" 						 + "</tr>" +
-								"<tr>" + "<td></td><td>::== ID = Expr</td>" 								 + "</tr>" +
-								"<tr>" + "<td></td><td>::== { StatementList }</td>" 						 + "</tr>" +
-								"<tr>" + "<td>Statement List</td><td>::== Statement StatementList</td>" 	 + "</tr>" +
-								"<tr>" + "<td></td><td>::== ε</td>" 										 + "</tr>" +
-								"<tr>" + "<td>Expr</td><td>::== IntExpr</td>" 								 + "</tr>" +
-								"<tr>" + "<td></td><td>::== CharExpr</td>" 									 + "</tr>" +
-								"<tr>" + "<td></td><td>::== Id</td>" 										 + "</tr>" +
-								"<tr>" + "<td>IntExpr</td><td>::== digit op Expr</td>" 						 + "</tr>" +
-								"<tr>" + "<td></td><td>::== digit</td>" 									 + "</tr>" +
-								"<tr>" + "<td>CharExpr</td><td>::== \" CharList \"</td>" 					 + "</tr>" +
-								"<tr>" + "<td>CharList</td><td>::== Char CharList</td>" 					 + "</tr>" +
-								"<tr>" + "<td></td><td>::== ε</td>" 										 + "</tr>" +
-								"<tr>" + "<td>VarDecl</td><td>::== Type Id</td>" 							 + "</tr>" +
-								"<tr>" + "<td>Type</td><td>::== int | char</td>" 							 + "</tr>" +
-								"<tr>" + "<td>Id</td><td>::== Char</td>" 									 + "</tr>" +
-								"<tr>" + "<td>Char</td><td>::== a | b | c ... z</td>" 						 + "</tr>" +
-								"<tr>" + "<td>digit</td><td>::== 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0</td>" + "</tr>" +
-								"<tr>" + "<td>op</td><td>::== + | -</td>" 									 + "</tr>");
+		                        "<tr>" + "<td>Statement</td><td>::== P ( Expr )</td>" 						 + "</tr>" +
+		                        "<tr>" + "<td></td><td>::== ID = Expr</td>" 								 + "</tr>" +
+		                        "<tr>" + "<td></td><td>::== { StatementList }</td>" 						 + "</tr>" +
+		                        "<tr>" + "<td>Statement List</td><td>::== Statement StatementList</td>" 	 + "</tr>" +
+		                        "<tr>" + "<td></td><td>::== ε</td>" 										 + "</tr>" +
+		                        "<tr>" + "<td>Expr</td><td>::== IntExpr</td>" 								 + "</tr>" +
+		                        "<tr>" + "<td></td><td>::== CharExpr</td>" 									 + "</tr>" +
+		                        "<tr>" + "<td></td><td>::== Id</td>" 										 + "</tr>" +
+		                        "<tr>" + "<td>IntExpr</td><td>::== digit op Expr</td>" 						 + "</tr>" +
+		                        "<tr>" + "<td></td><td>::== digit</td>" 									 + "</tr>" +
+		                        "<tr>" + "<td>CharExpr</td><td>::== \" CharList \"</td>" 					 + "</tr>" +
+		                        "<tr>" + "<td>CharList</td><td>::== Char CharList</td>" 					 + "</tr>" +
+		                        "<tr>" + "<td></td><td>::== ε</td>" 										 + "</tr>" +
+		                        "<tr>" + "<td>VarDecl</td><td>::== Type Id</td>" 							 + "</tr>" +
+		                        "<tr>" + "<td>Type</td><td>::== int | char</td>" 							 + "</tr>" +
+		                        "<tr>" + "<td>Id</td><td>::== Char</td>" 									 + "</tr>" +
+		                        "<tr>" + "<td>Char</td><td>::== a | b | c ... z</td>" 						 + "</tr>" +
+		                        "<tr>" + "<td>digit</td><td>::== 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0</td>" + "</tr>" +
+		                        "<tr>" + "<td>op</td><td>::== + | -</td>" 									 + "</tr>");
 	}
 
 	//
@@ -229,58 +229,58 @@ $(document).ready(function() {
 	// Enlarge the selected result box and perform necessary back-end work
 	function enlargeResultBox(targetBox)
 	{
-		// Change the box's z-index before animating in order to cover the other boxes
+    	// Change the box's z-index before animating in order to cover the other boxes
 		targetBox.css("z-index", "2");
 
 		// Get the id name of the currect target
-	    var targetBoxId = targetBox[0].id;
+		var targetBoxId = targetBox[0].id;
 
 	    // Perform enlarge animation on the targeted box and show the restore button
 	    switch(targetBoxId)
 	    {
 		    case "errors": targetBox.animate({
-								width: "417px",
-								height: "322px",
-								"font-size": RESULTBOX_ENL_FONTSIZE,
-								borderWidth: "4px",
-								}, 400, function() {
-									$("#btnRestore").show();
-								});
-							break;
+    		                  width: "417px",
+    		                  height: "322px",
+    		                  "font-size": RESULTBOX_ENL_FONTSIZE,
+    		                  borderWidth: "4px",
+    		                  }, 400, function() {
+        		                  $("#btnRestore").show();
+        		              });
+        		           break;
 
-			case "trace":	targetBox.animate({
-								left: "0px",
-								width: "417px",
-								height: "322px",
-								"font-size": RESULTBOX_ENL_FONTSIZE,
-								borderWidth: "4px",
-								}, 400, function() {
-									$("#btnRestore").show();
-								});
-							break;
+			case "trace":  targetBox.animate({
+    			              left: "0px",
+    			              width: "417px",
+    			              height: "322px",
+    			              "font-size": RESULTBOX_ENL_FONTSIZE,
+    			              borderWidth: "4px",
+    			              }, 400, function() {
+        			              $("#btnRestore").show();
+        			          });
+        			       break;
 
 			case "symbolTable":	targetBox.animate({
-									top: "49px",
-									left: "0px",
-									width: "417px",
-									height: "322px",
-									"font-size": RESULTBOX_ENL_FONTSIZE,
-									borderWidth: "4px"
-									}, 400, function() {
-										$("#btnRestore").show();
-									});
+    			                   top: "49px",
+    			                   left: "0px",
+    			                   width: "417px",
+    			                   height: "322px",
+    			                   "font-size": RESULTBOX_ENL_FONTSIZE,
+    			                   borderWidth: "4px"
+    			                   }, 400, function() {
+        			                   $("#btnRestore").show();
+        			               });
 								break;
 
 			case "output":	targetBox.animate({
-								top: "49px",
-								left: "0px",
-								width: "417px",
-								height: "322px",
-								"font-size": RESULTBOX_ENL_FONTSIZE,
-								borderWidth: "4px"
-								}, 400, function() {
-									$("#btnRestore").show();
-								});
+    			               top: "49px",
+    			               left: "0px",
+    			               width: "417px",
+    			               height: "322px",
+    			               "font-size": RESULTBOX_ENL_FONTSIZE,
+    			               borderWidth: "4px"
+    			               }, 400, function() {
+        			               $("#btnRestore").show();
+        			           });
 							break;
 	    }
 	}
@@ -381,24 +381,24 @@ $(document).ready(function() {
 		switch(boxId)
 		{
 			case "errors": $("#resultsPanelLabel").fadeOut(400, function() {
-								$("#resultsPanelLabel").text("Errors").fadeIn(400);
-							}); break;
+    			                 $("#resultsPanelLabel").text("Errors").fadeIn(400);
+    			           }); break;
 
 			case "trace": $("#resultsPanelLabel").fadeOut(400, function() {
-								$("#resultsPanelLabel").text("Trace").fadeIn(400);
-							}); break;
+    			                 $("#resultsPanelLabel").text("Trace").fadeIn(400);
+    			          }); break;
 
 			case "symbolTable": $("#resultsPanelLabel").fadeOut(400, function() {
-								$("#resultsPanelLabel").text("Symbol Table").fadeIn(400);
-							}); break;
+    			                     $("#resultsPanelLabel").text("Symbol Table").fadeIn(400);
+    			                }); break;
 
 			case "output": $("#resultsPanelLabel").fadeOut(400, function() {
-								$("#resultsPanelLabel").text("Generated Output").fadeIn(400);
-							}); break;
+    			                 $("#resultsPanelLabel").text("Generated Output").fadeIn(400);
+    			           }); break;
 
 			default: $("#resultsPanelLabel").fadeOut(400, function() {
-								$("#resultsPanelLabel").text("Results").fadeIn(400);
-							}); break;
+    			             $("#resultsPanelLabel").text("Results").fadeIn(400);
+    			     }); break;
 		}
 	}
 });

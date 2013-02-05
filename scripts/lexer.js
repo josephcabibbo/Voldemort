@@ -13,10 +13,10 @@ function Lexer()
 	{
 		// TODO: Break source down by lines and put each line in an array,
 		//		 Search each item in the array for the token, and assign appropriate line number
-		// TODO:
+		// TODO: LEX?
 
 
 		// Token Construction: kind, name, value, type, line
-		var a = new Token("TOKEN_ID", "a", 5, "ID", 1);
+		//var a = new Token("TOKEN_ID", "a", 5, "ID", 1);
 	}
 }
