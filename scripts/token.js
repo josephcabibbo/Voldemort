@@ -8,10 +8,11 @@ function Token(k, n, v, t, l)
 {
 	// Return a token object
 	return {
-		kind  : k || null,
-		name  : n || null,
-		value : v || null,
-		type  : t || null,
-		line  : l || null
+		kind  : k,
+		name  : n,
+		value : v,
+		type  : t,
+		line  : l
+		// scope?
 	};
 }
