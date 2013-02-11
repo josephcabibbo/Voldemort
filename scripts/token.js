@@ -4,15 +4,12 @@
  *	Description: A token object constructor
  *	------------------------------------------------- */
 
-function Token(k, n, v, t, l)
+function Token(kind, name, value, type, line)
 {
-	// Return a token object
-	return {
-		kind  : k,
-		name  : n,
-		value : v,
-		type  : t,
-		line  : l
-		// scope?
-	};
+    this.kind  = kind;
+    this.name  = name;
+    this.value = value;
+    this.type  = type;
+    this.line  = line;
+    // scope?
 }

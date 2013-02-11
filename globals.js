@@ -16,7 +16,9 @@ var RESULTBOX_DEF_FONTSIZE = "8pt";
 var RESULTBOX_ENL_FONTSIZE = "14pt";
 
 // Token kinds
+var TOKEN_TYPEDEC       = "type declaration";
 var TOKEN_ID            = "identifier";
+var TOKEN_CHAR          = "character";
 var TOKEN_STRING        = "string";
 var TOKEN_INT           = "integer";
 var TOKEN_DECIMAL       = "decimal";

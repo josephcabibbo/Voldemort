@@ -12,6 +12,13 @@ function Lexer()
 	// Lexically analyze the user submitted source code and produce an array of tokens if successful
 	this.lex = function()
 	{
+	   // Information needed to construct a token object
+	   var kind;
+	   var name;
+	   var value;
+	   var type;
+	   var lineNum;
+
 	   // Grab the "trimmmed" source code text
 	   var sourceCode = $("#sourceCode").val().trim();
 
@@ -35,26 +42,17 @@ function Lexer()
     	    // Iterate tokens
     	    for(var x = 0; x < tokenArray.length; x++)
     	    {
-        	    // Determine kind
-        	    // Look for value
-        	    // Assign line
-
-        	    //console.log(determineTokenKind(tokenArray[x]));
+        	    kind    = getTokenKind(tokenArray[x]);
+        	    name    = getTokenName(tokenArray[x]);
+        	    //value   = getTokenValue(tokenArray[x], tokenArray);
+        	    //type    = getTokenType();
+        	    lineNum = i + 1;
 
         	    // Token Construction: kind, name, value, type, line
-        	    //this.tokenList.push()
-        	    _Lexer.tokenList.push(new Token())
+        	    this.tokenList.push(new Token(kind, name, "", "", lineNum));
+        	    //_Lexer.tokenList.push(new Token(kind, "", "", "", lineNum));
     	    }
 	   }
-
-	   // 2. Get the token name
-	   // 3. Get the line it is on
-	   // 4. Determine token kind
-	   // 5. Based on the kind, look ahead for the value
-	   // 6. Determine type
-	   // 7. Add token to token list
-	   // 8. Build symbol table as you go?
-
 	   // Return token list if successful or just true and false?, otherwise return null
     }
 }
@@ -68,20 +66,42 @@ function splitSourceByLines(sourceCode)
 {
      return sourceCode.split(/[\n\r]/g);
      /*
-      * [\n\r]+|$ - 1 or more instances of newline or carriage return OR end of line
-      * g         - global match
+      * [\n\r] - 1 or more instances of newline or carriage return
+      * g      - global match
       */
 }
 
 // Helper function that takes a token and returns its "kind"
-function determineTokenKind(token)
+function getTokenKind(token)
 {
-    if(isIdentifier(token))
+    if(isType(token))
+        return TOKEN_TYPEDEC;
+    else if(isIdentifier(token))
         return TOKEN_ID;
     else if(isInteger(token))
         return TOKEN_INT;
     else if(isDecimal(token))
         return TOKEN_DECIMAL;
+}
+
+// Helper function that takes a token and returns its name
+function getTokenName(token)
+{
+    if(isIdentifier(token))
+        return token;
+    else
+        return "N/A";
+}
+
+// Helper function that takes the token and the tokens on its line and returns its value (if any)
+function getTokenValue(token, listOfTokens)
+{
+    if(isIdentifier(token))
+    {
+        // Make sure preceding token is a token type (int char string)
+        // Make sure the next three tokens are assignment op, then value, then semi colon (means it was defined properly)
+        // return appropriate value
+    }
 }
 
 // Helper function that takes a token string and returns whether it is a valid identifier token
@@ -121,10 +141,21 @@ function isDecimal(token)
      */
 }
 
+// Helper function that takes a token string and returns whether it is a type declaration
+function isType(token)
+{
+    return (/^(int|char|string)$/).test(token)
+    /*
+     *  ^ - start of token
+     *  (int|char|string) - any of the listed type declarations
+     *  $ - end of token
+     */
+}
+
 // Helper function that takes a token string and returns whether it is a reserved word
 function isReservedWord(token)
 {
-    // TODO: Add more reserved words
+    // TODO: Add more reserved words (should types be in here?)
     return (/^(int|char)$/).test(token)
     /*
      *  ^ - start of token
