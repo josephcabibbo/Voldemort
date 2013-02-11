@@ -44,15 +44,15 @@ function Lexer()
     	    {
         	    kind    = getTokenKind(tokenArray[x]);
         	    name    = getTokenName(tokenArray[x]);
-        	    //value   = getTokenValue(tokenArray[x], tokenArray);
+        	    value   = getTokenValue(tokenArray[x], tokenArray);
         	    //type    = getTokenType();
         	    lineNum = i + 1;
 
         	    // Token Construction: kind, name, value, type, line
-        	    this.tokenList.push(new Token(kind, name, "", "", lineNum));
+        	    this.tokenList.push(new Token(kind, name, value, "", lineNum));
         	    //_Lexer.tokenList.push(new Token(kind, "", "", "", lineNum));
     	    }
-	   }
+        }
 	   // Return token list if successful or just true and false?, otherwise return null
     }
 }
@@ -94,27 +94,72 @@ function getTokenName(token)
 }
 
 // Helper function that takes the token and the tokens on its line and returns its value (if any)
-function getTokenValue(token, listOfTokens)
+function getTokenValue(token, tokensOnLine)
 {
     if(isIdentifier(token))
     {
-        // Make sure preceding token is a token type (int char string)
-        // Make sure the next three tokens are assignment op, then value, then semi colon (means it was defined properly)
-        // return appropriate value
+        // Pair the entire statement together
+        var statement = pairCompleteStatement(token, tokensOnLine);
+        // Ensure the identifier was defined
+        if(isIdentifierDefined(statement));
+        {
+            // Return the value in the statement [0] is the complete match [1] is the value captured
+            return statement.match(/=\s*("|'(.)*"|'|\d+)\s*;/)[1];
+            /*
+             *  =\s*             - an equal sign followed by zero or more spaces
+             *  ("|'(.)*"|'|\d+) - followed by the value we are looking for (capture group)
+             *  \s*;             - followed by zero or more spaces and a semi-colon
+             */
+        }
     }
+}
+
+// Helper function that takes the token and the tokens on its line and returns the complete statement
+function pairCompleteStatement(token, tokensOnLine)
+{
+    // Get the index of the token
+    var index = tokensOnLine.indexOf(token);
+
+    // Return the complete statement
+    return tokensOnLine[index - 1] + " " +  // type
+           tokensOnLine[index]     + " " +  // identifier
+           tokensOnLine[index + 1] + " " +  // assignment
+           tokensOnLine[index + 2] + " " +  // value
+           tokensOnLine[index + 3];         // termination (;)
+}
+
+// Helper function that takes an entire statment and returns whether the Id has been defined or not
+function isIdentifierDefined(statement)
+{
+    return (/int|char|string\s+([a-z][a-z0-9]*)\s*(=)\s*("|'(.)*"|'|\d+)\s*;/i).test(statement);
+    /*
+     *  int|char|string  - type declaration
+     *  \s+              - followed by one or more spaces
+     *  [a-z][a-z0-9]*   - followed by an identifier
+     *  \s*(=)\s*        - followed by an equals sign with an arbitray number of spaces on either side
+     *  ("|'(.)*"|'|\d+) - followed by a string/charList OR integer/decimal
+     *  \s*;             - followed by zero or more spaces and a semi-colon
+     *  i                - case insensitive
+     */
 }
 
 // Helper function that takes a token string and returns whether it is a valid identifier token
 function isIdentifier(token)
 {
-    return (/^[a-z][a-z0-9]*$/i).test(token);
-    /*
-     *  ^         - start of token
-     *  [a-z]     - any letter a-z
-     *  [a-z0-9]* - 0 or more instances of a-z or 0-9
-     *  $         - end of token
-     *  i         - case insensitive
-     */
+    // Identifiers cannot be type declarations or reserved words
+    if(!isType(token) && !isReservedWord(token))
+    {
+        return (/^[a-z][a-z0-9]*$/i).test(token);
+        /*
+         *  ^         - start of token
+         *  [a-z]     - any letter a-z
+         *  [a-z0-9]* - 0 or more instances of a-z or 0-9
+         *  $         - end of token
+         *  i         - case insensitive
+         */
+     }
+     else
+        return false;
 }
 
 // Helper function that takes a token string and returns whether it is a valid integer token
@@ -156,7 +201,7 @@ function isType(token)
 function isReservedWord(token)
 {
     // TODO: Add more reserved words (should types be in here?)
-    return (/^(int|char)$/).test(token)
+    return (/^(int|char|string|if|while|for)$/).test(token)
     /*
      *  ^ - start of token
      *  (int|char) - any of the listed reserved words
