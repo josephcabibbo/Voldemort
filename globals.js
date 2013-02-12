@@ -36,5 +36,5 @@ var TOKEN_CLOSEBRACKET  = "close bracket";
 // Global Variables
 //
 
-var _Logger = null;	// Object responsible for all output to user
-var _Lexer  = null; // Object responsible for lexical analysis
+var _OutputManager = null;	// Object responsible for all output to user
+var _Lexer         = null;  // Object responsible for lexical analysis

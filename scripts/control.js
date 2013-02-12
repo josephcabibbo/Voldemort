@@ -18,17 +18,6 @@ $(document).ready(function() {
 	// Build an HTML table to display the language grammar
 	createGrammerTable();
 
-	_Logger.addError("This is a test error1");
-	_Logger.addWarning("Type Error (Line 12), expecting int...");
-	_Logger.addError("This is a test error2");
-	_Logger.addWarning("This is a test warning");
-	_Logger.addError("This is a test error3");
-
-	_Logger.addTraceEvent("Compiler loaded and ready...");
-	_Logger.addTraceEvent("Trace 1");
-	_Logger.addTraceEvent("Trace 2");
-	_Logger.denoteSuccess();
-
 	//
 	// Interaction Panel Events
 	//
@@ -39,10 +28,11 @@ $(document).ready(function() {
 		// Compile code if necessary
 		if(this.innerText === "Compile Source Code")
 		{
+		    // Clear all result boxes
+		    _OutputManager.clearAllOutput();
 			// Compile source code
-			_Lexer.lex();
-			/*
 			var tokenList = _Lexer.lex();
+			/*
 			if(tokenList)
 				var parseSuccessful = _Parser.parse(tokenList);
 			*/
@@ -125,8 +115,8 @@ $(document).ready(function() {
 
 	function initializeGlobalVariables()
 	{
-		_Logger = new Logger(); // Object responsible for all output to user
-		_Lexer  = new Lexer();	// Object responsible for lexical analysis
+    	_OutputManager = new OutputManager();  // Object responsible for all output to user
+		_Lexer = new Lexer();	               // Object responsible for lexical analysis
 	}
 
 	//
