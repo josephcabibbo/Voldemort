@@ -12,4 +12,13 @@ function Token(kind, name, value, type, line)
     this.type  = type;
     this.line  = line;
     // scope?
+
+    this.toString = function()
+    {
+        return "Kind: "    + this.kind  +
+               "\tName: "  + this.name  +
+               "\tValue: " + this.value +
+               "\tType: "  + this.type  +
+               "\tLine: "  + this.line;
+    }
 }

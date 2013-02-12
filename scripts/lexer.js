@@ -12,15 +12,25 @@ function Lexer()
 	// Lexically analyze the user submitted source code and produce an array of tokens if successful
 	this.lex = function()
 	{
-	   // Information needed to construct a token object
+	   // Information needed to construct token objects
 	   var kind;
 	   var name;
 	   var value;
 	   var type;
 	   var lineNum;
 
+	   // Reset/clear the tokenList
+	   this.tokenList = [];
+
 	   // Grab the "trimmmed" source code text
 	   var sourceCode = $("#sourceCode").val().trim();
+
+	   // Return if source code is empty and display error
+	   if(sourceCode === "")
+	   {
+	       _OutputManager.addError("There is no source code...")
+    	   return;
+	   }
 
 	   // Split the source code into individual lines
 	   var lineArray = splitSourceByLines(sourceCode);
@@ -31,12 +41,12 @@ function Lexer()
 	       // Split the current line into proper tokens using the ugliest regular expression in the world
     	   var tokenArray = lineArray[i].match(/"[^"]*"|[^\s=\(\)\"\{\};+-]+|[=\(\)\"\{\};+-]/g);
     	   /*
-    	    * "[^"]*"               - match a double quote followed by non-quotes followed by a double quote
-    	    * |                     - OR
-    	    * [^\s=\(\)\'\"\{\}\;]+ - match sets of substrings NOT containing these characters
-    	    * |                     - OR
-    	    * [=\(\)\'\"\{\}\;]     - match these characters
-    	    * g                     - global match
+    	    * "[^"]*"             - match a double quote followed by non-quotes followed by a double quote
+    	    * |                   - OR
+    	    * [^\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
+    	    * |                   - OR
+    	    * [=\(\)\"\{\}\;]     - match these characters
+    	    * g                   - global match
     	    */
 
     	    // Iterate tokens
@@ -45,16 +55,51 @@ function Lexer()
         	    kind    = getTokenKind(tokenArray[x]);
         	    name    = getTokenName(tokenArray[x]);
         	    value   = getTokenValue(tokenArray[x], tokenArray);
-        	    //type    = getTokenType();
+        	    type    = $.type(value);
         	    lineNum = i + 1;
 
-        	    // Token Construction: kind, name, value, type, line
-        	    this.tokenList.push(new Token(kind, name, value, "", lineNum));
-        	    //_Lexer.tokenList.push(new Token(kind, "", "", "", lineNum));
+        	    /*
+        	    if(kind === undefined)
+        	    {
+        	       _OutputManager.addError("Unrecognized token, " + tokenArray[x] + ", on line: " + (i+1));
+            	   return;
+        	    }
+        	    */
+
+        	    // Construct token and add it to the Lexer's token list (stream)
+        	    var token = new Token(kind, name, value, type, lineNum);
+        	    //this.tokenList.push(new Token(kind, name, value, type, lineNum));
+        	    this.tokenList.push(token);
+        	    console.log(token.toString());
     	    }
         }
-	   // Return token list if successful or just true and false?, otherwise return null
+
+        //this.createSymbolTable();
+        return this.tokenList;
     }
+
+/*
+    this.createSymbolTable = function()
+    {
+        // A list of key-value pairs
+        this.symbolList = [];
+
+        var token;
+
+        // Iterate the tokenList
+        for(var i = 0; i < _Lexer.tokenList.length; i++)
+        {
+            token = _Lexer.tokenList[i];
+
+            if(token.kind === "identifier")
+            {
+                this.symbolList.push({key: token.name, value: token.value});
+            }
+        }
+
+        return this.symbolList;
+    }
+*/
 }
 
 //
@@ -74,6 +119,8 @@ function splitSourceByLines(sourceCode)
 // Helper function that takes a token and returns its "kind"
 function getTokenKind(token)
 {
+    // I imagine I would do something is if isSymbol(+,-, (, ), etc.) then return value will call a function like getSymbol(token)
+    // Same idea for reserved words
     if(isType(token))
         return TOKEN_TYPEDEC;
     else if(isIdentifier(token))
@@ -82,6 +129,8 @@ function getTokenKind(token)
         return TOKEN_INT;
     else if(isDecimal(token))
         return TOKEN_DECIMAL;
+    else
+        return undefined;
 }
 
 // Helper function that takes a token and returns its name
@@ -101,16 +150,30 @@ function getTokenValue(token, tokensOnLine)
         // Pair the entire statement together
         var statement = pairCompleteStatement(token, tokensOnLine);
         // Ensure the identifier was defined
-        if(isIdentifierDefined(statement));
+        if(isIdentifierDefined(statement))
         {
-            // Return the value in the statement [0] is the complete match [1] is the value captured
-            return statement.match(/=\s*("|'(.)*"|'|\d+)\s*;/)[1];
+            // Get the value in the statement... [0] is the complete match [1] is the value captured
+            var value = statement.match(/=\s*("[^"]*"|\d+)\s*;/)[1];
             /*
-             *  =\s*             - an equal sign followed by zero or more spaces
-             *  ("|'(.)*"|'|\d+) - followed by the value we are looking for (capture group)
-             *  \s*;             - followed by zero or more spaces and a semi-colon
+             *  =\s*          - an equal sign followed by zero or more spaces
+             *  ("[^"]*"|\d+) - followed by the value we are looking for (capture group)
+             *  \s*;          - followed by zero or more spaces and a semi-colon
              */
+
+             // Determine whether it is a number or string
+             // If it is a number, convert it, if it is a string leave it as is
+             if($.isNumeric(value))
+             {
+                if(isInteger(value))
+                    value = parseInt(value);
+                else if(isDecimal(value))
+                    value = parseFloat(value);
+             }
+
+             return value;
         }
+        else
+            return undefined;
     }
 }
 
@@ -131,15 +194,15 @@ function pairCompleteStatement(token, tokensOnLine)
 // Helper function that takes an entire statment and returns whether the Id has been defined or not
 function isIdentifierDefined(statement)
 {
-    return (/int|char|string\s+([a-z][a-z0-9]*)\s*(=)\s*("|'(.)*"|'|\d+)\s*;/i).test(statement);
+    return (/int|char|string\s+([a-z][a-z0-9]*)\s*(=)\s*("[^"]*"|\d+)\s*;/i).test(statement);
     /*
-     *  int|char|string  - type declaration
-     *  \s+              - followed by one or more spaces
-     *  [a-z][a-z0-9]*   - followed by an identifier
-     *  \s*(=)\s*        - followed by an equals sign with an arbitray number of spaces on either side
-     *  ("|'(.)*"|'|\d+) - followed by a string/charList OR integer/decimal
-     *  \s*;             - followed by zero or more spaces and a semi-colon
-     *  i                - case insensitive
+     *  int|char|string - type declaration
+     *  \s+             - followed by one or more spaces
+     *  [a-z][a-z0-9]*  - followed by an identifier
+     *  \s*(=)\s*       - followed by an equals sign with an arbitray number of spaces on either side
+     *  ("(.)*"|\d+)    - followed by a string/charList OR integer/decimal
+     *  \s*;            - followed by zero or more spaces and a semi-colon
+     *  i               - case insensitive
      */
 }
 
