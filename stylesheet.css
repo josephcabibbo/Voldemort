@@ -133,7 +133,7 @@ body
 	resize: none;
 }
 
-#languageGrammer
+#languageGrammar
 {
 	width:  404px;
 	height: 254px;
@@ -194,6 +194,15 @@ body
 #symbolTable
 {
 	top: 221px;
+	font-size: 10pt;
+	text-align: center;
+}
+
+#symbolTable table
+{
+    /* Used to center the table*/
+    margin-left: auto;
+	margin-right: auto;
 }
 
 .symbolTableBoxHighlight
@@ -206,6 +215,7 @@ body
 {
 	left: 220px;
 	top: 221px;
+	font-size: 10pt;
 }
 
 .outputBoxHighlight

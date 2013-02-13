@@ -19,6 +19,8 @@ $(document).ready(function() {
 	// Write the test cases in the testCase div
 	writeTestCases();
 
+	_OutputManager.addTraceEvent("Compiler is initialized and ready...", "green");
+
 	//
 	// Interaction Panel Events
 	//
@@ -31,12 +33,12 @@ $(document).ready(function() {
 		{
 		    // Clear all result boxes
 		    _OutputManager.clearAllOutput();
-			// Compile source code
-			var tokenList = _Lexer.lex();
-			/*
-			if(tokenList)
-				var parseSuccessful = _Parser.parse(tokenList);
-			*/
+		    // Add trace start up message
+		    _OutputManager.addTraceEvent("Compiler is initialized and ready...", "green");
+		    // Clear all storage objects
+		    clearStorageObjects();
+			// Lexical analysis
+			_Lexer.lex();
 		}
 
 		displayCorrectElement(this);
@@ -114,10 +116,19 @@ $(document).ready(function() {
 	//	General Helper Functions
 	//
 
+	// Helper function to initialize the global variables
 	function initializeGlobalVariables()
 	{
     	_OutputManager = new OutputManager();  // Object responsible for all output to user
 		_Lexer = new Lexer();	               // Object responsible for lexical analysis
+		_SymbolTable = {};                     // Associative array (hash) for symbol table
+	}
+
+	// Helper function to clear all storage objects in order to start fresh
+	function clearStorageObjects()
+	{
+    	_Lexer.tokenList = [];
+    	_SymbolTable = {};
 	}
 
 	//
@@ -132,13 +143,13 @@ $(document).ready(function() {
 			// Show source code
 			$("#sourceCode").show(400);
 			// Hide others
-			$("#languageGrammer").hide();
+			$("#languageGrammar").hide();
 			$("#testCases").hide();
 		}
 		else if(button.id === "btnShowGrammar")
 		{
 			// Show grammar
-			$("#languageGrammer").show(400);
+			$("#languageGrammar").show(400);
 			// Hide others
 			$("#sourceCode").hide();
 			$("#testCases").hide();
@@ -149,7 +160,7 @@ $(document).ready(function() {
 			$("#testCases").show(400);
 			// Hide others
 			$("#sourceCode").hide();
-			$("#languageGrammer").hide();
+			$("#languageGrammar").hide();
 
 		}
 	}
@@ -163,7 +174,7 @@ $(document).ready(function() {
 				$("#interactionPanelLabel").text("Source Code").fadeIn(400);
 			});
 		}
-		else if( $("#languageGrammer").is(":visible") && $("#interactionPanelLabel").text() != "Language Grammar" )
+		else if( $("#languageGrammar").is(":visible") && $("#interactionPanelLabel").text() != "Language Grammar" )
 		{
 			$("#interactionPanelLabel").fadeOut(400, function() {
 				$("#interactionPanelLabel").text("Language Grammar").fadeIn(400);
@@ -191,31 +202,37 @@ $(document).ready(function() {
 	function createGrammerTable()
 	{
 		// Build table to show the language grammer
-		$("#grammarTable").html("<tr>" + "<td>Program</td><td>::== Statement $</td>"                          + "</tr>" +
-		                        "<tr>" + "<td>Statement</td><td>::== P ( Expr )</td>"                         + "</tr>" +
-		                        "<tr>" + "<td></td><td>::== ID = Expr</td>"                                   + "</tr>" +
-		                        "<tr>" + "<td></td><td>::== { StatementList }</td>"                           + "</tr>" +
-		                        "<tr>" + "<td>Statement List</td><td>::== Statement StatementList</td>"       + "</tr>" +
-		                        "<tr>" + "<td></td><td>::== ε</td>"                                           + "</tr>" +
-		                        "<tr>" + "<td>Expr</td><td>::== IntExpr</td>"                                 + "</tr>" +
-		                        "<tr>" + "<td></td><td>::== CharExpr</td>"                                    + "</tr>" +
-		                        "<tr>" + "<td></td><td>::== Id</td>"                                          + "</tr>" +
-		                        "<tr>" + "<td>IntExpr</td><td>::== digit op Expr</td>"                        + "</tr>" +
-		                        "<tr>" + "<td></td><td>::== digit</td>"                                       + "</tr>" +
-		                        "<tr>" + "<td>CharExpr</td><td>::== \" CharList \"</td>"                      + "</tr>" +
-		                        "<tr>" + "<td>CharList</td><td>::== Char CharList</td>"                       + "</tr>" +
-		                        "<tr>" + "<td></td><td>::== ε</td>"                                           + "</tr>" +
-		                        "<tr>" + "<td>VarDecl</td><td>::== Type Id</td>"                              + "</tr>" +
-		                        "<tr>" + "<td>Type</td><td>::== int | char</td>"                              + "</tr>" +
-		                        "<tr>" + "<td>Id</td><td>::== Char</td>"                                      + "</tr>" +
-		                        "<tr>" + "<td>Char</td><td>::== a | b | c ... z</td>"                         + "</tr>" +
-		                        "<tr>" + "<td>digit</td><td>::== 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0</td>"  + "</tr>" +
-		                        "<tr>" + "<td>op</td><td>::== + | -</td>"                                     + "</tr>");
+		var newContent = "<table id='grammarTable'>" +
+                            "<tr>" + "<td>Program</td><td>::== Statement $</td>"                          + "</tr>" +
+                            "<tr>" + "<td>Statement</td><td>::== P ( Expr )</td>"                         + "</tr>" +
+                            "<tr>" + "<td></td><td>::== ID = Expr</td>"                                   + "</tr>" +
+                            "<tr>" + "<td></td><td>::== VarDecl</td>"                                     + "</tr>" +
+                            "<tr>" + "<td></td><td>::== { StatementList }</td>"                           + "</tr>" +
+                            "<tr>" + "<td>Statement List</td><td>::== Statement StatementList</td>"       + "</tr>" +
+                            "<tr>" + "<td></td><td>::== ε</td>"                                           + "</tr>" +
+                            "<tr>" + "<td>Expr</td><td>::== IntExpr</td>"                                 + "</tr>" +
+                            "<tr>" + "<td></td><td>::== CharExpr</td>"                                    + "</tr>" +
+                            "<tr>" + "<td></td><td>::== Id</td>"                                          + "</tr>" +
+                            "<tr>" + "<td>IntExpr</td><td>::== digit op Expr</td>"                        + "</tr>" +
+                            "<tr>" + "<td></td><td>::== digit</td>"                                       + "</tr>" +
+                            "<tr>" + "<td>CharExpr</td><td>::== \" CharList \"</td>"                      + "</tr>" +
+                            "<tr>" + "<td>CharList</td><td>::== Char CharList</td>"                       + "</tr>" +
+                            "<tr>" + "<td></td><td>::== ε</td>"                                           + "</tr>" +
+                            "<tr>" + "<td>VarDecl</td><td>::== Type Id</td>"                              + "</tr>" +
+                            "<tr>" + "<td>Type</td><td>::== int | char</td>"                              + "</tr>" +
+                            "<tr>" + "<td>Id</td><td>::== Char</td>"                                      + "</tr>" +
+                            "<tr>" + "<td>Char</td><td>::== a | b | c ... z</td>"                         + "</tr>" +
+                            "<tr>" + "<td>digit</td><td>::== 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0</td>"  + "</tr>" +
+                            "<tr>" + "<td>op</td><td>::== + | -</td>"                                     + "</tr>" +
+                         "</table>";
+
+		  $("#languageGrammar").html(newContent);
 	}
 
 	function writeTestCases()
 	{
-    	var testCase1 = "int a<br />a = 5<br />P ( 2 + a )<br />char c<br />c = \"hello\"<br />P ( c )<br />$";
+    	var testCase1 = "int a<br/>a = 5<br/>P ( 2 + a )<br/>char c<br/>c = \"hello\"<br/>P ( c )<br/>int k<br/>" +
+    	                "k = 12<br/>int x<br/>x = 3 - k<br/>P(k)<br/>$";
 
     	$("#testCases").html(testCase1);
 	}
@@ -262,7 +279,7 @@ $(document).ready(function() {
     			                   left: "0px",
     			                   width: "417px",
     			                   height: "322px",
-    			                   "font-size": RESULTBOX_ENL_FONTSIZE,
+    			                   "font-size": "16pt", // Wanted to have a bit larger hence not using the const
     			                   borderWidth: "4px"
     			                   }, 400, function() {
         			                   $("#btnRestore").show();
@@ -345,7 +362,7 @@ $(document).ready(function() {
 									top: "221px",
 									width: RESULTBOX_DEF_WIDTH.toString(),
 									height: RESULTBOX_DEF_HEIGHT.toString(),
-									"font-size": RESULTBOX_DEF_FONTSIZE,
+									"font-size": "10pt", // Wanted to have a bit larger hence not using the const
 									borderWidth: "2px"
 									}, 400, function() {
 									// Change the box's z-index back to original value after restoring
