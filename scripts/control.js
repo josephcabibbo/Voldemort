@@ -14,9 +14,10 @@ $(document).ready(function() {
 
 	// Initialize Global Variables in globals.js
 	initializeGlobalVariables();
-
 	// Build an HTML table to display the language grammar
 	createGrammerTable();
+	// Write the test cases in the testCase div
+	writeTestCases();
 
 	//
 	// Interaction Panel Events
@@ -210,6 +211,13 @@ $(document).ready(function() {
 		                        "<tr>" + "<td>Char</td><td>::== a | b | c ... z</td>"                         + "</tr>" +
 		                        "<tr>" + "<td>digit</td><td>::== 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0</td>"  + "</tr>" +
 		                        "<tr>" + "<td>op</td><td>::== + | -</td>"                                     + "</tr>");
+	}
+
+	function writeTestCases()
+	{
+    	var testCase1 = "int a<br />a = 5<br />P ( 2 + a )<br />char c<br />c = \"hello\"<br />P ( c )<br />$";
+
+    	$("#testCases").html(testCase1);
 	}
 
 	//
