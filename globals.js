@@ -40,3 +40,4 @@ var TOKEN_CLOSEBRACKET   = "close bracket";
 
 var _OutputManager = null;	// Object responsible for all output to user
 var _Lexer         = null;  // Object responsible for lexical analysis
+var _SymbolTable   = null;  // Associative array (hash) for symbol table

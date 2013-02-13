@@ -86,7 +86,7 @@ function OutputManager()
 			// Normal case for adding trace events (content exists already)
 			if($("#trace").html())
 			{
-				var newContent = $("#trace").html() + "<br />" + "<span class=" + colorClass + ">" + message + "</span>";
+				var newContent = $("#trace").html() + "<br/>" + "<span class=" + colorClass + ">" + message + "</span>";
 				$("#trace").html(newContent);
 			}
 			else
@@ -98,10 +98,49 @@ function OutputManager()
 		}
 	}
 
-	// Take the symbolList of key-value pairs and display it
-	this.displaySymbolTable = function()
+	// Take the _SymbolList of symbol-value pairs and display it
+	this.updateSymbolTable = function()
 	{
-        // TODO
+	   // Clear symbolTable
+	   $("#symbolTable").html("");
+
+	   // Add symbol value pairs
+	   for(var symbol in _SymbolTable)
+	   {
+	       // Filter out keys from the Object.prototype (if any)
+	       if(_SymbolTable.hasOwnProperty(symbol))
+	       {
+        	    // Normal case for adding symbols (content exists already)
+        		if($("#symbolTable").html())
+                {
+        			var newContent = "<tr>" +
+        								"<td><span class='regularText'>" + symbol + "</span></td>" +
+        								"<td>&nbsp;</td>" +
+        								"<td><span class='regularText'>" + _SymbolTable[symbol] + "</span></td>" +
+        							 "</tr>";
+
+        			$("#symbolValueTable").append(newContent);
+        		}
+        		else
+        		{
+        			// First add, creates the table
+        			var newContent = "<table id='symbolValueTable'>" +
+        			                    "<tr>" +
+        								    "<th><span class='regularText'>Identifier</span></th>" +
+        								    "<td>&nbsp;&nbsp;&nbsp;</td>" +
+        								    "<th><span class='regularText'>Value</span></th>" +
+        								"</tr>" +
+        								"<tr>" +
+        								    "<td><span class='regularText'>" + symbol + "</span></td>" +
+        								    "<td>&nbsp;&nbsp;&nbsp;</td>" +
+        								    "<td><span class='regularText'>" + _SymbolTable[symbol] + "</span></td>" +
+        								"</tr>" +
+        							 "</table>";
+
+        			$("#symbolTable").html(newContent);
+        		}
+    		}
+		}
 	}
 
 	// Take the opcodeList and display it
@@ -130,7 +169,7 @@ function OutputManager()
 		if($("#trace").html())
 		{
 			// Use this only if context already exists
-			var newContent = $("#trace").html() + "<br /><span class='successText'>Compilation Successful!</span>";
+			var newContent = $("#trace").html() + "<br/><span class='successText'>Compilation Successful!</span>";
 			$("#trace").html(newContent);
 		}
 		else

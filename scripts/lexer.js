@@ -20,9 +20,6 @@ function Lexer()
 	   var type;
 	   var lineNum;
 
-	   // Reset/clear the tokenList
-	   this.tokenList = [];
-
 	   // Grab the "trimmmed" source code text
 	   var sourceCode = $("#sourceCode").val().trim();
 
@@ -50,9 +47,10 @@ function Lexer()
     	    * g                    - global match
     	    */
 
-    	    // Iterate tokens
+    	    // Iterate tokens on the line
     	    for(var x = 0; x < tokenArray.length; x++)
     	    {
+    	        // Fill token characteristics
         	    kind    = getTokenKind(tokenArray[x]);
         	    name    = getTokenName(tokenArray[x]);
         	    value   = getTokenValue(tokenArray[x]);
@@ -68,22 +66,34 @@ function Lexer()
 
         	    // Construct token and add it to the Lexer's token list (stream)
         	    this.tokenList.push(new Token(kind, name, value, type, lineNum));
+
+        	    // Add identifiers to the _SymbolTable object and update the symbol table display
+        	   if(isIdentifier(tokenArray[x]))
+        	   {
+        	        _SymbolTable[name] = value;
+        	        _OutputManager.updateSymbolTable();
+        	   }
             }
         }
 
         // Check to see if the user placed a $ at the end of the program
-        var lastTokenIndex = this.tokenList.length - 1;
+        var lastToken = this.tokenList[this.tokenList.length - 1];
 
-        if(this.tokenList[lastTokenIndex].kind !== TOKEN_EOF)
+        if(lastToken.kind !== TOKEN_EOF)
         {
+            // Provide warning and trace
             _OutputManager.addWarning("You forgot to place a $ at the end of your program... I'll be your slave and do it, dont worry.");
             _OutputManager.addTraceEvent("Adding EOF token to stream of tokens...");
             // Add it to source code
-            $("#sourceCode").val($("#sourceCode").val() + "\n$");
+            $("#sourceCode").val($("#sourceCode").val().trim() + "\n$");
             // Add EOF token to the tokenList
             this.tokenList.push(new Token(TOKEN_EOF, null, null, null, this.tokenList[lastTokenIndex].line + 1));
+            // Trace result message
             _OutputManager.addTraceEvent("EOF token has been added to steam of tokens!", "green");
         }
+
+        // If we got this far, there were no lex errors
+        _OutputManager.addTraceEvent("Lex successful!", "green");
 
         return this.tokenList;
     }
