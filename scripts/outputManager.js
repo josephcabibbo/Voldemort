@@ -59,7 +59,7 @@ function OutputManager()
 				// First add, creates the table
 				var newContent = "<table id='errorsTable'>" +
 									"<tr>" +
-									"<td><span class='warningText'>Error:</span></td>" +
+									"<td><span class='warningText'>Warning:</span></td>" +
 									"<td><span class='regularText'>" + message + "</span></td>" +
 									"</tr>" +
 								 "</table>";
@@ -69,30 +69,39 @@ function OutputManager()
 		}
 	}
 
-	// Add a trace event to the results panel
-	this.addTraceEvent = function(message)
+	// Add a trace event to the results panel (Provide optional color)
+	this.addTraceEvent = function(message, color)
 	{
 		if(message)
 		{
+		    // Set color class
+		    var colorClass;
+
+		    switch(color)
+		    {
+    		    case "red":   colorClass = "errorText";   break;
+    		    case "green": colorClass = "successText"; break;
+    		    default:      colorClass = "regularText"; break;
+		    }
 			// Normal case for adding trace events (content exists already)
 			if($("#trace").html())
 			{
-				var newContent = $("#trace").html() + "<br />" + "<span class='regularText'>" + message + "</span>";
+				var newContent = $("#trace").html() + "<br />" + "<span class=" + colorClass + ">" + message + "</span>";
 				$("#trace").html(newContent);
 			}
 			else
 			{
 				// No need to add old content and a line break if there is no content yet
-				var newContent = "<span class='regularText'>" + message + "</span>";
+				var newContent = "<span class=" + colorClass + ">" + message + "</span>";
 				$("#trace").html(newContent);
 			}
 		}
 	}
 
-	// Take the symbolList of key:value pairs and display it
-	this.displaySymbolTable = function(symbolList)
+	// Take the symbolList of key-value pairs and display it
+	this.displaySymbolTable = function()
 	{
-		// TODO
+        // TODO
 	}
 
 	// Take the opcodeList and display it
