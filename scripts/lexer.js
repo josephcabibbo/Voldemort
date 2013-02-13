@@ -1,6 +1,7 @@
 /*  -------------------------------------------------
  *	Filename: lexer.js
  *	Author: Joey Cabibbo
+ *  Requires: globals.js
  *	Description: Lexical analysis of source code
  *	------------------------------------------------- */
 
@@ -39,14 +40,14 @@ function Lexer()
 	   for(var i = 0; i < lineArray.length; i++)
 	   {
 	       // Split the current line into proper tokens using the ugliest regular expression in the world
-    	   var tokenArray = lineArray[i].match(/"[^"]*"|[^\s=\(\)\"\{\};+-]+|[=\(\)\"\{\};+-]/g);
+	       var tokenArray = lineArray[i].match(/"[^" ]*"|[^P\s=\(\)\"\{\}+-]+|[P=\(\)\"\{\}+-]/g);
     	   /*
-    	    * "[^"]*"             - match a double quote followed by non-quotes followed by a double quote
-    	    * |                   - OR
-    	    * [^\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
-    	    * |                   - OR
-    	    * [=\(\)\"\{\}\;]     - match these characters
-    	    * g                   - global match
+    	    * "[^" ]*"             - match a double quote followed by anything but a double quote or space followed by a double quote
+    	    * |                    - OR
+    	    * [^P\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
+    	    * |                    - OR
+    	    * [P=\(\)\"\{\}\;]     - match these characters
+    	    * g                    - global match
     	    */
 
     	    // Iterate tokens
@@ -54,52 +55,38 @@ function Lexer()
     	    {
         	    kind    = getTokenKind(tokenArray[x]);
         	    name    = getTokenName(tokenArray[x]);
-        	    value   = getTokenValue(tokenArray[x], tokenArray);
-        	    type    = $.type(value);
+        	    value   = getTokenValue(tokenArray[x]);
+        	    type    = getTokenType(tokenArray[x]);
         	    lineNum = i + 1;
 
-        	    /*
+        	    // If any token is not recognized, invalid token lex error
         	    if(kind === undefined)
         	    {
-        	       _OutputManager.addError("Unrecognized token, " + tokenArray[x] + ", on line: " + (i+1));
+        	       _OutputManager.addError("Invalid token, " + tokenArray[x] + ", on line: " + (i+1));
             	   return;
         	    }
-        	    */
 
         	    // Construct token and add it to the Lexer's token list (stream)
-        	    var token = new Token(kind, name, value, type, lineNum);
-        	    //this.tokenList.push(new Token(kind, name, value, type, lineNum));
-        	    this.tokenList.push(token);
-        	    console.log(token.toString());
-    	    }
-        }
-
-        //this.createSymbolTable();
-        return this.tokenList;
-    }
-
-/*
-    this.createSymbolTable = function()
-    {
-        // A list of key-value pairs
-        this.symbolList = [];
-
-        var token;
-
-        // Iterate the tokenList
-        for(var i = 0; i < _Lexer.tokenList.length; i++)
-        {
-            token = _Lexer.tokenList[i];
-
-            if(token.kind === "identifier")
-            {
-                this.symbolList.push({key: token.name, value: token.value});
+        	    this.tokenList.push(new Token(kind, name, value, type, lineNum));
             }
         }
 
-        return this.symbolList;
+        // Check to see if the user placed a $ at the end of the program
+        var lastTokenIndex = this.tokenList.length - 1;
+
+        if(this.tokenList[lastTokenIndex].kind !== TOKEN_EOF)
+        {
+            _OutputManager.addWarning("You forgot to place a $ at the end of your program... I'll be your slave and do it, dont worry.");
+            _OutputManager.addTraceEvent("Adding EOF token to stream of tokens...");
+            // Add it to source code
+            $("#sourceCode").val($("#sourceCode").val() + "\n$");
+            // Add EOF token to the tokenList
+            this.tokenList.push(new Token(TOKEN_EOF, null, null, null, this.tokenList[lastTokenIndex].line + 1));
+            _OutputManager.addTraceEvent("EOF token has been added to steam of tokens!", "green");
+        }
+
+        return this.tokenList;
     }
-*/
 }
 
 //
@@ -119,16 +106,16 @@ function splitSourceByLines(sourceCode)
 // Helper function that takes a token and returns its "kind"
 function getTokenKind(token)
 {
-    // I imagine I would do something is if isSymbol(+,-, (, ), etc.) then return value will call a function like getSymbol(token)
-    // Same idea for reserved words
-    if(isType(token))
-        return TOKEN_TYPEDEC;
+    if(isReservedWord(token))
+        return getReservedWordKind(token);
+    else if(isSymbol(token))
+        return getSymbolKind(token);
     else if(isIdentifier(token))
         return TOKEN_ID;
     else if(isInteger(token))
         return TOKEN_INT;
-    else if(isDecimal(token))
-        return TOKEN_DECIMAL;
+    else if(isCharList(token))
+        return TOKEN_CHAR;
     else
         return undefined;
 }
@@ -139,86 +126,43 @@ function getTokenName(token)
     if(isIdentifier(token))
         return token;
     else
-        return "N/A";
+        return null;
 }
 
-// Helper function that takes the token and the tokens on its line and returns its value (if any)
-function getTokenValue(token, tokensOnLine)
+// Helper function that takes a token and returns its value
+function getTokenValue(token)
 {
-    if(isIdentifier(token))
-    {
-        // Pair the entire statement together
-        var statement = pairCompleteStatement(token, tokensOnLine);
-        // Ensure the identifier was defined
-        if(isIdentifierDefined(statement))
-        {
-            // Get the value in the statement... [0] is the complete match [1] is the value captured
-            var value = statement.match(/=\s*("[^"]*"|\d+)\s*;/)[1];
-            /*
-             *  =\s*          - an equal sign followed by zero or more spaces
-             *  ("[^"]*"|\d+) - followed by the value we are looking for (capture group)
-             *  \s*;          - followed by zero or more spaces and a semi-colon
-             */
-
-             // Determine whether it is a number or string
-             // If it is a number, convert it, if it is a string leave it as is
-             if($.isNumeric(value))
-             {
-                if(isInteger(value))
-                    value = parseInt(value);
-                else if(isDecimal(value))
-                    value = parseFloat(value);
-             }
-
-             return value;
-        }
-        else
-            return undefined;
-    }
+    // Only integers will receive values in lex
+    if(isInteger(token))
+        return parseInt(token);
+    else
+        return null;
 }
 
-// Helper function that takes the token and the tokens on its line and returns the complete statement
-function pairCompleteStatement(token, tokensOnLine)
+// Helper function that takes a token and returns its type
+function getTokenType(token)
 {
-    // Get the index of the token
-    var index = tokensOnLine.indexOf(token);
-
-    // Return the complete statement
-    return tokensOnLine[index - 1] + " " +  // type
-           tokensOnLine[index]     + " " +  // identifier
-           tokensOnLine[index + 1] + " " +  // assignment
-           tokensOnLine[index + 2] + " " +  // value
-           tokensOnLine[index + 3];         // termination (;)
-}
-
-// Helper function that takes an entire statment and returns whether the Id has been defined or not
-function isIdentifierDefined(statement)
-{
-    return (/int|char|string\s+([a-z][a-z0-9]*)\s*(=)\s*("[^"]*"|\d+)\s*;/i).test(statement);
-    /*
-     *  int|char|string - type declaration
-     *  \s+             - followed by one or more spaces
-     *  [a-z][a-z0-9]*  - followed by an identifier
-     *  \s*(=)\s*       - followed by an equals sign with an arbitray number of spaces on either side
-     *  ("(.)*"|\d+)    - followed by a string/charList OR integer/decimal
-     *  \s*;            - followed by zero or more spaces and a semi-colon
-     *  i               - case insensitive
-     */
+    // The only types we have are int and char
+    if(isInteger(token))
+        return "int";
+    else if(isCharList(token))
+        return "char";
+    else
+        return null;
 }
 
 // Helper function that takes a token string and returns whether it is a valid identifier token
 function isIdentifier(token)
 {
-    // Identifiers cannot be type declarations or reserved words
-    if(!isType(token) && !isReservedWord(token))
+    // Identifiers cannot be reserved words
+    if(!isReservedWord(token))
     {
-        return (/^[a-z][a-z0-9]*$/i).test(token);
+        return (/^[a-z][a-z0-9]*$/).test(token);
         /*
          *  ^         - start of token
          *  [a-z]     - any letter a-z
          *  [a-z0-9]* - 0 or more instances of a-z or 0-9
          *  $         - end of token
-         *  i         - case insensitive
          */
      }
      else
@@ -236,38 +180,75 @@ function isInteger(token)
      */
 }
 
-// Helper function that takes a token string and returns whether it is a valid decimal token
-function isDecimal(token)
+// Helper function that takes a token string and returns whether it is a valid charList token
+function isCharList(token)
 {
-    return (/^[0-9]+(.[0-9]*)|[0-9]*(.[0-9]+)$/).test(token);
+    return (/^"[a-z]*"$/).test(token)
     /*
-     *  ^               - start of token
-     *  [0-9]+(.[0-9]*) - 1 or more instances of any number 0-9 followed by a decimal point and 0 or more intances of any number 0-9
-     *  |               - OR
-     *  [0-9]*(.[0-9]+) - 0 or more instances of any number 0-9 followed by a decimal point and 1 or more intances of any number 0-9
-     *  $               - end of token
+     *  ^        - start of token
+     *  "[a-z]*" - a double quote followed by any lower case letter followed by a double quote
+     *  $        - end of token
      */
 }
 
-// Helper function that takes a token string and returns whether it is a type declaration
-function isType(token)
+// Helper function that takes a token string and returns whether it is a valid symbol token
+function isSymbol(token)
 {
-    return (/^(int|char|string)$/).test(token)
+    return (/^[-$+=)(}{]$/).test(token);
     /*
-     *  ^ - start of token
-     *  (int|char|string) - any of the listed type declarations
-     *  $ - end of token
+     *  ^         - start of token
+     *  [-$+)(}{] - one of the listed symbols
+     *  $         - end of token
      */
 }
 
 // Helper function that takes a token string and returns whether it is a reserved word
 function isReservedWord(token)
 {
-    // TODO: Add more reserved words (should types be in here?)
-    return (/^(int|char|string|if|while|for)$/).test(token)
+    // TODO: Add more reserved words
+    return (/^(int|char|P)$/).test(token)
     /*
-     *  ^ - start of token
-     *  (int|char) - any of the listed reserved words
-     *  $ - end of token
+     *  ^            - start of token
+     *  (int|char|P) - any of the listed reserved words
+     *  $            - end of token
      */
+}
+
+// Helper function that takes a symbol token string and returns its "kind"
+function getSymbolKind(token)
+{
+    // Kind to return
+    var kind;
+
+    switch(token)
+    {
+        case "-": kind = TOKEN_MINUS;        break;
+        case "$": kind = TOKEN_EOF;          break;
+        case "+": kind = TOKEN_PLUS;         break;
+        case "=": kind = TOKEN_ASSIGN;       break;
+        case ")": kind = TOKEN_CLOSEPAREN;   break;
+        case "(": kind = TOKEN_OPENPAREN;    break;
+        case "}": kind = TOKEN_CLOSEBRACKET; break;
+        case "{": kind = TOKEN_OPENBRACKET;  break;
+        default:  kind = undefined;          break;
+    }
+
+    return kind;
+}
+
+// Helper function that takes a reserved word token string and returns its "kind"
+function getReservedWordKind(token)
+{
+    // Kind to return
+    var kind;
+
+    switch(token)
+    {
+        case "int":  kind = TOKEN_INT_TYPEDEC;  break;
+        case "char": kind = TOKEN_CHAR_TYPEDEC; break;
+        case "P":    kind = TOKEN_PRINT;        break;
+        default:     kind = undefined;          break;
+    }
+
+    return kind;
 }
