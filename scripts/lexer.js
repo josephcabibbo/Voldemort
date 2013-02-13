@@ -27,6 +27,7 @@ function Lexer()
 	   if(sourceCode === "")
 	   {
 	       _OutputManager.addError("There is no source code...")
+	       _OutputManager.addTraceEvent("The compiler has crashed and burned thanks to you", "red");
     	   return;
 	   }
 
@@ -87,7 +88,7 @@ function Lexer()
             // Add it to source code
             $("#sourceCode").val($("#sourceCode").val().trim() + "\n$");
             // Add EOF token to the tokenList
-            this.tokenList.push(new Token(TOKEN_EOF, null, null, null, this.tokenList[lastTokenIndex].line + 1));
+            this.tokenList.push(new Token(TOKEN_EOF, null, null, null, lastToken.line + 1));
             // Trace result message
             _OutputManager.addTraceEvent("EOF token has been added to steam of tokens!", "green");
         }
