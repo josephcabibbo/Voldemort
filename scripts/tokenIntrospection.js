@@ -10,12 +10,11 @@ function isIdentifier(token)
     // Identifiers cannot be reserved words
     if(!isReservedWord(token))
     {
-        return (/^[a-z][a-z0-9]*$/).test(token);
+        return (/^[a-z]{1}$/).test(token);
         /*
-         *  ^         - start of token
-         *  [a-z]     - any letter a-z
-         *  [a-z0-9]* - 0 or more instances of a-z or 0-9
-         *  $         - end of token
+         *  ^        - start of token
+         *  [a-z]{1} - one letter a-z
+         *  $        - end of token
          */
      }
      else
@@ -25,11 +24,11 @@ function isIdentifier(token)
 // Helper function that takes a token string and returns whether it is a valid integer token
 function isInteger(token)
 {
-    return (/^[0-9]+$/).test(token);
+    return (/^[0-9]{1}$/).test(token);
     /*
-     *  ^      - start of token
-     *  [0-9]+ - 1 or more intances of any number 0-9
-     *  $      - end of token
+     *  ^        - start of token
+     *  [0-9]{1} - 1 number 0-9
+     *  $        - end of token
      */
 }
 

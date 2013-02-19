@@ -233,7 +233,7 @@ $(document).ready(function() {
 	function writeTestCases()
 	{
     	var testCase1 = "int a<br/>a = 5<br/>P ( 2 + a )<br/>char c<br/>c = \"hello\"<br/>P ( c )<br/>int k<br/>" +
-    	                "k = 12<br/>int x<br/>x = 3 - k<br/>P(k)<br/>$";
+    	                "k = 7<br/>int x<br/>x = 3 - k<br/>P(k)<br/>$";
 
     	$("#testCases").html(testCase1);
 	}
