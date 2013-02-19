@@ -83,6 +83,7 @@ function OutputManager()
     		    case "green": colorClass = "successText"; break;
     		    default:      colorClass = "regularText"; break;
 		    }
+
 			// Normal case for adding trace events (content exists already)
 			if($("#trace").html())
 			{

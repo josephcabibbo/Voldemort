@@ -1,7 +1,7 @@
 /*  -------------------------------------------------
  *	Filename: lexer.js
  *	Author: Joey Cabibbo
- *  Requires: globals.js
+ *  Requires: globals.js, tokenIntrospection.js
  *	Description: Lexical analysis of source code
  *	------------------------------------------------- */
 
