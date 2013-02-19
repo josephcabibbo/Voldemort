@@ -121,6 +121,7 @@ $(document).ready(function() {
 	{
     	_OutputManager = new OutputManager();  // Object responsible for all output to user
 		_Lexer = new Lexer();	               // Object responsible for lexical analysis
+		_Parser = new Parser();                // Object responsible for parsing
 		_SymbolTable = {};                     // Associative array (hash) for symbol table
 	}
 
@@ -205,7 +206,7 @@ $(document).ready(function() {
 		var newContent = "<table id='grammarTable'>" +
                             "<tr>" + "<td>Program</td><td>::== Statement $</td>"                          + "</tr>" +
                             "<tr>" + "<td>Statement</td><td>::== P ( Expr )</td>"                         + "</tr>" +
-                            "<tr>" + "<td></td><td>::== ID = Expr</td>"                                   + "</tr>" +
+                            "<tr>" + "<td></td><td>::== Id = Expr</td>"                                   + "</tr>" +
                             "<tr>" + "<td></td><td>::== VarDecl</td>"                                     + "</tr>" +
                             "<tr>" + "<td></td><td>::== { StatementList }</td>"                           + "</tr>" +
                             "<tr>" + "<td>Statement List</td><td>::== Statement StatementList</td>"       + "</tr>" +

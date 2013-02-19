@@ -1,9 +1,17 @@
-/*  -------------------------------------------------
+/*  ----------------------------------------
  *	Filename: parser.js
  *	Author: Joey Cabibbo
  *  Requires: globals.js
- *	Description: Lexical analysis of source code
- *	------------------------------------------------- */
+ *	Description: A recursive-descent parser
+ *	---------------------------------------- */
+
+function Parser()
+{
+    this.parse = function()
+    {
+        this.tokens = _Lexer.tokenList;
+    }
+}
 
 
 // ******************************************************************************
