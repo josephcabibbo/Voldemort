@@ -16,23 +16,20 @@ var RESULTBOX_DEF_FONTSIZE = "8pt";
 var RESULTBOX_ENL_FONTSIZE = "14pt";
 
 // Token kinds
-var TOKEN_INT_TYPEDEC    = "int declaration";
-var TOKEN_CHAR_TYPEDEC   = "charList declaration";
-var TOKEN_STRING_TYPEDEC = "string declaration";
-var TOKEN_ID             = "identifier";
-var TOKEN_CHAR           = "charList";
-var TOKEN_STRING         = "string";
-var TOKEN_INT            = "integer";
-var TOKEN_PRINT          = "print";
-var TOKEN_EOF            = "EOF";
-var TOKEN_DOUBLEQUOTE    = "double quote";
-var TOKEN_ASSIGN         = "assignment";
-var TOKEN_PLUS           = "plus operator";
-var TOKEN_MINUS          = "minus operator";
-var TOKEN_OPENPAREN      = "open parenthesis";
-var TOKEN_CLOSEPAREN     = "close parenthesis";
-var TOKEN_OPENBRACKET    = "open bracket";
-var TOKEN_CLOSEBRACKET   = "close bracket";
+var TOKEN_TYPE		   = "type";
+var TOKEN_ID           = "identifier";
+var TOKEN_CHAR         = "charList";
+var TOKEN_STRING       = "string";
+var TOKEN_INT          = "integer";
+var TOKEN_PRINT        = "print";
+var TOKEN_EOF          = "EOF";
+var TOKEN_DOUBLEQUOTE  = "double quote";
+var TOKEN_ASSIGN       = "assignment";
+var TOKEN_INTOP		   = "int operator";
+var TOKEN_OPENPAREN    = "open parenthesis";
+var TOKEN_CLOSEPAREN   = "close parenthesis";
+var TOKEN_OPENBRACKET  = "open bracket";
+var TOKEN_CLOSEBRACKET = "close bracket";
 
 //
 // Global Variables

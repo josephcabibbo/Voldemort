@@ -12,6 +12,8 @@ function Lexer()
  	// Array of tokens
 	this.tokenList = [];
 
+	this.errorCount = 0;
+
 	// Lexically analyze the user submitted source code and produce an array of tokens if successful
 	this.lex = function()
 	{
@@ -62,8 +64,8 @@ function Lexer()
         	    // If any token is not recognized, invalid token lex error
         	    if(kind === undefined)
         	    {
-        	       _OutputManager.addError("Invalid token, " + tokenArray[x] + ", on line " + (i+1));
-            	   return;
+        	       _OutputManager.addError("Lex Error: invalid token, " + tokenArray[x] + ", on line " + (i+1));
+            	   this.errorCount++;
         	    }
 
         	    // Check to see if there is code after the EOF token
@@ -118,10 +120,16 @@ function Lexer()
             _OutputManager.addTraceEvent("EOF token has been added to steam of tokens!", "green");
         }
 
-        // If we got this far, there were no lex errors
-        _OutputManager.addTraceEvent("Lex successful!", "green");
-
-        return true;
+        if(this.errorCount === 0)
+        {
+        	_OutputManager.addTraceEvent("Lex successful!", "green");
+        	return true;
+        }
+        else
+        {
+	        _OutputManager.addTraceEvent("Lex failed!", "red");
+        	return false;
+        }
     }
 }
 
@@ -195,9 +203,9 @@ function getSymbolKind(token)
 
     switch(token)
     {
-        case "-": kind = TOKEN_MINUS;        break;
+        case "-": kind = TOKEN_INTOP;      	 break;
         case "$": kind = TOKEN_EOF;          break;
-        case "+": kind = TOKEN_PLUS;         break;
+        case "+": kind = TOKEN_INTOP;        break;
         case "=": kind = TOKEN_ASSIGN;       break;
         case ")": kind = TOKEN_CLOSEPAREN;   break;
         case "(": kind = TOKEN_OPENPAREN;    break;
@@ -217,10 +225,10 @@ function getReservedWordKind(token)
 
     switch(token)
     {
-        case "int":  kind = TOKEN_INT_TYPEDEC;  break;
-        case "char": kind = TOKEN_CHAR_TYPEDEC; break;
-        case "P":    kind = TOKEN_PRINT;        break;
-        default:     kind = undefined;          break;
+        case "int":  kind = TOKEN_TYPE;  	break;
+        case "char": kind = TOKEN_TYPE;		break;
+        case "P":    kind = TOKEN_PRINT;    break;
+        default:     kind = undefined;      break;
     }
 
     return kind;
