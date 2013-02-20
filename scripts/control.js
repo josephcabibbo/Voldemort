@@ -130,7 +130,14 @@ $(document).ready(function() {
 	// Helper function to clear all storage objects in order to start fresh
 	function clearStorageObjects()
 	{
+		// Lexer objects
     	_Lexer.tokenList = [];
+    	_Lexer.errorCount = 0;
+    	// Parser objects
+    	_Parser.tokens = [];
+    	_Parser.currentIndex = 0;
+    	_Parser.errorCount = 0;
+    	// Symbol table
     	_SymbolTable = {};
 	}
 
@@ -239,10 +246,12 @@ $(document).ready(function() {
 
     	var testCase2 = "This will cause lex to fail:<br/>{<br/>int a<br/>a = #<br/>hello<br/>char c<br/>c=\"LETTERS\"<br/>}<br/>$<br/>";
 
-    	var testCase3 = "This will cause lex to pass and parse to fail:<br/>{<br/>int a<br/>a = int<br/>P { 2 + a }<br/>{<br/>char c<br/>c = \"hello\"<br/>P ( + )<br/>}" +
+    	var testCase3 = "This will pass lex and cause parse to fail:<br/>{<br/>int a<br/>a = int<br/>P { 2 + a }<br/>{<br/>char c<br/>c = \"hello\"<br/>P ( + )<br/>}" +
     					"<br/>int k<br/>k = 7<br/>int x<br/>x = 3 - k<br/>P(k)<br/>}<br/>$<br/>";
 
-    	$("#testCases").html(testCase1 + "<br/>" + testCase2 + "<br/>" + testCase3);
+    	var proTip	  = "Pro Tip: If you leave the EOF token ($) out of the source code, the lexer will warn you and add it for you."
+
+    	$("#testCases").html(testCase1 + "<br/>" + testCase2 + "<br/>" + testCase3 + "<br/>" + proTip);
 	}
 
 	//
