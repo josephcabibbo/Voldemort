@@ -5,6 +5,8 @@
  *	Description: A recursive-descent parser
  *	------------------------------------------- */
 
+ // TODO: Comment each parse step
+
 function Parser()
 {
 	// Stream of tokens
