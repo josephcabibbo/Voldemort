@@ -117,7 +117,11 @@ function OutputManager()
         			var newContent = "<tr>" +
         								"<td><span class='regularText'>" + symbol + "</span></td>" +
         								"<td>&nbsp;</td>" +
-        								"<td><span class='regularText'>" + _SymbolTable[symbol] + "</span></td>" +
+    								    "<td><span class='regularText'>" + _SymbolTable[symbol].value + "</span></td>" +
+    								    "<td>&nbsp;</td>" +
+    								    "<td><span class='regularText'>" + _SymbolTable[symbol].type + "</span></td>" +
+    								    "<td>&nbsp;</td>" +
+    								    "<td><span class='regularText'>" + _SymbolTable[symbol].line + "</span></td>" +
         							 "</tr>";
 
         			$("#symbolValueTable").append(newContent);
@@ -128,13 +132,21 @@ function OutputManager()
         			var newContent = "<table id='symbolValueTable'>" +
         			                    "<tr>" +
         								    "<th><span class='regularText'>Identifier</span></th>" +
-        								    "<td>&nbsp;&nbsp;&nbsp;</td>" +
+        								    "<td>&nbsp;</td>" +
         								    "<th><span class='regularText'>Value</span></th>" +
+        								    "<td>&nbsp;</td>" +
+        								    "<th><span class='regularText'>Type</span></th>" +
+        								    "<td>&nbsp;</td>" +
+        								    "<th><span class='regularText'>Line</span></th>" +
         								"</tr>" +
         								"<tr>" +
         								    "<td><span class='regularText'>" + symbol + "</span></td>" +
-        								    "<td>&nbsp;&nbsp;&nbsp;</td>" +
-        								    "<td><span class='regularText'>" + _SymbolTable[symbol] + "</span></td>" +
+        								    "<td>&nbsp;</td>" +
+        								    "<td><span class='regularText'>" + _SymbolTable[symbol].value + "</span></td>" +
+        								    "<td>&nbsp;</td>" +
+        								    "<td><span class='regularText'>" + _SymbolTable[symbol].type + "</span></td>" +
+        								    "<td>&nbsp;</td>" +
+        								    "<td><span class='regularText'>" + _SymbolTable[symbol].line + "</span></td>" +
         								"</tr>" +
         							 "</table>";
 
