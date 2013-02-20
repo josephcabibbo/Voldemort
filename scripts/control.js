@@ -234,10 +234,15 @@ $(document).ready(function() {
 
 	function writeTestCases()
 	{
-    	var testCase1 = "int a<br/>a = 5<br/>P ( 2 + a )<br/>char c<br/>c = \"hello\"<br/>P ( c )<br/>int k<br/>" +
-    	                "k = 7<br/>int x<br/>x = 3 - k<br/>P(k)<br/>$";
+    	var testCase1 = "This is an error free program:<br/>{<br/>int a<br/>a = 5<br/>P ( 2 + a )<br/>{<br/>char c<br/>c = \"hello\"<br/>P ( c )<br/>}<br/>int k<br/>" +
+    	                "k = 7<br/>int x<br/>x = 3 - k<br/>P(k)<br/>}<br/>$<br/>";
 
-    	$("#testCases").html(testCase1);
+    	var testCase2 = "This will cause lex to fail:<br/>{<br/>int a<br/>a = #<br/>hello<br/>char c<br/>c=\"LETTERS\"<br/>}<br/>$<br/>";
+
+    	var testCase3 = "This will cause lex to pass and parse to fail:<br/>{<br/>int a<br/>a = int<br/>P { 2 + a }<br/>{<br/>char c<br/>c = \"hello\"<br/>P ( + )<br/>}" +
+    					"<br/>int k<br/>k = 7<br/>int x<br/>x = 3 - k<br/>P(k)<br/>}<br/>$<br/>";
+
+    	$("#testCases").html(testCase1 + "<br/>" + testCase2 + "<br/>" + testCase3);
 	}
 
 	//
