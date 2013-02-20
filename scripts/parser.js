@@ -7,9 +7,77 @@
 
 function Parser()
 {
+	// SHOULD THESE BE THIS.(bloop)
+	// Stream of tokens
+	var tokens;
+	// Current token index
+	var currentIndex;
+
+    // Function to determine if the expected token is a match to the actual token
+    // ** Increments the currentIndex (consumes the token) **
+    this.matchToken = function(expectedTokenKind)
+    {
+    	// Trace expecting token...
+    	if(tokens[currentIndex].kind === expectedTokenKind)
+    	{
+        	// Trace found token..
+        	currentIndex++;
+    	}
+    }
+
     this.parse = function()
     {
-        this.tokens = _Lexer.tokenList;
+    	// Initialize parser components
+    	tokens = _Lexer.tokenList;
+    	currentIndex = 0;
+
+        this.parseProgram();
+    }
+
+    this.parseProgram = function()
+    {
+        this.parseStatement();
+        this.matchToken(TOKEN_EOF);
+    }
+
+    this.parseStatement = function()
+    {
+        switch(tokens[currentIndex].kind)
+        {
+	        case TOKEN_PRINT:		 this.parsePrint();			break;
+	        case TOKEN_ID:			 this.parseAssignment();	break;
+	        case TOKEN_INT_TYPEDEC:	 this.parseVarDecl();		break;
+	        case TOKEN_CHAR_TYPEDEC: this.parseVarDecl();		break;
+	        case TOKEN_OPEN_BRACKET: this.parseStatementList();	break;
+        }
+    }
+
+    this.parsePrint = function()
+    {
+    	this.matchToken(TOKEN_PRINT);
+        this.matchToken(TOKEN_OPENPAREN);
+        this.parseExpr();
+        this.matchToken(TOKEN_CLOSEPAREN);
+    }
+
+    this.parseExpr = function()
+    {
+        switch(tokens[currentIndex].kind)
+        {
+	        case TOKEN_INT:		this.parseIntExpr(); 		break;
+	        case TOKEN_CHAR:	this.parseCharExpr();		break;
+	        case TOKEN_ID:		this.matchToken(TOKEN_ID);	break;
+        }
+    }
+
+    this.parseIntExpr = function()
+    {
+        // Look ahead to see if there is an op, if not it is just the digit production
+    }
+
+    this.parseCharExpr = function()
+    {
+        this.matchToken(TOKEN_CHAR);
     }
 }
 

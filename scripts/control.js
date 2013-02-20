@@ -38,7 +38,9 @@ $(document).ready(function() {
 		    // Clear all storage objects
 		    clearStorageObjects();
 			// Lexical analysis
-			_Lexer.lex();
+			var isLexSuccessful = _Lexer.lex();
+			if(isLexSuccessful)
+				_Parser.parse();
 		}
 
 		displayCorrectElement(this);
