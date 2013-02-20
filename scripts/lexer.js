@@ -5,6 +5,8 @@
  *	Description: Lexical analysis of source code
  *	------------------------------------------------- */
 
+// TODO: Create a lex object called lexErrorList and do a for at the end to display all found errors
+
 function Lexer()
 {
  	// Array of tokens
@@ -62,6 +64,30 @@ function Lexer()
         	    {
         	       _OutputManager.addError("Invalid token, " + tokenArray[x] + ", on line " + (i+1));
             	   return;
+        	    }
+
+        	    // Check to see if there is code after the EOF token
+        	    if(kind === TOKEN_EOF)
+        	    {
+        	    	if(lineArray.length > lineNum || tokenArray.length > 1)
+        	    	{
+		        	    // Provide warning and trace
+		        	    _OutputManager.addWarning("Content exists after EOF token... I'll be your slave and remove it, dont worry.");
+		        	    _OutputManager.addTraceEvent("Removing content after EOF token...");
+
+		        	    // Additional tokens exist after the line containing the EOF token, remove them
+		        	    if(lineArray.length > lineNum)
+		        	    	lineArray.splice(lineNum , lineArray.length);
+
+		        	    // Additional tokens exist on the same line after the EOF token, remove them
+		        	    if(tokenArray.length > 1)
+		        	    	tokenArray.splice(x + 1, tokenArray.length);
+
+		        	    // Remove content after the EOF token and display it
+		        	    $("#sourceCode").val(sourceCode.substring(0, sourceCode.indexOf("$") + 1));
+		        	    // Trace result message
+		        	    _OutputManager.addTraceEvent("Content after EOF token has been removed!", "green");
+	        	    }
         	    }
 
         	    // Construct token and add it to the Lexer's token list (stream)
