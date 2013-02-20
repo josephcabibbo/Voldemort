@@ -17,62 +17,62 @@ function Lexer()
 	// Lexically analyze the user submitted source code and produce an array of tokens if successful
 	this.lex = function()
 	{
-	   // Information needed to construct token objects
-	   var kind;
-	   var name;
-	   var value;
-	   var type;
-	   var lineNum;
+		// Information needed to construct token objects
+		var kind;
+		var name;
+		var value;
+		var type;
+		var lineNum;
 
-	   // Grab the "trimmmed" source code text
-	   var sourceCode = $("#sourceCode").val().trim();
+		// Grab the "trimmmed" source code text
+		var sourceCode = $("#sourceCode").val().trim();
 
-	   // Return if source code is empty and display error
-	   if(sourceCode === "")
-	   {
-	       _OutputManager.addError("There is no source code...")
-    	   return;
-	   }
+		// Return if source code is empty and display error
+		if(sourceCode === "")
+		{
+		   _OutputManager.addError("There is no source code...")
+		   return;
+		}
 
-	   // Split the source code into individual lines
-	   var lineArray = splitSourceByLines(sourceCode);
+		// Split the source code into individual lines
+		var lineArray = splitSourceByLines(sourceCode);
 
-	   // Iterate lines
-	   for(var i = 0; i < lineArray.length; i++)
-	   {
-	       // Split the current line into proper tokens using the ugliest regular expression in the world
-	       var tokenArray = lineArray[i].match(/"[^" ]*"|[^P\s=\(\)\"\{\}+-]+|[P=\(\)\"\{\}+-]/g);
-    	   /*
-    	    * "[^" ]*"             - match a double quote followed by anything but a double quote or space followed by a double quote
-    	    * |                    - OR
-    	    * [^P\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
-    	    * |                    - OR
-    	    * [P=\(\)\"\{\}\;]     - match these characters
-    	    * g                    - global match
-    	    */
+		// Iterate lines
+		for(var i = 0; i < lineArray.length; i++)
+		{
+		   // Split the current line into proper tokens using the ugliest regular expression in the world
+		   var tokenArray = lineArray[i].match(/"[^" ]*"|[^P\s=\(\)\"\{\}+-]+|[P=\(\)\"\{\}+-]/g);
+		   /*
+		    * "[^" ]*"             - match a double quote followed by anything but a double quote or space followed by a double quote
+		    * |                    - OR
+		    * [^P\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
+		    * |                    - OR
+		    * [P=\(\)\"\{\}\;]     - match these characters
+		    * g                    - global match
+		    */
 
-    	    // Iterate tokens on the line
-    	    for(var x = 0; x < tokenArray.length; x++)
-    	    {
-    	        // Fill token characteristics
-        	    kind    = getTokenKind(tokenArray[x]);
-        	    name    = getTokenName(tokenArray[x]);
-        	    value   = getTokenValue(tokenArray[x]);
-        	    type    = getTokenType(tokenArray[x]);
-        	    lineNum = i + 1;
+		    // Iterate tokens on the line
+		    for(var x = 0; x < tokenArray.length; x++)
+		    {
+		        // Fill token characteristics
+			    kind    = getTokenKind(tokenArray[x]);
+			    name    = getTokenName(tokenArray[x]);
+			    value   = getTokenValue(tokenArray[x]);
+			    type    = getTokenType(tokenArray[x]);
+			    lineNum = i + 1;
 
-        	    // If any token is not recognized, invalid token lex error
-        	    if(kind === undefined)
-        	    {
-        	       _OutputManager.addError("Lex Error: invalid token, " + tokenArray[x] + ", on line " + (i+1));
-            	   this.errorCount++;
-        	    }
+			    // If any token is not recognized, invalid token lex error
+			    if(kind === undefined)
+			    {
+			       _OutputManager.addError("Lex Error: invalid token, " + tokenArray[x] + ", on line " + (i+1));
+		    	   this.errorCount++;
+			    }
 
-        	    // Check to see if there is code after the EOF token
-        	    if(kind === TOKEN_EOF)
-        	    {
-        	    	if(lineArray.length > lineNum || tokenArray.length > 1)
-        	    	{
+			    // Check to see if there is code after the EOF token
+			    if(kind === TOKEN_EOF)
+			    {
+			    	if(lineArray.length > lineNum || tokenArray.length > 1)
+			    	{
 		        	    // Provide warning and trace
 		        	    _OutputManager.addWarning("Content exists after EOF token... I'll be your slave and remove it, dont worry.");
 		        	    _OutputManager.addTraceEvent("Removing content after EOF token...");
@@ -89,48 +89,48 @@ function Lexer()
 		        	    $("#sourceCode").val(sourceCode.substring(0, sourceCode.indexOf("$") + 1));
 		        	    // Trace result message
 		        	    _OutputManager.addTraceEvent("Content after EOF token has been removed!", "green");
-	        	    }
-        	    }
+		    	    }
+			    }
 
-        	    // Construct token and add it to the Lexer's token list (stream)
-        	    this.tokenList.push(new Token(kind, name, value, type, lineNum));
+			    // Construct token and add it to the Lexer's token list (stream)
+			    this.tokenList.push(new Token(kind, name, value, type, lineNum));
 
-        	    // Add identifiers to the _SymbolTable object and update the symbol table display
-        	   if(isIdentifier(tokenArray[x]))
-        	   {
-        	        _SymbolTable[name] = value;
-        	        _OutputManager.updateSymbolTable();
-        	   }
-            }
-        }
+			    // Add identifiers to the _SymbolTable object and update the symbol table display
+			   if(isIdentifier(tokenArray[x]) && !_SymbolTable.hasOwnProperty(name))
+			   {
+			        _SymbolTable[name] = {"value":value, "line":lineNum, "type":type};
+			        _OutputManager.updateSymbolTable();
+			   }
+		    }
+		}
 
-        // Check to see if the user placed a $ at the end of the program
-        var lastToken = this.tokenList[this.tokenList.length - 1];
+		// Check to see if the user placed a $ at the end of the program
+		var lastToken = this.tokenList[this.tokenList.length - 1];
 
-        if(lastToken.kind !== TOKEN_EOF)
-        {
-            // Provide warning and trace
-            _OutputManager.addWarning("You forgot to place a $ at the end of your program... I'll be your slave and do it, dont worry.");
-            _OutputManager.addTraceEvent("Adding EOF token to stream of tokens...");
-            // Add it to source code
-            $("#sourceCode").val($("#sourceCode").val().trim() + "\n$");
-            // Add EOF token to the tokenList
-            this.tokenList.push(new Token(TOKEN_EOF, null, null, null, lastToken.line + 1));
-            // Trace result message
-            _OutputManager.addTraceEvent("EOF token has been added to steam of tokens!", "green");
-        }
+		if(lastToken.kind !== TOKEN_EOF)
+		{
+		    // Provide warning and trace
+		    _OutputManager.addWarning("You forgot to place a $ at the end of your program... I'll be your slave and do it, dont worry.");
+		    _OutputManager.addTraceEvent("Adding EOF token to stream of tokens...");
+		    // Add it to source code
+		    $("#sourceCode").val($("#sourceCode").val().trim() + "\n$");
+		    // Add EOF token to the tokenList
+		    this.tokenList.push(new Token(TOKEN_EOF, null, null, null, lastToken.line + 1));
+		    // Trace result message
+		    _OutputManager.addTraceEvent("EOF token has been added to steam of tokens!", "green");
+		}
 
-        if(this.errorCount === 0)
-        {
-        	_OutputManager.addTraceEvent("Lex successful!", "green");
-        	return true;
-        }
-        else
-        {
-	        _OutputManager.addTraceEvent("Lex failed!", "red");
-        	return false;
-        }
-    }
+		if(this.errorCount === 0)
+		{
+			_OutputManager.addTraceEvent("Lex successful!", "green");
+			return true;
+		}
+		else
+		{
+		    _OutputManager.addTraceEvent("Lex failed!", "red");
+			return false;
+		}
+	}
 }
 
 //
