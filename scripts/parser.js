@@ -155,7 +155,7 @@ function Parser()
 	        case TOKEN_ID:		this.matchToken(TOKEN_ID);	break;
 
 	        // Invalid expression
-	        default: _OutputManager.addError("ParseError: invalid expression on line " + this.tokens[this.currentIndex].line + ", expecting an int, char, or Id...");
+	        default: _OutputManager.addError("ParseError: invalid expression on line " + this.tokens[this.currentIndex].line + ", expecting an IntExpr, CharExpr, or Id...");
 	        		 _OutputManager.addTraceEvent("Expecting token int, char, or Id");
 	        		 _OutputManager.addTraceEvent("Expected token, int, char, or Id, not found", "red");
 	        		 this.errorCount++;
