@@ -1,11 +1,9 @@
 /*  -------------------------------------------
  *	Filename: parser.js
  *	Author: Joey Cabibbo
- *  Requires: globals.js, tokenIntrospection.js
+ *  Requires: globals.js
  *	Description: A recursive-descent parser
  *	------------------------------------------- */
-
- // TODO: Comment each parse step
 
 function Parser()
 {
@@ -13,17 +11,19 @@ function Parser()
 	this.tokens = [];
 	// Current token index
 	this.currentIndex = 0;
-
+	// Number of errors found
 	this.errorCount = 0;
 
+	// General parse call, initializes and starts the recursive descent parse
     this.parse = function()
     {
-    	// Initialize parser components
+    	// Get the stream of tokens from the Lexer
     	this.tokens = _Lexer.tokenList;
-    	this.currentIndex = 0;
 
+    	// Start the parse
         this.parseProgram();
 
+        // Determine if it was a successful parse or a failure
         if(this.errorCount === 0)
         {
 	        _OutputManager.addTraceEvent("Parse successful!", "green");
@@ -36,25 +36,30 @@ function Parser()
         }
     }
 
+    // Parse the Program production
+    // Statement $
     this.parseProgram = function()
     {
-    	// Statement $
         this.parseStatement();
 
         // If there is another statement, the user should be alerted that multiple statements must be in a statement list
-        if(this.tokens[this.currentIndex].kind === TOKEN_PRINT || this.tokens[this.currentIndex].kind === TOKEN_ID ||
-	    	this.tokens[this.currentIndex].kind === TOKEN_TYPE || this.tokens[this.currentIndex].kind === TOKEN_OPENBRACKET)
+	    if(isStatement(this.tokens[this.currentIndex].kind))
 	    {
-	    	_OutputManager.addError("Multiple statements must be contained in a StatementList.  Please consult the language grammar.");
+	    	_OutputManager.addError("Multiple statements must be contained in a StatementList...  Please consult the language grammar.");
 	    	this.errorCount++;
 	    }
 
     	this.matchToken(TOKEN_EOF);
     }
 
+    // Parse a single Statement production
+    // P ( Expr )
+    // Id = Expr
+    // VarDecl
+    // { StatementList }
     this.parseStatement = function()
     {
-    	// P( Expr ) ~OR~ Id = Expr ~OR~ VarDecl ~OR~ { StatementList }
+    	// Determine which statement we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
         {
 	        case TOKEN_PRINT:		this.parsePrint();
@@ -68,51 +73,55 @@ function Parser()
 	        						this.matchToken(TOKEN_CLOSEBRACKET);
 	        						break;
 
-	        default:				_OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line);
-	        						_OutputManager.addTraceEvent("Expecting token P, Id, Type, or {");
-	        						_OutputManager.addTraceEvent("Expected token, P, Id, Type, or {, not found", "red");
-	        						this.errorCount++;
-	        						this.currentIndex++;
-	        						break;
+	        // Invalid statement token
+	        default: _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line + ", expecting a P, Id, Type, or {...");
+	        		 _OutputManager.addTraceEvent("Expecting token P, Id, Type, or {");
+	        		 _OutputManager.addTraceEvent("Expected token, P, Id, Type, or {, not found", "red");
+	        		 this.errorCount++;
+	        		 this.currentIndex++; // Move to the next token
+	        		 break;
         }
     }
 
+    // Parse a Print production
+    // P ( Expr )
     this.parsePrint = function()
     {
-    	// P ( Expr )
     	this.matchToken(TOKEN_PRINT);
         this.matchToken(TOKEN_OPENPAREN);
         this.parseExpr();
         this.matchToken(TOKEN_CLOSEPAREN);
     }
 
+    // Parse an Assignment production
+    // Id = Expr
     this.parseAssignment = function()
     {
-    	// Id = Expr
 	    this.matchToken(TOKEN_ID);
 	    this.matchToken(TOKEN_ASSIGN);
 	    this.parseExpr();
     }
 
+    // Parse a VarDecl production
+    // Type Id
     this.parseVarDecl = function()
     {
-    	// Type Id
 	    this.matchToken(TOKEN_TYPE);
 	    this.matchToken(TOKEN_ID);
     }
 
+    // Parse a StatementList production (where the recursive magic happens)
+    // { Statement StatementList }
+    // { ε } // aka nothing
     this.parseStatementList = function()
     {
-	    // { Statement StatementList } ~OR~ { ε }
 	    // Look-ahead to determine which production we need
-	    if(this.tokens[this.currentIndex].kind === TOKEN_PRINT || this.tokens[this.currentIndex].kind === TOKEN_ID ||
-	    	this.tokens[this.currentIndex].kind === TOKEN_TYPE || this.tokens[this.currentIndex].kind === TOKEN_OPENBRACKET)
+	    if(isStatement(this.tokens[this.currentIndex].kind))
 	    {
 		    this.parseStatement();
 
-		    // Look-ahead to determine if we need to recurse on StatementList
-		    if(this.tokens[this.currentIndex].kind === TOKEN_PRINT || this.tokens[this.currentIndex].kind === TOKEN_ID ||
-	    		this.tokens[this.currentIndex].kind === TOKEN_TYPE || this.tokens[this.currentIndex].kind === TOKEN_OPENBRACKET)
+		    // Look-ahead to determine if we need to recurse on StatementList (more statements exist)
+		    if(isStatement(this.tokens[this.currentIndex].kind))
 	    	{
 		    	this.parseStatementList();
 	    	}
@@ -123,36 +132,43 @@ function Parser()
 	    }
 	    else
 	    {
-		    // Something invalid
-		    _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line);
+		    // Invalid statement
+		    _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line + ", expecting a P, Id, Type, or {...");
 	        _OutputManager.addTraceEvent("Expecting token P, Id, Type, or {");
 	        _OutputManager.addTraceEvent("Expected token, P, Id, Type, or {, not found", "red");
 	        this.errorCount++;
-	        this.currentIndex++;
+	        this.currentIndex++; // Consume invalid token
 	    }
     }
 
+    // Parse an Expr production
+    // IntExpr
+    // CharExpr
+    // Id
     this.parseExpr = function()
     {
-    	// IntExpr ~OR~ CharExpr ~OR~ Id
+    	// Determine which expr we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
         {
 	        case TOKEN_INT:		this.parseIntExpr(); 		break;
 	        case TOKEN_CHAR:	this.parseCharExpr();		break;
 	        case TOKEN_ID:		this.matchToken(TOKEN_ID);	break;
 
-	        default:			_OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line);
-	        					_OutputManager.addTraceEvent("Expecting token int, char, or Id");
-	        					_OutputManager.addTraceEvent("Expected token, int, char, or Id, not found", "red");
-	        					this.errorCount++;
-	        					this.currentIndex++;
-	        					break;
+	        // Invalid expression
+	        default: _OutputManager.addError("ParseError: invalid expression on line " + this.tokens[this.currentIndex].line + ", expecting an int, char, or Id...");
+	        		 _OutputManager.addTraceEvent("Expecting token int, char, or Id");
+	        		 _OutputManager.addTraceEvent("Expected token, int, char, or Id, not found", "red");
+	        		 this.errorCount++;
+	        		 this.currentIndex++; // Consume the invalid token
+	        		 break;
         }
     }
 
+    // Parse an IntExpr production
+    // int
+    // int op Expr
     this.parseIntExpr = function()
     {
-    	// int ~OR~ int op Expr
         this.matchToken(TOKEN_INT);
 
         // Look-ahead to determine which production we need
@@ -163,9 +179,10 @@ function Parser()
         }
     }
 
+    // Parse a CharExpr production
+    // " CharList "
     this.parseCharExpr = function()
     {
-    	// " CharList "
         this.matchToken(TOKEN_CHAR);
     }
 
@@ -175,22 +192,37 @@ function Parser()
     {
     	// Trace expecting token...
     	_OutputManager.addTraceEvent("Expecting token '" + expectedTokenKind + "'...");
+
     	// Determine if we have a match
     	if(this.tokens[this.currentIndex].kind === expectedTokenKind)
     	{
-        	// Trace found token..
+        	// Token found
         	_OutputManager.addTraceEvent("Found token '" + expectedTokenKind + "'!", "green");
         	// Consume token
         	this.currentIndex++;
     	}
     	else
     	{
-    		// Trace token not found
+    		// Token not found
 	    	_OutputManager.addTraceEvent("'" + expectedTokenKind + "' not found...", "red");
-	    	// Parse error
 	    	_OutputManager.addError("Parse Error: token mismatch on line " + this.tokens[this.currentIndex].line + ", expecting token '" + expectedTokenKind + "'");
+	    	// Increment the error count
 	    	this.errorCount++;
+	    	// Consume token
 	    	this.currentIndex++;
     	}
     }
+}
+
+//
+//	Helper Functions
+//
+
+// Helper function to determine if the next token is the start of a statement
+function isStatement(tokenKind)
+{
+	return tokenKind === TOKEN_PRINT 		||
+		   tokenKind === TOKEN_ID	 		||
+		   tokenKind === TOKEN_TYPE  		||
+		   tokenKind === TOKEN_OPENBRACKET;
 }
