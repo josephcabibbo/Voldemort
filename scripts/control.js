@@ -241,17 +241,19 @@ $(document).ready(function() {
 
 	function writeTestCases()
 	{
-    	var testCase1 = "This is an error free program:<br/>{<br/>int a<br/>a = 5<br/>P ( 2 + a )<br/>{<br/>char c<br/>c = \"hello\"<br/>P ( c )<br/>}<br/>int k<br/>" +
+    	var testCase1 = "Valid Program:<br/>{<br/>int a<br/>a = 5<br/>P ( 2 + a )<br/>{<br/>char c<br/>c = \"hello\"<br/>P ( c )<br/>}<br/>int k<br/>" +
     	                "k = 7<br/>int x<br/>x = 3 - k<br/>P(k)<br/>}<br/>$<br/>";
 
-    	var testCase2 = "This will cause lex to fail:<br/>{<br/>int a<br/>a = #<br/>hello<br/>char c<br/>c=\"LETTERS\"<br/>}<br/>$<br/>";
+    	var testCase2 = "Valid Program:<br/>{{{{{{{{{{}}}}}}}}}}<br/>$<br/>";
 
-    	var testCase3 = "This will pass lex and cause parse to fail:<br/>{<br/>int a<br/>a = int<br/>P { 2 + a }<br/>{<br/>char c<br/>c = \"hello\"<br/>P ( + )<br/>}" +
+    	var testCase3 = "This will cause lex to fail:<br/>{<br/>int a<br/>a = #<br/>hello<br/>char c<br/>c=\"LETTERS\"<br/>}<br/>$<br/>";
+
+    	var testCase4 = "This will pass lex but cause parse to fail:<br/>{<br/>int a<br/>a = int<br/>P { 2 + a }<br/>{<br/>char c<br/>c = \"hello\"<br/>P ( + )<br/>}" +
     					"<br/>int k<br/>k = 7<br/>int x<br/>x = 3 - k<br/>P(k)<br/>}<br/>$<br/>";
 
     	var proTip	  = "Pro Tip: If you leave the EOF token ($) out of the source code, the lexer will warn you and add it for you."
 
-    	$("#testCases").html(testCase1 + "<br/>" + testCase2 + "<br/>" + testCase3 + "<br/>" + proTip);
+    	$("#testCases").html(testCase1 + "<br/>" + testCase2 + "<br/>" + testCase3 + "<br/>" + testCase4 + "<br/>" + proTip);
 	}
 
 	//
