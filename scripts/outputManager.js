@@ -119,7 +119,9 @@ function OutputManager()
         								"<td>&nbsp;</td>" +
     								    "<td><span class='regularText'>" + _SymbolTable[symbol].value + "</span></td>" +
     								    "<td>&nbsp;</td>" +
-    								    "<td><span class='regularText'>" + _SymbolTable[symbol].type + "</span></td>" +
+    								    "<td><span class='regularText'>" + _SymbolTable[symbol].type  + "</span></td>" +
+    								    "<td>&nbsp;</td>" +
+    								    "<td><span class='regularText'>" + _SymbolTable[symbol].scope  + "</span></td>" +
     								    "<td>&nbsp;</td>" +
     								    "<td><span class='regularText'>" + _SymbolTable[symbol].line + "</span></td>" +
         							 "</tr>";
@@ -131,11 +133,13 @@ function OutputManager()
         			// First add, creates the table
         			var newContent = "<table id='symbolValueTable'>" +
         			                    "<tr>" +
-        								    "<th><span class='regularText'>Identifier</span></th>" +
+        								    "<th><span class='regularText'>Id</span></th>" +
         								    "<td>&nbsp;</td>" +
         								    "<th><span class='regularText'>Value</span></th>" +
         								    "<td>&nbsp;</td>" +
         								    "<th><span class='regularText'>Type</span></th>" +
+        								    "<td>&nbsp;</td>" +
+        								    "<th><span class='regularText'>Scope</span></th>" +
         								    "<td>&nbsp;</td>" +
         								    "<th><span class='regularText'>Line</span></th>" +
         								"</tr>" +
@@ -144,7 +148,9 @@ function OutputManager()
         								    "<td>&nbsp;</td>" +
         								    "<td><span class='regularText'>" + _SymbolTable[symbol].value + "</span></td>" +
         								    "<td>&nbsp;</td>" +
-        								    "<td><span class='regularText'>" + _SymbolTable[symbol].type + "</span></td>" +
+        								    "<td><span class='regularText'>" + _SymbolTable[symbol].type  + "</span></td>" +
+        								    "<td>&nbsp;</td>" +
+        								    "<td><span class='regularText'>" + _SymbolTable[symbol].scope  + "</span></td>" +
         								    "<td>&nbsp;</td>" +
         								    "<td><span class='regularText'>" + _SymbolTable[symbol].line + "</span></td>" +
         								"</tr>" +

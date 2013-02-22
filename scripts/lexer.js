@@ -23,6 +23,7 @@ function Lexer()
 		var value;
 		var type;
 		var lineNum;
+		var scope;
 
 		// Grab the "trimmmed" source code text
 		var sourceCode = $("#sourceCode").val().trim();
@@ -60,6 +61,7 @@ function Lexer()
 			    value   = getTokenValue(tokenArray[x]);
 			    type    = getTokenType(tokenArray[x]);
 			    lineNum = i + 1;
+			    scope	= null;
 
 			    // If any token is not recognized, invalid token lex error
 			    if(kind === undefined)
@@ -93,12 +95,12 @@ function Lexer()
 			    }
 
 			    // Construct token and add it to the Lexer's token list (stream)
-			    this.tokenList.push(new Token(kind, name, value, type, lineNum));
+			    this.tokenList.push(new Token(kind, name, value, type, lineNum, scope));
 
 			    // Add identifiers to the _SymbolTable object and update the symbol table display
 			   if(isIdentifier(tokenArray[x]) && !_SymbolTable.hasOwnProperty(name))
 			   {
-			        _SymbolTable[name] = {"value":value, "line":lineNum, "type":type};
+			        _SymbolTable[name] = {"value":value, "line":lineNum, "type":type, "scope":scope};
 			        _OutputManager.updateSymbolTable();
 			   }
 		    }
