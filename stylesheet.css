@@ -194,7 +194,6 @@ body
 #symbolTable
 {
 	top: 221px;
-	font-size: 10pt;
 	text-align: center;
 }
 
@@ -215,7 +214,6 @@ body
 {
 	left: 220px;
 	top: 221px;
-	font-size: 10pt;
 }
 
 .outputBoxHighlight

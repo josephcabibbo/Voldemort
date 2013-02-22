@@ -202,7 +202,7 @@ $(document).ready(function() {
 	function displayCorrectButton()
 	{
 		// If the source code is visible give the user the option to compile the code
-		if( $("#sourceCode").is(":visible") )
+		if($("#sourceCode").is(":visible"))
 			$("#btnCompile").text("Compile Source Code");
 		else
 			$("#btnCompile").text("Show Source Code");
@@ -298,7 +298,7 @@ $(document).ready(function() {
     			                   left: "0px",
     			                   width: "417px",
     			                   height: "322px",
-    			                   "font-size": "16pt", // Wanted to have a bit larger hence not using the const
+    			                   "font-size": RESULTBOX_ENL_FONTSIZE,
     			                   borderWidth: "4px"
     			                   }, 400, function() {
         			                   $("#btnRestore").show();
@@ -381,7 +381,7 @@ $(document).ready(function() {
 									top: "221px",
 									width: RESULTBOX_DEF_WIDTH.toString(),
 									height: RESULTBOX_DEF_HEIGHT.toString(),
-									"font-size": "10pt", // Wanted to have a bit larger hence not using the const
+									"font-size": RESULTBOX_DEF_FONTSIZE,
 									borderWidth: "2px"
 									}, 400, function() {
 									// Change the box's z-index back to original value after restoring
@@ -414,25 +414,35 @@ $(document).ready(function() {
 		// Change title to reflect the currently enlarged box
 		switch(boxId)
 		{
-			case "errors": $("#resultsPanelLabel").fadeOut(400, function() {
-    			                 $("#resultsPanelLabel").text("Errors").fadeIn(400);
-    			           }); break;
+			case "errors": 		$("#resultsPanelLabel").fadeOut(400, function()
+						   		{
+							   		$("#resultsPanelLabel").text("Errors").fadeIn(400);
+							   	});
+							   	break;
 
-			case "trace": $("#resultsPanelLabel").fadeOut(400, function() {
-    			                 $("#resultsPanelLabel").text("Trace").fadeIn(400);
-    			          }); break;
+			case "trace": 		$("#resultsPanelLabel").fadeOut(400, function()
+						  		{
+							  		$("#resultsPanelLabel").text("Trace").fadeIn(400);
+							  	});
+							  	break;
 
-			case "symbolTable": $("#resultsPanelLabel").fadeOut(400, function() {
-    			                     $("#resultsPanelLabel").text("Symbol Table").fadeIn(400);
-    			                }); break;
+			case "symbolTable": $("#resultsPanelLabel").fadeOut(400, function()
+								{
+    			                    $("#resultsPanelLabel").text("Symbol Table").fadeIn(400);
+    			                });
+    			                break;
 
-			case "output": $("#resultsPanelLabel").fadeOut(400, function() {
-    			                 $("#resultsPanelLabel").text("Generated Output").fadeIn(400);
-    			           }); break;
+			case "output": 		$("#resultsPanelLabel").fadeOut(400, function()
+						   		{
+							   		$("#resultsPanelLabel").text("Generated Output").fadeIn(400);
+							   	});
+							   	break;
 
-			default: $("#resultsPanelLabel").fadeOut(400, function() {
-    			             $("#resultsPanelLabel").text("Results").fadeIn(400);
-    			     }); break;
+			default: 		 	$("#resultsPanelLabel").fadeOut(400, function()
+					 			{
+						 			$("#resultsPanelLabel").text("Results").fadeIn(400);
+						 		});
+						 		break;
 		}
 	}
 });
