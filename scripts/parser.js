@@ -1,7 +1,7 @@
 /*  -------------------------------------------
  *	Filename: parser.js
  *	Author: Joey Cabibbo
- *  Requires: globals.js
+ *	Requires: globals.js, outputManager.js
  *	Description: A recursive-descent parser
  *	------------------------------------------- */
 
