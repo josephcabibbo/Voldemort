@@ -1,9 +1,9 @@
-/*  -------------------------------------------------
+/*  --------------------------------------------------------------------------
  *	Filename: lexer.js
  *	Author: Joey Cabibbo
  *  Requires: globals.js, tokenIntrospection.js
- *	Description: Lexical analysis of source code
- *	------------------------------------------------- */
+ *	Description: Lexical analysis of source code (Produces a stream of tokens)
+ *	-------------------------------------------------------------------------- */
 
 // TODO: Create a lex object called lexErrorList and do a for at the end to display all found errors
 
@@ -178,9 +178,15 @@ function getTokenName(token)
 // Helper function that takes a token and returns its value
 function getTokenValue(token)
 {
-    // Only integers will receive values in lex
+	// Should reserved words have values?  BC int and char are of kind "type" so it may be helpful to know their actual value
     if(isInteger(token))
         return parseInt(token);
+    else if(isCharList(token))
+    	return token;
+    else if(isReservedWord(token))
+    	return token.replace(/"/g, ""); // A reserved word's value is the word w/out the double-quotes
+    else if(isSymbol(token))
+    	return token.replace(/"/g, ""); // A symbols value is the symbol w/out the double-quotes
     else
         return null;
 }
