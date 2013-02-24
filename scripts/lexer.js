@@ -5,8 +5,6 @@
  *	Description: Lexical analysis of source code (Produces a stream of tokens)
  *	-------------------------------------------------------------------------- */
 
-// TODO: Create a lex object called lexErrorList and do a for at the end to display all found errors
-
 function Lexer()
 {
  	// Array of tokens

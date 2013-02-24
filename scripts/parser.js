@@ -5,8 +5,6 @@
  *	Description: A recursive-descent parser that creates a concrete syntax tree
  *	--------------------------------------------------------------------------- */
 
-// TODO: test out statement list and figure out where to ass endChildren
-
 function Parser()
 {
 	// Stream of tokens
@@ -48,7 +46,6 @@ function Parser()
     {
     	// Add Program to the cst
         this.cst.addNonTerminal("Program");
-        console.log("StartProgram");
 
         this.parseStatement();
 
@@ -60,7 +57,6 @@ function Parser()
 	    }
 
     	this.matchToken(TOKEN_EOF);
-    	console.log("EndProgram");
     }
 
     // Parse a single Statement production
@@ -72,7 +68,6 @@ function Parser()
     {
     	// Add a Statement to the cst
     	this.cst.addNonTerminal("Statement");
-    	console.log("\tStartStatement");
 
     	// Determine which statement we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
@@ -98,8 +93,6 @@ function Parser()
 	        		 this.currentIndex++; // Move to the next token
 	        		 break;
         }
-
-        console.log("\tEndStatement");
     }
 
     // Parse a Print production
@@ -177,7 +170,6 @@ function Parser()
     {
     	// Add an Expr to the cst
     	this.cst.addNonTerminal("Expr");
-    	console.log("\t\tStartExpr");
 
     	// Determine which expr we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
@@ -197,7 +189,6 @@ function Parser()
 
         // Signify the end of a tree "branch"
         this.cst.endChildren();
-        console.log("\t\tEndExpr");
     }
 
     // Parse an IntExpr production
@@ -238,8 +229,6 @@ function Parser()
         	this.cst.addTerminal(this.tokens[this.currentIndex]);
         	// Consume token
         	this.currentIndex++;
-
-        	console.log("\t\t\t" + this.tokens[this.currentIndex]);
     	}
     	else
     	{
