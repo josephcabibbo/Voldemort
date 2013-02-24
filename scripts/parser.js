@@ -1,9 +1,11 @@
-/*  -------------------------------------------
+/*  ---------------------------------------------------------------------------
  *	Filename: parser.js
  *	Author: Joey Cabibbo
  *	Requires: globals.js, outputManager.js
- *	Description: A recursive-descent parser
- *	------------------------------------------- */
+ *	Description: A recursive-descent parser that creates a concrete syntax tree
+ *	--------------------------------------------------------------------------- */
+
+// TODO: test out statement list and figure out where to ass endChildren
 
 function Parser()
 {
@@ -13,6 +15,8 @@ function Parser()
 	this.currentIndex = 0;
 	// Number of errors found
 	this.errorCount = 0;
+	// Concrete syntax tree we are creating
+	this.cst = {};
 
 	// General parse call, initializes and starts the recursive descent parse
     this.parse = function()
@@ -32,6 +36,8 @@ function Parser()
         else
         {
 	        _OutputManager.addTraceEvent("Parse failed!", "red");
+	        // Erase cst
+	        this.cst = {};
 	        return false;
         }
     }
@@ -40,6 +46,10 @@ function Parser()
     // Statement $
     this.parseProgram = function()
     {
+    	// Add Program to the cst
+        this.cst.addNonTerminal("Program");
+        console.log("StartProgram");
+
         this.parseStatement();
 
         // If there is another statement, the user should be alerted that multiple statements must be in a statement list
@@ -50,6 +60,7 @@ function Parser()
 	    }
 
     	this.matchToken(TOKEN_EOF);
+    	console.log("EndProgram");
     }
 
     // Parse a single Statement production
@@ -59,6 +70,10 @@ function Parser()
     // { StatementList }
     this.parseStatement = function()
     {
+    	// Add a Statement to the cst
+    	this.cst.addNonTerminal("Statement");
+    	console.log("\tStartStatement");
+
     	// Determine which statement we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
         {
@@ -71,6 +86,8 @@ function Parser()
 	        case TOKEN_OPENBRACKET: this.matchToken(TOKEN_OPENBRACKET);
 	        						this.parseStatementList();
 	        						this.matchToken(TOKEN_CLOSEBRACKET);
+	        						// Signify the end of a tree "branch"
+	        						this.cst.endChildren();
 	        						break;
 
 	        // Invalid statement token
@@ -81,6 +98,8 @@ function Parser()
 	        		 this.currentIndex++; // Move to the next token
 	        		 break;
         }
+
+        console.log("\tEndStatement");
     }
 
     // Parse a Print production
@@ -91,6 +110,9 @@ function Parser()
         this.matchToken(TOKEN_OPENPAREN);
         this.parseExpr();
         this.matchToken(TOKEN_CLOSEPAREN);
+
+        // Signify the end of a tree "branch"
+        this.cst.endChildren();
     }
 
     // Parse an Assignment production
@@ -100,6 +122,9 @@ function Parser()
 	    this.matchToken(TOKEN_ID);
 	    this.matchToken(TOKEN_ASSIGN);
 	    this.parseExpr();
+
+	    // Signify the end of a tree "branch"
+        this.cst.endChildren();
     }
 
     // Parse a VarDecl production
@@ -108,6 +133,9 @@ function Parser()
     {
 	    this.matchToken(TOKEN_TYPE);
 	    this.matchToken(TOKEN_ID);
+
+	    // Signify the end of a tree "branch"
+        this.cst.endChildren();
     }
 
     // Parse a StatementList production (where the recursive magic happens)
@@ -147,6 +175,10 @@ function Parser()
     // Id
     this.parseExpr = function()
     {
+    	// Add an Expr to the cst
+    	this.cst.addNonTerminal("Expr");
+    	console.log("\t\tStartExpr");
+
     	// Determine which expr we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
         {
@@ -162,6 +194,10 @@ function Parser()
 	        		 this.currentIndex++; // Consume the invalid token
 	        		 break;
         }
+
+        // Signify the end of a tree "branch"
+        this.cst.endChildren();
+        console.log("\t\tEndExpr");
     }
 
     // Parse an IntExpr production
@@ -198,8 +234,12 @@ function Parser()
     	{
         	// Token found
         	_OutputManager.addTraceEvent("Found token '" + expectedTokenKind + "'!", "green");
+        	// Add non-terminal to the cst
+        	this.cst.addTerminal(this.tokens[this.currentIndex]);
         	// Consume token
         	this.currentIndex++;
+
+        	console.log("\t\t\t" + this.tokens[this.currentIndex]);
     	}
     	else
     	{

@@ -135,6 +135,7 @@ $(document).ready(function() {
     	_Lexer.errorCount = 0;
     	// Parser objects
     	_Parser.tokens = [];
+    	_Parser.cst = new CST();
     	_Parser.currentIndex = 0;
     	_Parser.errorCount = 0;
     	// Symbol table
