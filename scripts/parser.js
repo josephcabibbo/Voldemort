@@ -19,6 +19,12 @@ function Parser()
 	// General parse call, initializes and starts the recursive descent parse
     this.parse = function()
     {
+    	// Reset parse's members
+    	this.tokens = [];
+    	this.cst = new CST();
+    	this.currentIndex = 0;
+    	this.errorCount = 0;
+
     	// Get the stream of tokens from the Lexer
     	this.tokens = _Lexer.tokenList;
 
@@ -199,9 +205,9 @@ function Parser()
         this.matchToken(TOKEN_INT);
 
         // Look-ahead to determine which production we need
-        if(this.tokens[this.currentIndex].kind === TOKEN_INTOP)
+        if(this.tokens[this.currentIndex].kind === TOKEN_OP)
         {
-	        this.matchToken(TOKEN_INTOP)
+	        this.matchToken(TOKEN_OP)
 	        this.parseExpr();
         }
     }

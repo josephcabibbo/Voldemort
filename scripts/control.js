@@ -33,12 +33,14 @@ $(document).ready(function() {
 		{
 		    // Clear all result boxes
 		    _OutputManager.clearAllOutput();
+		    // Clear the symbol table object
+		    _SymbolTable = {};
 		    // Add trace start up message
 		    _OutputManager.addTraceEvent("Compiler is initialized and ready...", "green");
-		    // Clear all storage objects
-		    clearStorageObjects();
+
 			// Lexical analysis
 			var isLexSuccessful = _Lexer.lex();
+			// Parse
 			if(isLexSuccessful)
 				_Parser.parse();
 		}
@@ -125,21 +127,6 @@ $(document).ready(function() {
 		_Lexer = new Lexer();	               // Object responsible for lexical analysis
 		_Parser = new Parser();                // Object responsible for parsing
 		_SymbolTable = {};                     // Associative array (hash) for symbol table
-	}
-
-	// Helper function to clear all storage objects in order to start fresh
-	function clearStorageObjects()
-	{
-		// Lexer objects
-    	_Lexer.tokenList = [];
-    	_Lexer.errorCount = 0;
-    	// Parser objects
-    	_Parser.tokens = [];
-    	_Parser.cst = new CST();
-    	_Parser.currentIndex = 0;
-    	_Parser.errorCount = 0;
-    	// Symbol table
-    	_SymbolTable = {};
 	}
 
 	//

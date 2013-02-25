@@ -9,12 +9,16 @@ function Lexer()
 {
  	// Array of tokens
 	this.tokenList = [];
-
+	// Reference to the number of errors found
 	this.errorCount = 0;
 
 	// Lexically analyze the user submitted source code and produce an array of tokens if successful
 	this.lex = function()
 	{
+		// Reset lex's members
+		this.tokenList = [];
+		this.errorCount = 0;
+
 		// Information needed to construct token objects
 		var kind;
 		var name;
@@ -184,7 +188,7 @@ function getTokenValue(token)
     else if(isReservedWord(token))
     	return token.replace(/"/g, ""); // A reserved word's value is the word w/out the double-quotes
     else if(isSymbol(token))
-    	return token.replace(/"/g, ""); // A symbols value is the symbol w/out the double-quotes
+    	return token.replace(/"/g, ""); // A symbol's value is the symbol w/out the double-quotes
     else
         return null;
 }
@@ -209,9 +213,9 @@ function getSymbolKind(token)
 
     switch(token)
     {
-        case "-": kind = TOKEN_INTOP;      	 break;
+        case "-": kind = TOKEN_OP;      	 break;
         case "$": kind = TOKEN_EOF;          break;
-        case "+": kind = TOKEN_INTOP;        break;
+        case "+": kind = TOKEN_OP;        	 break;
         case "=": kind = TOKEN_ASSIGN;       break;
         case ")": kind = TOKEN_CLOSEPAREN;   break;
         case "(": kind = TOKEN_OPENPAREN;    break;
