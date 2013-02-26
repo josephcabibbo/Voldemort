@@ -170,7 +170,7 @@ function Parser()
 
     // Parse an Expr production
     // IntExpr
-    // CharExpr
+    // StringExpr
     // Id
     this.parseExpr = function()
     {
@@ -181,7 +181,7 @@ function Parser()
         switch(this.tokens[this.currentIndex].kind)
         {
 	        case TOKEN_INT:		this.parseIntExpr(); 		break;
-	        case TOKEN_CHAR:	this.parseCharExpr();		break;
+	        case TOKEN_STRING:	this.parseStringExpr();		break;
 	        case TOKEN_ID:		this.matchToken(TOKEN_ID);	break;
 
 	        // Invalid expression
@@ -214,9 +214,9 @@ function Parser()
 
     // Parse a CharExpr production
     // " CharList "
-    this.parseCharExpr = function()
+    this.parseStringExpr = function()
     {
-        this.matchToken(TOKEN_CHAR);
+        this.matchToken(TOKEN_STRING);
     }
 
     // Function to determine if the expected token is a match to the actual token
