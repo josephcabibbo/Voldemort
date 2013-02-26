@@ -202,24 +202,26 @@ $(document).ready(function() {
 		// Build table to show the language grammer
 		var newContent = "<table id='grammarTable'>" +
                             "<tr>" + "<td>Program</td><td>::== Statement $</td>"                          + "</tr>" +
-                            "<tr>" + "<td>Statement</td><td>::== P ( Expr )</td>"                         + "</tr>" +
+                            "<tr>" + "<td>Statement</td><td>::== print ( Expr )</td>"                     + "</tr>" +
                             "<tr>" + "<td></td><td>::== Id = Expr</td>"                                   + "</tr>" +
                             "<tr>" + "<td></td><td>::== VarDecl</td>"                                     + "</tr>" +
                             "<tr>" + "<td></td><td>::== { StatementList }</td>"                           + "</tr>" +
                             "<tr>" + "<td>Statement List</td><td>::== Statement StatementList</td>"       + "</tr>" +
                             "<tr>" + "<td></td><td>::== ε</td>"                                           + "</tr>" +
                             "<tr>" + "<td>Expr</td><td>::== IntExpr</td>"                                 + "</tr>" +
-                            "<tr>" + "<td></td><td>::== CharExpr</td>"                                    + "</tr>" +
+                            "<tr>" + "<td></td><td>::== StringExpr</td>"                                  + "</tr>" +
                             "<tr>" + "<td></td><td>::== Id</td>"                                          + "</tr>" +
                             "<tr>" + "<td>IntExpr</td><td>::== digit op Expr</td>"                        + "</tr>" +
                             "<tr>" + "<td></td><td>::== digit</td>"                                       + "</tr>" +
-                            "<tr>" + "<td>CharExpr</td><td>::== \" CharList \"</td>"                      + "</tr>" +
+                            "<tr>" + "<td>StringExpr</td><td>::== \" CharList \"</td>"                    + "</tr>" +
                             "<tr>" + "<td>CharList</td><td>::== Char CharList</td>"                       + "</tr>" +
+                            "<tr>" + "<td></td><td>::== Space CharList</td>"                       		  + "</tr>" +
                             "<tr>" + "<td></td><td>::== ε</td>"                                           + "</tr>" +
                             "<tr>" + "<td>VarDecl</td><td>::== Type Id</td>"                              + "</tr>" +
-                            "<tr>" + "<td>Type</td><td>::== int | char</td>"                              + "</tr>" +
+                            "<tr>" + "<td>Type</td><td>::== int | string</td>"                            + "</tr>" +
                             "<tr>" + "<td>Id</td><td>::== Char</td>"                                      + "</tr>" +
                             "<tr>" + "<td>Char</td><td>::== a | b | c ... z</td>"                         + "</tr>" +
+                            "<tr>" + "<td>Space</td><td>::== the space character</td>"                    + "</tr>" +
                             "<tr>" + "<td>digit</td><td>::== 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0</td>"  + "</tr>" +
                             "<tr>" + "<td>op</td><td>::== + | -</td>"                                     + "</tr>" +
                          "</table>";
