@@ -18,7 +18,7 @@ var RESULTBOX_ENL_FONTSIZE = "14pt";
 // Token kinds
 var TOKEN_TYPE		   = "type";
 var TOKEN_ID           = "identifier";
-var TOKEN_CHAR         = "charList";
+//var TOKEN_CHAR         = "charList";
 var TOKEN_STRING       = "string";
 var TOKEN_INT          = "integer";
 var TOKEN_PRINT        = "print";

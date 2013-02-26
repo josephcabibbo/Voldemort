@@ -44,13 +44,15 @@ function Lexer()
 		for(var i = 0; i < lineArray.length; i++)
 		{
 		   // Split the current line into proper tokens using the ugliest regular expression in the world
-		   var tokenArray = lineArray[i].match(/"[^" ]*"|[^P$\s=\(\)\"\{\}+-]+|[P$=\(\)\"\{\}+-]/g);
+		   var tokenArray = lineArray[i].match(/"[^"]*"|print|[^$\s=\(\)\"\{\}+-]+|[$=\(\)\"\{\}+-]/g);
 		   /*
-		    * "[^" ]*"             - match a double quote followed by anything but a double quote or space followed by a double quote
+		    * "[^"]*"              - match a string (double quote followed by anything but a double quote followed by a double quote)
 		    * |                    - OR
-		    * [^P\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
+		    * print				   - match print
 		    * |                    - OR
-		    * [P=\(\)\"\{\}\;]     - match these characters
+		    * [^$\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
+		    * |                    - OR
+		    * [$=\(\)\"\{\}\;]	   - match these characters
 		    * g                    - global match
 		    */
 
@@ -162,8 +164,10 @@ function getTokenKind(token)
         return TOKEN_ID;
     else if(isInteger(token))
         return TOKEN_INT;
-    else if(isCharList(token))
-        return TOKEN_CHAR;
+    else if(isString(token))
+    	return TOKEN_STRING;
+    //else if(isCharList(token))
+    //    return TOKEN_CHAR;
     else
         return undefined;
 }
@@ -183,8 +187,10 @@ function getTokenValue(token)
 	// Should reserved words have values?  BC int and char are of kind "type" so it may be helpful to know their actual value
     if(isInteger(token))
         return parseInt(token);
-    else if(isCharList(token))
+    else if(isString(token))
     	return token;
+    //else if(isCharList(token))
+    //	return token;
     else if(isReservedWord(token))
     	return token.replace(/"/g, ""); // A reserved word's value is the word w/out the double-quotes
     else if(isSymbol(token))
@@ -199,8 +205,10 @@ function getTokenType(token)
     // The only types we have are int and char
     if(isInteger(token))
         return "int";
-    else if(isCharList(token))
-        return "char";
+    else if(isString(token))
+    	return "string";
+    //else if(isCharList(token))
+    //    return "char";
     else
         return null;
 }
@@ -235,10 +243,11 @@ function getReservedWordKind(token)
 
     switch(token)
     {
-        case "int":  kind = TOKEN_TYPE;  	break;
-        case "char": kind = TOKEN_TYPE;		break;
-        case "P":    kind = TOKEN_PRINT;    break;
-        default:     kind = undefined;      break;
+        case "int":    kind = TOKEN_TYPE;  	break;
+        //case "char":  kind = TOKEN_TYPE;	break;
+        case "string": kind = TOKEN_TYPE;	break
+        case "print":  kind = TOKEN_PRINT;  break;
+        default:       kind = undefined;    break;
     }
 
     return kind;
