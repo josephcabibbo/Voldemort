@@ -32,19 +32,6 @@ function isInteger(token)
      */
 }
 
-// Helper function that takes a token string and returns whether it is a valid charList token
-/*
-function isCharList(token)
-{
-    return (/^"[a-z]*"$/).test(token)
-    /*
-     *  ^        - start of token
-     *  "[a-z]*" - a double quote followed by any lower case letter followed by a double quote
-     *  $        - end of token
-     *
-}
-*/
-
 // Helper function that takes a token string and returns whether it is a valid string token
 function isString(token)
 {
@@ -71,10 +58,10 @@ function isSymbol(token)
 function isReservedWord(token)
 {
     // TODO: Add more reserved words
-    return (/^(int|char|print)$/).test(token)
+    return (/^(int|string|print)$/).test(token)
     /*
-     *  ^            - start of token
-     *  (int|char|P) - any of the listed reserved words
-     *  $            - end of token
+     *  ^                  - start of token
+     *  (int|string|print) - any of the listed reserved words
+     *  $                  - end of token
      */
 }

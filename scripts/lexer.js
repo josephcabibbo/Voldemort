@@ -166,8 +166,6 @@ function getTokenKind(token)
         return TOKEN_INT;
     else if(isString(token))
     	return TOKEN_STRING;
-    //else if(isCharList(token))
-    //    return TOKEN_CHAR;
     else
         return undefined;
 }
@@ -189,8 +187,6 @@ function getTokenValue(token)
         return parseInt(token);
     else if(isString(token))
     	return token;
-    //else if(isCharList(token))
-    //	return token;
     else if(isReservedWord(token))
     	return token.replace(/"/g, ""); // A reserved word's value is the word w/out the double-quotes
     else if(isSymbol(token))
@@ -207,8 +203,6 @@ function getTokenType(token)
         return "int";
     else if(isString(token))
     	return "string";
-    //else if(isCharList(token))
-    //    return "char";
     else
         return null;
 }
@@ -244,7 +238,6 @@ function getReservedWordKind(token)
     switch(token)
     {
         case "int":    kind = TOKEN_TYPE;  	break;
-        //case "char":  kind = TOKEN_TYPE;	break;
         case "string": kind = TOKEN_TYPE;	break
         case "print":  kind = TOKEN_PRINT;  break;
         default:       kind = undefined;    break;
