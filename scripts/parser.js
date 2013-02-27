@@ -21,7 +21,7 @@ function Parser()
     {
     	// Reset parse's members
     	this.tokens = [];
-    	this.cst = new CST();
+    	this.cst = new Tree();
     	this.currentIndex = 0;
     	this.errorCount = 0;
 
@@ -51,7 +51,7 @@ function Parser()
     this.parseProgram = function()
     {
     	// Add Program to the cst
-        this.cst.addNonTerminal("Program");
+        this.cst.addNode("Program", "branch");
 
         this.parseStatement();
 
@@ -73,7 +73,7 @@ function Parser()
     this.parseStatement = function()
     {
     	// Add a Statement to the cst
-    	this.cst.addNonTerminal("Statement");
+    	this.cst.addNode("Statement", "branch");
 
     	// Determine which statement we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
@@ -175,7 +175,7 @@ function Parser()
     this.parseExpr = function()
     {
     	// Add an Expr to the cst
-    	this.cst.addNonTerminal("Expr");
+    	this.cst.addNode("Expr", "branch");
 
     	// Determine which expr we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
@@ -232,7 +232,7 @@ function Parser()
         	// Token found
         	_OutputManager.addTraceEvent("Found token '" + expectedTokenKind + "'!", "green");
         	// Add non-terminal to the cst
-        	this.cst.addTerminal(this.tokens[this.currentIndex]);
+        	this.cst.addNode(this.tokens[this.currentIndex], "leaf");
         	// Consume token
         	this.currentIndex++;
     	}
