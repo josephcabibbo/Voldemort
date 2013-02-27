@@ -44,7 +44,7 @@ function Lexer()
 		for(var i = 0; i < lineArray.length; i++)
 		{
 		   // Split the current line into proper tokens using the ugliest regular expression in the world
-		   var tokenArray = lineArray[i].match(/"[^" ]*"|[^P\s=\(\)\"\{\}+-]+|[P=\(\)\"\{\}+-]/g);
+		   var tokenArray = lineArray[i].match(/"[^" ]*"|[^P$\s=\(\)\"\{\}+-]+|[P$=\(\)\"\{\}+-]/g);
 		   /*
 		    * "[^" ]*"             - match a double quote followed by anything but a double quote or space followed by a double quote
 		    * |                    - OR
@@ -144,10 +144,10 @@ function Lexer()
 // Helper function to split the source code by individual lines
 function splitSourceByLines(sourceCode)
 {
-     return sourceCode.split(/[\n\r]/g);
+     return sourceCode.split(/[\n\r]+/g);
      /*
-      * [\n\r] - 1 or more instances of newline or carriage return
-      * g      - global match
+      * [\n\r]+ - 1 or more instances of newline or carriage return
+      * g       - global match
       */
 }
 
