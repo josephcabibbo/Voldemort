@@ -31,6 +31,9 @@ function Parser()
     	// Start the parse
         this.parseProgram();
 
+        // Tell the _OuputManager to update the symbol table display
+        _OutputManager.updateSymbolTable();
+
         // Determine if it was a successful parse or a failure
         if(this.errorCount === 0)
         {
@@ -92,9 +95,9 @@ function Parser()
 	        						break;
 
 	        // Invalid statement token
-	        default: _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line + ", expecting a P, Id, Type, or {...");
-	        		 _OutputManager.addTraceEvent("Expecting token P, Id, Type, or {");
-	        		 _OutputManager.addTraceEvent("Expected token, P, Id, Type, or {, not found", "red");
+	        default: _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line + ", expecting a print, Id, Type, or {...");
+	        		 _OutputManager.addTraceEvent("Expecting token print, Id, Type, or {");
+	        		 _OutputManager.addTraceEvent("Expected token, print, Id, Type, or {, not found", "red");
 	        		 this.errorCount++;
 	        		 this.currentIndex++; // Move to the next token
 	        		 break;
@@ -130,8 +133,21 @@ function Parser()
     // Type Id
     this.parseVarDecl = function()
     {
+    	var errorsBeforeMatch = this.errorCount;
+
 	    this.matchToken(TOKEN_TYPE);
 	    this.matchToken(TOKEN_ID);
+
+	    // TODO: Check to see if a variable of the same id and in the scope is being redeclared
+
+	    // If the above token matches did not produce parse errors, they are a valid Type Id production
+	    if(errorsBeforeMatch === this.errorCount)
+	    {
+		    // Get the type and assign it to that id in the symbol table
+		    var id   = this.tokens[this.currentIndex - 1].name;
+		    var type = this.tokens[this.currentIndex - 2].value;
+		    _SymbolTable[id].type = type;
+	    }
 
 	    // Signify the end of a tree "branch"
         this.cst.endChildren();
@@ -160,9 +176,9 @@ function Parser()
 	    else
 	    {
 		    // Invalid statement
-		    _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line + ", expecting a P, Id, Type, or {...");
-	        _OutputManager.addTraceEvent("Expecting token P, Id, Type, or {");
-	        _OutputManager.addTraceEvent("Expected token, P, Id, Type, or {, not found", "red");
+		    _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line + ", expecting a print, Id, Type, or {...");
+	        _OutputManager.addTraceEvent("Expecting token print, Id, Type, or {");
+	        _OutputManager.addTraceEvent("Expected token, print, Id, Type, or {, not found", "red");
 	        this.errorCount++;
 	        this.currentIndex++; // Consume invalid token
 	    }
@@ -185,7 +201,7 @@ function Parser()
 	        case TOKEN_ID:		this.matchToken(TOKEN_ID);	break;
 
 	        // Invalid expression
-	        default: _OutputManager.addError("ParseError: invalid expression on line " + this.tokens[this.currentIndex].line + ", expecting an IntExpr, CharExpr, or Id...");
+	        default: _OutputManager.addError("ParseError: invalid expression on line " + this.tokens[this.currentIndex].line + ", expecting an IntExpr, StringExpr, or Id...");
 	        		 _OutputManager.addTraceEvent("Expecting token int, char, or Id");
 	        		 _OutputManager.addTraceEvent("Expected token, int, char, or Id, not found", "red");
 	        		 this.errorCount++;
