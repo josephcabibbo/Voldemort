@@ -44,16 +44,16 @@ function Lexer()
 		for(var i = 0; i < lineArray.length; i++)
 		{
 		   // Split the current line into proper tokens using the ugliest regular expression in the world
-		   var tokenArray = lineArray[i].match(/"[^"]*"|print|[^\s=\(\)\"\{\}+-]+|[=\(\)\"\{\}+-]/g);
+		   var tokenArray = lineArray[i].match(/"[^"]*"|print|[^$\s=\(\)\"\{\}+-]+|[$=\(\)\"\{\}+-]/g);
 		   /*
-		    * "[^"]*"             - match a string (double quote followed by anything but a double quote followed by a double quote)
-		    * |                   - OR
-		    * print				  - match print
-		    * |                   - OR
-		    * [^\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
-		    * |                   - OR
-		    * [=\(\)\"\{\}\;]	  - match these characters
-		    * g                   - global match
+		    * "[^"]*"              - match a string (double quote followed by anything but a double quote followed by a double quote)
+		    * |                    - OR
+		    * print				   - match print
+		    * |                    - OR
+		    * [^$\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
+		    * |                    - OR
+		    * [$=\(\)\"\{\}\;]	   - match these characters
+		    * g                    - global match
 		    */
 
 		    // Iterate tokens on the line
@@ -146,10 +146,10 @@ function Lexer()
 // Helper function to split the source code by individual lines
 function splitSourceByLines(sourceCode)
 {
-     return sourceCode.split(/[\n\r]/g);
+     return sourceCode.split(/[\n\r]+/g);
      /*
-      * [\n\r] - 1 or more instances of newline or carriage return
-      * g      - global match
+      * [\n\r]+ - 1 or more instances of newline or carriage return
+      * g       - global match
       */
 }
 
