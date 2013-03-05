@@ -98,6 +98,9 @@ $(document).ready(function() {
 				var targetBoxId = $(this)[0].id;
 				$(this).addClass(targetBoxId + "BoxHighlight");
 
+				// Change to the pointer cursor to show it is clickable
+				$(this).css("cursor", "pointer");
+
 				// Hide text within div so it doesnt obstruct the label
 				$(this).children().hide();
 			}
@@ -123,10 +126,10 @@ $(document).ready(function() {
 	// Helper function to initialize the global variables
 	function initializeGlobalVariables()
 	{
-    	_OutputManager = new OutputManager();  // Object responsible for all output to user
-		_Lexer = new Lexer();	               // Object responsible for lexical analysis
-		_Parser = new Parser();                // Object responsible for parsing
-		_SymbolTable = {};                     // Associative array (hash) for symbol table
+    	_OutputManager = new OutputManager(); // Object responsible for all output to user
+		_Lexer = new Lexer();	              // Object responsible for lexical analysis
+		_Parser = new Parser();               // Object responsible for parsing
+		_SymbolTableList = [];  			  // Array that contains each scope's hash symbol table object
 	}
 
 	//
@@ -255,6 +258,9 @@ $(document).ready(function() {
 	{
     	// Change the box's z-index before animating in order to cover the other boxes
 		targetBox.css("z-index", "2");
+
+		// Change to the defualt cursor when enlarged
+		targetBox.css("cursor", "default");
 
 		// Get the id name of the currect target
 		var targetBoxId = targetBox[0].id;

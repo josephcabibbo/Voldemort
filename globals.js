@@ -35,7 +35,7 @@ var TOKEN_CLOSEBRACKET = "close bracket";
 // Global Variables
 //
 
-var _OutputManager = null;	// Object responsible for all output to user
-var _Lexer         = null;  // Object responsible for lexical analysis
-var _Parser        = null;  // Object responsible for parsing
-var _SymbolTable   = null;  // Associative array (hash) for symbol table
+var _OutputManager     = null;	// Object responsible for all output to user
+var _Lexer             = null;  // Object responsible for lexical analysis
+var _Parser        	   = null;  // Object responsible for parsing
+var _SymbolTableList   = null;  // Array that contains each scope's hash symbol table object
