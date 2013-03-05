@@ -105,61 +105,61 @@ function OutputManager()
 	   // Clear symbolTable
 	   $("#symbolTable").html("");
 
-	   // Add symbol value pairs
-	   for(var symbol in _SymbolTable)
+	   // Iterate symbol tables by scope
+	   for(var i = 0; i < _SymbolTableList.length; i++)
 	   {
-	       // Filter out keys from the Object.prototype (if any)
-	       if(_SymbolTable.hasOwnProperty(symbol))
-	       {
-        	    // Normal case for adding symbols (content exists already)
-        		if($("#symbolTable").html())
-                {
-        			var newContent = "<tr>" +
+	   	   // Display the table title (scope 1, 2, 3, ...)
+	   	   // Do not put a line break if it is the first thing added to the result box
+	   	   if($("#symbolTable").html())
+	   	       $("#symbolTable").append("<br/><div>------------------- Scope " + (i + 1).toString() + " -------------------</div>");
+	   	   else
+	   	   	   $("#symbolTable").append("<div>------------------- Scope " + (i + 1).toString() + " -------------------</div>");
+
+		   // Concatenate the appropriate id for this scopes table (i + 1 because scope 0 doesn't exist)
+		   var tableId = "symbolTable" + (i + 1).toString();
+		   // Create a table for this scope
+		   var newTable = "<table id='" + tableId + "'>" +
+			                    "<tr>" +
+								    "<th><span class='regularText'>Id</span></th>" +
+								    "<td>&nbsp;</td>" +
+								    "<th><span class='regularText'>Value</span></th>" +
+								    "<td>&nbsp;</td>" +
+								    "<th><span class='regularText'>Type</span></th>" +
+								    "<td>&nbsp;</td>" +
+								    "<th><span class='regularText'>Scope</span></th>" +
+								    "<td>&nbsp;</td>" +
+								    "<th><span class='regularText'>Line</span></th>" +
+								"</tr>"
+					       "</table>";
+
+			// Add the table to the symbolTable result box
+			$("#symbolTable").append(newTable);
+
+			// Get the scope's corresponding symbol table
+			var currentSymbolTable = _SymbolTableList[i];
+
+			// Iterate symbols and add it to the appropriate table
+			for(var symbol in currentSymbolTable)
+			{
+				// Filter out keys from the Object.prototype (if any)
+				if(currentSymbolTable.hasOwnProperty(symbol))
+				{
+					var newContent = "<tr>" +
         								"<td><span class='regularText'>" + symbol + "</span></td>" +
         								"<td>&nbsp;</td>" +
-    								    "<td><span class='regularText'>" + _SymbolTable[symbol].value + "</span></td>" +
+    								    "<td><span class='regularText'>" + currentSymbolTable[symbol].value + "</span></td>" +
     								    "<td>&nbsp;</td>" +
-    								    "<td><span class='regularText'>" + _SymbolTable[symbol].type  + "</span></td>" +
+    								    "<td><span class='regularText'>" + currentSymbolTable[symbol].type  + "</span></td>" +
     								    "<td>&nbsp;</td>" +
-    								    "<td><span class='regularText'>" + _SymbolTable[symbol].scope  + "</span></td>" +
+    								    "<td><span class='regularText'>" + currentSymbolTable[symbol].scope  + "</span></td>" +
     								    "<td>&nbsp;</td>" +
-    								    "<td><span class='regularText'>" + _SymbolTable[symbol].line + "</span></td>" +
+    								    "<td><span class='regularText'>" + currentSymbolTable[symbol].line + "</span></td>" +
         							 "</tr>";
 
-        			$("#symbolValueTable").append(newContent);
-        		}
-        		else
-        		{
-        			// First add, creates the table
-        			var newContent = "<table id='symbolValueTable'>" +
-        			                    "<tr>" +
-        								    "<th><span class='regularText'>Id</span></th>" +
-        								    "<td>&nbsp;</td>" +
-        								    "<th><span class='regularText'>Value</span></th>" +
-        								    "<td>&nbsp;</td>" +
-        								    "<th><span class='regularText'>Type</span></th>" +
-        								    "<td>&nbsp;</td>" +
-        								    "<th><span class='regularText'>Scope</span></th>" +
-        								    "<td>&nbsp;</td>" +
-        								    "<th><span class='regularText'>Line</span></th>" +
-        								"</tr>" +
-        								"<tr>" +
-        								    "<td><span class='regularText'>" + symbol + "</span></td>" +
-        								    "<td>&nbsp;</td>" +
-        								    "<td><span class='regularText'>" + _SymbolTable[symbol].value + "</span></td>" +
-        								    "<td>&nbsp;</td>" +
-        								    "<td><span class='regularText'>" + _SymbolTable[symbol].type  + "</span></td>" +
-        								    "<td>&nbsp;</td>" +
-        								    "<td><span class='regularText'>" + _SymbolTable[symbol].scope  + "</span></td>" +
-        								    "<td>&nbsp;</td>" +
-        								    "<td><span class='regularText'>" + _SymbolTable[symbol].line + "</span></td>" +
-        								"</tr>" +
-        							 "</table>";
-
-        			$("#symbolTable").html(newContent);
-        		}
-    		}
-		}
+        			$("#" + tableId).append(newContent);
+				}
+			}
+	   }
 	}
 
 	// Take the opcodeList and display it
