@@ -80,8 +80,8 @@ function Lexer()
 			    	if(lineArray.length > lineNum || tokenArray.length > 1)
 			    	{
 		        	    // Provide warning and trace
-		        	    _OutputManager.addWarning("Content exists after EOF token... I'll be your slave and remove it, dont worry.");
-		        	    _OutputManager.addTraceEvent("Removing content after EOF token...");
+		        	    _OutputManager.addWarning("Content exists after the EOF token. I will ignore it, dont worry.");
+		        	    _OutputManager.addTraceEvent("Removing content after EOF token from stream of tokens...");
 
 		        	    // Additional tokens exist after the line containing the EOF token, remove them
 		        	    if(lineArray.length > lineNum)
@@ -92,21 +92,14 @@ function Lexer()
 		        	    	tokenArray.splice(x + 1, tokenArray.length);
 
 		        	    // Remove content after the EOF token and display it
-		        	    $("#sourceCode").val(sourceCode.substring(0, sourceCode.indexOf("$") + 1));
+		        	    //$("#sourceCode").val(sourceCode.substring(0, sourceCode.indexOf("$") + 1));
 		        	    // Trace result message
-		        	    _OutputManager.addTraceEvent("Content after EOF token has been removed!", "green");
+		        	    _OutputManager.addTraceEvent("Content after EOF token has been removed from stream of tokens!", "green");
 		    	    }
 			    }
 
 			    // Construct token and add it to the Lexer's token list (stream)
 			    this.tokenList.push(new Token(kind, name, value, type, lineNum, scope));
-
-			    // Add identifiers to the _SymbolTable object and update the symbol table display
-			   if(isIdentifier(tokenArray[x]) && !_SymbolTable.hasOwnProperty(name))
-			   {
-			        _SymbolTable[name] = {"value":value, "line":lineNum, "type":type, "scope":scope};
-			        _OutputManager.updateSymbolTable();
-			   }
 		    }
 		}
 
@@ -116,10 +109,8 @@ function Lexer()
 		if(lastToken.kind !== TOKEN_EOF)
 		{
 		    // Provide warning and trace
-		    _OutputManager.addWarning("You forgot to place a $ at the end of your program... I'll be your slave and do it, dont worry.");
+		    _OutputManager.addWarning("You forgot to place a $ at the end of your program. I'll let it slide this time...");
 		    _OutputManager.addTraceEvent("Adding EOF token to stream of tokens...");
-		    // Add it to source code
-		    $("#sourceCode").val($("#sourceCode").val().trim() + "\n$");
 		    // Add EOF token to the tokenList
 		    this.tokenList.push(new Token(TOKEN_EOF, null, null, null, lastToken.line + 1));
 		    // Trace result message
