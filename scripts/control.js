@@ -1,7 +1,7 @@
 /*  -------------------------------------------------
  *	Filename: control.js
  *	Author: Joey Cabibbo
- *	Requires: globals.js
+ *	Requires: globals.js, outputManager.js, ast.js
  *	Description: The "controller" if you will..
  *		     Initializes and responds to the page
  *	------------------------------------------------- */
@@ -33,8 +33,8 @@ $(document).ready(function() {
 		{
 		    // Clear all result boxes
 		    _OutputManager.clearAllOutput();
-		    // Clear the symbol table object
-		    _SymbolTable = {};
+		    // Clear the symbol table list
+		    _SymbolTableList = [];
 		    // Add trace start up message
 		    _OutputManager.addTraceEvent("Compiler is initialized and ready...", "green");
 
@@ -42,7 +42,13 @@ $(document).ready(function() {
 			var isLexSuccessful = _Lexer.lex();
 			// Parse
 			if(isLexSuccessful)
-				_Parser.parse();
+				var isParseSuccessful = _Parser.parse();
+			// CST -> AST conversion and Semantic analysis
+			if(isParseSuccessful)
+			{
+				_AST = convertToAST(_Parser.cst);
+				// TODO: SemanticAnalysis
+			}
 		}
 
 		displayCorrectElement(this);
