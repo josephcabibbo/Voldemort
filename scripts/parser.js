@@ -1,8 +1,12 @@
 /*  ---------------------------------------------------------------------------
  *	Filename: parser.js
  *	Author: Joey Cabibbo
- *	Requires: globals.js, outputManager.js
+ *	Requires: globals.js, outputManager.js, tree.js
  *	Description: A recursive-descent parser that creates a concrete syntax tree
+ *				 and builds a symbol table per scope
+ *  Notes: It should be known that some assumptions are made about the location
+ *		   of tokens when building the symbol table.  If there is a parse error
+ *		   the assumptions are probably wrong and the symbol table is discarded
  *	--------------------------------------------------------------------------- */
 
 function Parser()
@@ -15,6 +19,8 @@ function Parser()
 	this.errorCount = 0;
 	// Concrete syntax tree we are creating
 	this.cst = {};
+	// The scope envirentment
+	this.scope = 0;
 
 	// General parse call, initializes and starts the recursive descent parse
     this.parse = function()
@@ -24,6 +30,7 @@ function Parser()
     	this.cst = new Tree();
     	this.currentIndex = 0;
     	this.errorCount = 0;
+    	this.scope = 0;
 
     	// Get the stream of tokens from the Lexer
     	this.tokens = _Lexer.tokenList;
@@ -31,20 +38,20 @@ function Parser()
     	// Start the parse
         this.parseProgram();
 
-        // Tell the _OuputManager to update the symbol table display
-        _OutputManager.updateSymbolTable();
-
         // Determine if it was a successful parse or a failure
         if(this.errorCount === 0)
         {
 	        _OutputManager.addTraceEvent("Parse successful!", "green");
+	        // Display the symbol tables
+	        _OutputManager.updateSymbolTable();
 	        return true;
         }
         else
         {
 	        _OutputManager.addTraceEvent("Parse failed!", "red");
-	        // Erase cst
+	        // Erase the CST and symbol tables because they may be incorrect
 	        this.cst = {};
+	        _SymbolTableList = [];
 	        return false;
         }
     }
@@ -83,13 +90,20 @@ function Parser()
         {
 	        case TOKEN_PRINT:		this.parsePrint();
 	        						break;
+
 	        case TOKEN_ID:			this.parseAssignment();
 	        						break;
+
 	        case TOKEN_TYPE:	 	this.parseVarDecl();
 	        						break;
+
 	        case TOKEN_OPENBRACKET: this.matchToken(TOKEN_OPENBRACKET);
+	        						// { indicates we are entering a new scope environment
+	        						this.scope++;
 	        						this.parseStatementList();
 	        						this.matchToken(TOKEN_CLOSEBRACKET);
+	        						// } indicates we are leaving the current scope environment
+	        						this.scope--;
 	        						// Signify the end of a tree "branch"
 	        						this.cst.endChildren();
 	        						break;
@@ -121,9 +135,23 @@ function Parser()
     // Id = Expr
     this.parseAssignment = function()
     {
+    	var id = this.tokens[this.currentIndex].name;
+
 	    this.matchToken(TOKEN_ID);
 	    this.matchToken(TOKEN_ASSIGN);
-	    this.parseExpr();
+	    // The value of this id will be returned via parseExpr
+	    var expr = this.parseExpr();
+
+	    // If the id has been declared in this scope, add the value
+	    // Otherwise warn the user that this id is not declared
+	    if(_SymbolTableList[this.scope].hasOwnProperty(id))
+	    {
+	    	_SymbolTableList[this.scope][id].value = expr;
+	    }
+	    else
+	    {
+		    // TODO: UNDECLARED VAR
+	    }
 
 	    // Signify the end of a tree "branch"
         this.cst.endChildren();
@@ -133,21 +161,25 @@ function Parser()
     // Type Id
     this.parseVarDecl = function()
     {
-    	var errorsBeforeMatch = this.errorCount;
-
 	    this.matchToken(TOKEN_TYPE);
 	    this.matchToken(TOKEN_ID);
 
-	    // TODO: Check to see if a variable of the same id and in the scope is being redeclared
+	    // Get the Id and Type tokens we just matched and get the line they are on
+	    var id   = this.tokens[this.currentIndex - 1].name;
+	    var type = this.tokens[this.currentIndex - 2].value;
+	    var line = this.tokens[this.currentIndex - 1].line;
 
-	    // If the above token matches did not produce parse errors, they are a valid Type Id production
-	    if(errorsBeforeMatch === this.errorCount)
-	    {
-		    // Get the type and assign it to that id in the symbol table
-		    var id   = this.tokens[this.currentIndex - 1].name;
-		    var type = this.tokens[this.currentIndex - 2].value;
-		    _SymbolTable[id].type = type;
-	    }
+	    // If the current scope object has not been initialized yet, initialize it
+	    if(!_SymbolTableList[this.scope])
+	    	_SymbolTableList[this.scope] = {};
+
+	    // TODO: Check to see if a variable of the same id and in the scope is being redeclared
+	    // if(_SymbolTableList[this.scope].hasOwnProperty(id))
+	    	// Error
+	    // else add it
+
+	    // Add all known data to this scope's symbol table (format is id : {information})
+	    _SymbolTableList[this.scope][id] = {"type": type, "line": line, "scope": this.scope};
 
 	    // Signify the end of a tree "branch"
         this.cst.endChildren();
@@ -193,12 +225,25 @@ function Parser()
     	// Add an Expr to the cst
     	this.cst.addNode("Expr", "branch");
 
+    	// The expression to return to varDecl
+    	var expr;
+
     	// Determine which expr we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
         {
-	        case TOKEN_INT:		this.parseIntExpr(); 		break;
-	        case TOKEN_STRING:	this.parseStringExpr();		break;
-	        case TOKEN_ID:		this.matchToken(TOKEN_ID);	break;
+	        case TOKEN_INT:		expr = concatenateIntExpr(this.currentIndex); // Must be called before parseIntExpr in order to get the correct index
+	        					this.parseIntExpr();
+	        					break;
+
+	        case TOKEN_STRING:	this.parseStringExpr();
+	        					// Assign the string as the expr value
+	        					expr = this.tokens[this.currentIndex - 1].value
+	        					break;
+
+	        case TOKEN_ID:		this.matchToken(TOKEN_ID);
+	        					// Assign the id as the expr value
+	        					expr = this.tokens[this.currentIndex - 1].name;
+	        					break;
 
 	        // Invalid expression
 	        default: _OutputManager.addError("ParseError: invalid expression on line " + this.tokens[this.currentIndex].line + ", expecting an IntExpr, StringExpr, or Id...");
@@ -211,6 +256,8 @@ function Parser()
 
         // Signify the end of a tree "branch"
         this.cst.endChildren();
+
+        return expr;
     }
 
     // Parse an IntExpr production
@@ -276,4 +323,24 @@ function isStatement(tokenKind)
 		   tokenKind === TOKEN_ID	 		||
 		   tokenKind === TOKEN_TYPE  		||
 		   tokenKind === TOKEN_OPENBRACKET;
+}
+
+// Helper function that taked the first index of an arbitrarily long IntExpr and concatenates it for value assignment
+function concatenateIntExpr(index)
+{
+	// The string int expression return value
+	var exprString = "";
+
+	// Get the first token of the IntExpr
+	var currentToken = _Parser.tokens[index];
+
+	// If the token is an int, op, or id, add it to the return value
+	while(currentToken.kind === TOKEN_INT || currentToken.kind === TOKEN_OP || currentToken.kind === TOKEN_ID)
+	{
+		exprString += currentToken.value;
+		// Increment to check the next token
+		currentToken = _Parser.tokens[index++];
+	}
+
+	return exprString;
 }
