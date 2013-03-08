@@ -136,6 +136,7 @@ function Parser()
     this.parseAssignment = function()
     {
     	var id = this.tokens[this.currentIndex].name;
+    	var line = this.tokens[this.currentIndex].line;
 
 	    this.matchToken(TOKEN_ID);
 	    this.matchToken(TOKEN_ASSIGN);
@@ -143,14 +144,14 @@ function Parser()
 	    var expr = this.parseExpr();
 
 	    // If the id has been declared in this scope, add the value
-	    // Otherwise warn the user that this id is not declared
-	    if(_SymbolTableList[this.scope].hasOwnProperty(id))
+	    // Otherwise show the user an erro that this id is not declared
+	    if(_SymbolTableList[this.scope] && _SymbolTableList[this.scope].hasOwnProperty(id))
 	    {
 	    	_SymbolTableList[this.scope][id].value = expr;
 	    }
 	    else
 	    {
-		    // TODO: UNDECLARED VAR
+		    undeclaredVariableError(id, line); // Helper function below
 	    }
 
 	    // Signify the end of a tree "branch"
@@ -173,13 +174,16 @@ function Parser()
 	    if(!_SymbolTableList[this.scope])
 	    	_SymbolTableList[this.scope] = {};
 
-	    // TODO: Check to see if a variable of the same id and in the scope is being redeclared
-	    // if(_SymbolTableList[this.scope].hasOwnProperty(id))
-	    	// Error
-	    // else add it
-
-	    // Add all known data to this scope's symbol table (format is id : {information})
-	    _SymbolTableList[this.scope][id] = {"type": type, "line": line, "scope": this.scope};
+	    // If a variable of the same id and scope exists already
+	    if(_SymbolTableList[this.scope].hasOwnProperty(id))
+	    {
+	    	redeclaredVariableError(id, line); // Helper function below
+ 	    }
+	    else
+	    {
+		    // Add all known data to this scope's symbol table (format is id : {information})
+		    _SymbolTableList[this.scope][id] = {"type": type, "line": line, "scope": this.scope};
+	    }
 
 	    // Signify the end of a tree "branch"
         this.cst.endChildren();
@@ -325,6 +329,24 @@ function isStatement(tokenKind)
 		   tokenKind === TOKEN_OPENBRACKET;
 }
 
+// Helper function to perform necessary tasks when an undeclared variable error occurs
+// Take the undeclared variable and the line it is on as parameters to report to the user
+function undeclaredVariableError(undeclaredVar, line)
+{
+	_OutputManager.addError("ParseError: assignment attempted on undeclared variable, " + undeclaredVar + ", found on line " + line);
+	_OutputManager.addTraceEvent("Found undeclared variable in assignment statement", "red");
+	this.errorCount++;
+}
+
+// Helper function to perform necessary tasks when an redeclared variable error occurs
+// Take the redeclard variable and the line it is on as parameters to report to the user
+function redeclaredVariableError(redeclaredVar, line)
+{
+	_OutputManager.addError("ParseError: attempted redeclaration of variable, " + redeclaredVar + ", on line " + line);
+	_OutputManager.addTraceEvent("Found redeclared variable in VarDecl statement", "red");
+	this.errorCount++;
+}
+
 // Helper function that taked the first index of an arbitrarily long IntExpr and concatenates it for value assignment
 function concatenateIntExpr(index)
 {
@@ -334,13 +356,30 @@ function concatenateIntExpr(index)
 	// Get the first token of the IntExpr
 	var currentToken = _Parser.tokens[index];
 
-	// If the token is an int, op, or id, add it to the return value
+	// If the token is an int, op, or id, concatenate it as one string
 	while(currentToken.kind === TOKEN_INT || currentToken.kind === TOKEN_OP || currentToken.kind === TOKEN_ID)
 	{
-		exprString += currentToken.value;
-		// Increment to check the next token
-		currentToken = _Parser.tokens[index++];
+		// Integers and Ops have immediate values, ids have names (values determined at runtime)
+		if(currentToken.kind === TOKEN_INT || currentToken.kind === TOKEN_OP)
+			exprString += currentToken.value; // Int or Op
+		else
+			exprString += currentToken.name;  // Id
+		// Increment to get the next token
+		currentToken = _Parser.tokens[++index];
 	}
+
+	// Not very crazy about all the madness in this helper function, so it may be temporary
+	// Make sure we did not catch any additional tokens part of the next statement that matched our case (int, op, or Id) by mistake
+	// a = 5 b = 5 would result in a having a value of 5b without this regex match
+	exprString = exprString.match(/[0-9]{1}([+-]{1}[a-z0-9]{1})*/)[0];
+	/*
+	 * [0-9]{1} 			 - we know an IntExpr must start with one digit
+	 * ([+-]{1}[a-z0-9]{1})* - an IntExpr can optionally be followed by an op(+|-) and either a digit or id
+	 */
+
+	 // If the exprString is only digits and ops (no Ids), we can evaluate it and return an int representation rather than returning a long string expression
+	if(/^[0-9+-]+$/.test(exprString))
+		return eval(exprString).toString();
 
 	return exprString;
 }
