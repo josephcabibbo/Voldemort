@@ -105,10 +105,6 @@ function OutputManager()
 	   // Clear symbolTable
 	   $("#symbolTable").html("");
 
-	   // In the case of statementList, we start at scope 1 which messes with the length propery, so remove index 0
-   	   if(_SymbolTableList[0] === undefined)
-   	       _SymbolTableList.splice(0, 1);
-
 	   // Iterate symbol tables by scope
 	   for(var i = 0; i < _SymbolTableList.length; i++)
 	   {
