@@ -38,6 +38,13 @@ function Parser()
     	// Start the parse
         this.parseProgram();
 
+        // In the case of statementList, we start at scope 1 so remove index 0 so we dont skew the length property
+   	   if(_SymbolTableList[0] === undefined)
+   	       _SymbolTableList.splice(0, 1);
+
+        // Check for declared but unused variables
+        checkForUnusedVariables();
+
         // Determine if it was a successful parse or a failure
         if(this.errorCount === 0)
         {
@@ -109,11 +116,7 @@ function Parser()
 	        						break;
 
 	        // Invalid statement token
-	        default: _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line + ", expecting a print, Id, Type, or {...");
-	        		 _OutputManager.addTraceEvent("Expecting token print, Id, Type, or {");
-	        		 _OutputManager.addTraceEvent("Expected token, print, Id, Type, or {, not found", "red");
-	        		 this.errorCount++;
-	        		 this.currentIndex++; // Move to the next token
+	        default: invalidStatementError(); // Helper function below
 	        		 break;
         }
     }
@@ -144,7 +147,7 @@ function Parser()
 	    var expr = this.parseExpr();
 
 	    // If the id has been declared in this scope, add the value
-	    // Otherwise show the user an erro that this id is not declared
+	    // Otherwise it is an undeclared variable
 	    if(_SymbolTableList[this.scope] && _SymbolTableList[this.scope].hasOwnProperty(id))
 	    {
 	    	_SymbolTableList[this.scope][id].value = expr;
@@ -174,14 +177,14 @@ function Parser()
 	    if(!_SymbolTableList[this.scope])
 	    	_SymbolTableList[this.scope] = {};
 
-	    // If a variable of the same id and scope exists already
+	    // If a variable of the same id and scope exists already it is being redeclared (error)
 	    if(_SymbolTableList[this.scope].hasOwnProperty(id))
 	    {
 	    	redeclaredVariableError(id, line); // Helper function below
  	    }
 	    else
 	    {
-		    // Add all known data to this scope's symbol table (format is id : {information})
+		    // Add all data known at this point to this scope's symbol table (format is id : {information})
 		    _SymbolTableList[this.scope][id] = {"type": type, "line": line, "scope": this.scope};
 	    }
 
@@ -211,12 +214,8 @@ function Parser()
 	    }
 	    else
 	    {
-		    // Invalid statement
-		    _OutputManager.addError("ParseError: invalid statement on line " + this.tokens[this.currentIndex].line + ", expecting a print, Id, Type, or {...");
-	        _OutputManager.addTraceEvent("Expecting token print, Id, Type, or {");
-	        _OutputManager.addTraceEvent("Expected token, print, Id, Type, or {, not found", "red");
-	        this.errorCount++;
-	        this.currentIndex++; // Consume invalid token
+		    // Invalid statement token
+		    invalidStatementError(); // Helper function below
 	    }
     }
 
@@ -250,11 +249,7 @@ function Parser()
 	        					break;
 
 	        // Invalid expression
-	        default: _OutputManager.addError("ParseError: invalid expression on line " + this.tokens[this.currentIndex].line + ", expecting an IntExpr, StringExpr, or Id...");
-	        		 _OutputManager.addTraceEvent("Expecting token int, char, or Id");
-	        		 _OutputManager.addTraceEvent("Expected token, int, char, or Id, not found", "red");
-	        		 this.errorCount++;
-	        		 this.currentIndex++; // Consume the invalid token
+	        default: invalidExprError(); // Helper function below
 	        		 break;
         }
 
@@ -287,7 +282,7 @@ function Parser()
     }
 
     // Function to determine if the expected token is a match to the actual token
-    // ** Increments the this.currentIndex (consumes the token) **
+    // ** Increments the currentIndex (consumes the token) **
     this.matchToken = function(expectedTokenKind)
     {
     	// Trace expecting token...
@@ -306,12 +301,7 @@ function Parser()
     	else
     	{
     		// Token not found
-	    	_OutputManager.addTraceEvent("'" + expectedTokenKind + "' not found...", "red");
-	    	_OutputManager.addError("Parse Error: token mismatch on line " + this.tokens[this.currentIndex].line + ", expecting token '" + expectedTokenKind + "'");
-	    	// Increment the error count
-	    	this.errorCount++;
-	    	// Consume token
-	    	this.currentIndex++;
+	    	tokenMismatchError(expectedTokenKind); // Helper function below
     	}
     }
 }
@@ -327,24 +317,6 @@ function isStatement(tokenKind)
 		   tokenKind === TOKEN_ID	 		||
 		   tokenKind === TOKEN_TYPE  		||
 		   tokenKind === TOKEN_OPENBRACKET;
-}
-
-// Helper function to perform necessary tasks when an undeclared variable error occurs
-// Take the undeclared variable and the line it is on as parameters to report to the user
-function undeclaredVariableError(undeclaredVar, line)
-{
-	_OutputManager.addError("ParseError: assignment attempted on undeclared variable, " + undeclaredVar + ", found on line " + line);
-	_OutputManager.addTraceEvent("Found undeclared variable in assignment statement", "red");
-	this.errorCount++;
-}
-
-// Helper function to perform necessary tasks when an redeclared variable error occurs
-// Take the redeclard variable and the line it is on as parameters to report to the user
-function redeclaredVariableError(redeclaredVar, line)
-{
-	_OutputManager.addError("ParseError: attempted redeclaration of variable, " + redeclaredVar + ", on line " + line);
-	_OutputManager.addTraceEvent("Found redeclared variable in VarDecl statement", "red");
-	this.errorCount++;
 }
 
 // Helper function that taked the first index of an arbitrarily long IntExpr and concatenates it for value assignment
@@ -368,18 +340,98 @@ function concatenateIntExpr(index)
 		currentToken = _Parser.tokens[++index];
 	}
 
-	// Not very crazy about all the madness in this helper function, so it may be temporary
+	// Not very crazy about all the madness in this helper function, so it may be temporary...
 	// Make sure we did not catch any additional tokens part of the next statement that matched our case (int, op, or Id) by mistake
 	// a = 5 b = 5 would result in a having a value of 5b without this regex match
 	exprString = exprString.match(/[0-9]{1}([+-]{1}[a-z0-9]{1})*/)[0];
 	/*
 	 * [0-9]{1} 			 - we know an IntExpr must start with one digit
-	 * ([+-]{1}[a-z0-9]{1})* - an IntExpr can optionally be followed by an op(+|-) and either a digit or id
+	 * ([+-]{1}[a-z0-9]{1})* - an IntExpr can optionally be followed by an op (+|-) and either a digit or id
 	 */
 
-	 // If the exprString is only digits and ops (no Ids), we can evaluate it and return an int representation rather than returning a long string expression
+	 // If the exprString is only digits and ops (no Ids), we can evaluate it and return an int representation rather than returning a long string representation
 	if(/^[0-9+-]+$/.test(exprString))
 		return eval(exprString).toString();
 
 	return exprString;
+}
+
+// Helper function to check the symbol table for declared but unused variables
+function checkForUnusedVariables()
+{
+	// Iterate each scope's symbol table
+	for(var i = 0; i < _SymbolTableList.length; i++)
+	{
+		// Iterate each symbol in the scope's symbol table
+		for(symbol in _SymbolTableList[i])
+		{
+			// If the symbol table entry exists and has no value, it is unused.  warn the user
+			if(_SymbolTableList[i][symbol].value === undefined)
+				unusedVariableWarning(symbol, i);
+		}
+	}
+}
+
+//
+// Warning Helper Functions
+//
+
+function unusedVariableWarning(symbol, scope)
+{
+	// Get the scope specific symbol table entry
+	var symbolTableEntry = _SymbolTableList[scope][symbol];
+
+	// Warn user
+	_OutputManager.addWarning("Variable, " + symbol + ", on line " + symbolTableEntry.line + " is declared but unused.")
+}
+
+//
+// Error Helper Functions
+//
+
+// Helper function to perform necessary tasks when an invalid statement error occurs
+function invalidStatementError()
+{
+	_OutputManager.addError("Parse Error: invalid statement on line " + _Parser.tokens[_Parser.currentIndex].line + ", expecting a print, Id, Type, or {...");
+    _OutputManager.addTraceEvent("Expecting token print, Id, Type, or {");
+    _OutputManager.addTraceEvent("Expected token, print, Id, Type, or {, not found", "red");
+    _Parser.errorCount++;
+    _Parser.currentIndex++; // Consume invalid token
+}
+
+// Helper function to perform necessary tasks when an invalid expr error occurs
+function invalidExprError()
+{
+	_OutputManager.addError("Parse Error: invalid expression on line " + _Parser.tokens[_Parser.currentIndex].line + ", expecting an IntExpr, StringExpr, or Id...");
+	_OutputManager.addTraceEvent("Expecting token int, char, or Id");
+	_OutputManager.addTraceEvent("Expected token, int, char, or Id, not found", "red");
+	_Parser.errorCount++;
+	_Parser.currentIndex++; // Consume the invalid token
+}
+
+// Helper function to perform necessary tasks when a token mismatch error occurs
+function tokenMismatchError(expectedTokenKind)
+{
+	_OutputManager.addTraceEvent("'" + expectedTokenKind + "' not found...", "red");
+	_OutputManager.addError("Parse Error: token mismatch on line " + _Parser.tokens[_Parser.currentIndex].line + ", expecting token '" + expectedTokenKind + "'");
+	_Parser.errorCount++;
+	_Parser.currentIndex++; // Consume token
+}
+
+// Helper function to perform necessary tasks when an undeclared variable error occurs
+// Take the undeclared variable and the line it is on as parameters to report to the user
+function undeclaredVariableError(undeclaredVar, line)
+{
+	_OutputManager.addError("Parse Error: assignment attempted on undeclared variable, " + undeclaredVar + ", found on line " + line);
+	_OutputManager.addTraceEvent("Found undeclared variable in assignment statement", "red");
+	_Parser.errorCount++;
+}
+
+// Helper function to perform necessary tasks when an redeclared variable error occurs
+// Take the redeclard variable and the line it is on as parameters to report to the user
+function redeclaredVariableError(redeclaredVar, line)
+{
+	_OutputManager.addError("Parse Error: attempted redeclaration of variable, " + redeclaredVar + ", on line " + line);
+	_OutputManager.addTraceEvent("Found redeclared variable in VarDecl statement", "red");
+	_Parser.errorCount++;
 }
