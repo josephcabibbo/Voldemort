@@ -77,7 +77,8 @@ function Lexer()
 			    // Check to see if there is code after the EOF token
 			    if(kind === TOKEN_EOF)
 			    {
-			    	if(lineArray.length > lineNum || tokenArray.length > 1)
+			    	// If there are lines after EOF or tokens after EOF, remove them from being lexed
+			    	if(lineArray.length > lineNum || tokenArray.indexOf("$") + 1 < tokenArray.length)
 			    	{
 		        	    // Provide warning and trace
 		        	    _OutputManager.addWarning("Content exists after the EOF token. I will ignore it, dont worry.");
@@ -88,7 +89,7 @@ function Lexer()
 		        	    	lineArray.splice(lineNum , lineArray.length);
 
 		        	    // Additional tokens exist on the same line after the EOF token, remove them
-		        	    if(tokenArray.length > 1)
+		        	    if(tokenArray.indexOf("$") + 1 < tokenArray.length)
 		        	    	tokenArray.splice(x + 1, tokenArray.length);
 
 		        	    // Remove content after the EOF token and display it
