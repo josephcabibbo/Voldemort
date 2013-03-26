@@ -59,17 +59,51 @@ function Tree()
 			if(!node.children || node.children.length === 0)
 			{
 				// Possibly use a ternary to disply kind when it is a token, and just the item when it is not a token
-				traversalResult += "[" + node.item.kind + "]\n";
+				traversalResult +=  node.item + "\n";
 			}
 			else
 			{
 				// There are children, so we have a branch node
-				traversalResult += "<" + node.item + ">\n";
+				traversalResult += "(" + node.item + ")\n";
 				// Recursively expand the branch's children
 				for(var i = 0; i < node.children.length; i++)
 				{
 					expand(node.children[i], depth + 1)
 				}
+			}
+		}
+
+		// Make the inital call to expand from the root node
+		expand(this.root, 0);
+		// Return the result
+		return traversalResult;
+	}
+
+	// Alternative toString function for the syntax stree generator
+	this.toStringAlt = function()
+	{
+		var traversalResult = "";
+
+		// Recursive function to handle the expansion of the nodes
+		function expand(node, depth)
+		{
+			// If there are no children, we have a leaf node
+			if(!node.children || node.children.length === 0)
+			{
+				// Possibly use a ternary to disply kind when it is a token, and just the item when it is not a token
+				traversalResult += "[" + node.item + "]";
+			}
+			else
+			{
+				// There are children, so we have a branch node
+				traversalResult += "[" + node.item; // + "] ";
+				// Recursively expand the branch's children
+				for(var i = 0; i < node.children.length; i++)
+				{
+					expand(node.children[i], depth + 1)
+				}
+
+				traversalResult += "]"
 			}
 		}
 
