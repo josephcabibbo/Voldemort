@@ -293,8 +293,11 @@ function Parser()
     	{
         	// Token found
         	_OutputManager.addTraceEvent("Found token '" + expectedTokenKind + "'!", "green");
+
         	// Add non-terminal to the cst
-        	this.cst.addNode(this.tokens[this.currentIndex], "leaf");
+        	var t = this.tokens[this.currentIndex];
+        	this.cst.addNode("<kind: " + t.kind + (t.kind === TOKEN_ID ? " name: " + t.name : "") + " value: " + t.value +">", "leaf");
+
         	// Consume token
         	this.currentIndex++;
     	}
