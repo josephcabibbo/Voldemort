@@ -43,10 +43,10 @@ $(document).ready(function() {
 			// Parse
 			if(isLexSuccessful)
 				var isParseSuccessful = _Parser.parse();
-			// CST -> AST conversion and Semantic analysis
+			// AST creation and semantic analysis
 			if(isParseSuccessful)
 			{
-				_AST = convertToAST(_Parser.cst);
+				createAST();
 				// TODO: SemanticAnalysis
 			}
 		}
