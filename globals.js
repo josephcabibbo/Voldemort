@@ -17,19 +17,17 @@ var RESULTBOX_ENL_FONTSIZE = "14pt";
 
 // Token kinds
 var TOKEN_TYPE		   = "type";
-var TOKEN_ID           = "identifier";
-//var TOKEN_CHAR         = "charList";
+var TOKEN_ID           = "id";
 var TOKEN_STRING       = "string";
 var TOKEN_INT          = "integer";
 var TOKEN_PRINT        = "print";
 var TOKEN_EOF          = "EOF";
-var TOKEN_DOUBLEQUOTE  = "double quote";
 var TOKEN_ASSIGN       = "assignment";
 var TOKEN_OP		   = "operator";
-var TOKEN_OPENPAREN    = "open parenthesis";
-var TOKEN_CLOSEPAREN   = "close parenthesis";
-var TOKEN_OPENBRACKET  = "open bracket";
-var TOKEN_CLOSEBRACKET = "close bracket";
+var TOKEN_OPENPAREN    = "open-parenthesis";
+var TOKEN_CLOSEPAREN   = "close-parenthesis";
+var TOKEN_OPENBRACKET  = "open-bracket";
+var TOKEN_CLOSEBRACKET = "close-bracket";
 
 //
 // Global Variables
