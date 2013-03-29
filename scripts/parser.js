@@ -2,8 +2,8 @@
  *	Filename: parser.js
  *	Author: Joey Cabibbo
  *	Requires: globals.js, outputManager.js, tree.js
- *	Description: A recursive-descent parser that creates a concrete syntax tree
- *				 and builds a symbol table per scope
+ *	Description: A recursive-descent parser that takes the token list to check
+ *				 that we have correct statements and creates the symbol table
  *  Notes: It should be known that some assumptions are made about the location
  *		   of tokens when building the symbol table.  If there is a parse error
  *		   the assumptions are probably wrong and the symbol table is discarded
@@ -17,30 +17,23 @@ function Parser()
 	this.currentIndex = 0;
 	// Number of errors found
 	this.errorCount = 0;
-	// Concrete syntax tree we are creating
-	this.cst = {};
-	// The scope envirentment
-	this.scope = 0;
+	// The scope manager
+	this.scopeManager = new ScopeManager();
 
 	// General parse call, initializes and starts the recursive descent parse
     this.parse = function()
     {
     	// Reset parse's members
     	this.tokens = [];
-    	this.cst = new Tree();
     	this.currentIndex = 0;
     	this.errorCount = 0;
-    	this.scope = 0;
+    	this.scopeManager = new ScopeManager();
 
     	// Get the stream of tokens from the Lexer
     	this.tokens = _Lexer.tokenList;
 
     	// Start the parse
         this.parseProgram();
-
-        // In the case of statementList, we start at scope 1 so remove index 0 so we dont skew the length property
-   	   if(_SymbolTableList[0] === undefined)
-   	       _SymbolTableList.splice(0, 1);
 
         // Check for declared but unused variables
         checkForUnusedVariables();
@@ -56,8 +49,7 @@ function Parser()
         else
         {
 	        _OutputManager.addTraceEvent("Parse failed!", "red");
-	        // Erase the CST and symbol tables because they may be incorrect
-	        this.cst = {};
+	        // Erase the symbol tables because they may be incorrect
 	        _SymbolTableList = [];
 	        return false;
         }
@@ -67,10 +59,7 @@ function Parser()
     // Statement $
     this.parseProgram = function()
     {
-    	// Add Program to the cst
-        this.cst.addNode("Program", "branch");
-
-        this.parseStatement();
+    	this.parseStatement();
 
         // If there is another statement, the user should be alerted that multiple statements must be in a statement list
 	    if(isStatement(this.tokens[this.currentIndex].kind))
@@ -89,9 +78,6 @@ function Parser()
     // { StatementList }
     this.parseStatement = function()
     {
-    	// Add a Statement to the cst
-    	this.cst.addNode("Statement", "branch");
-
     	// Determine which statement we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
         {
@@ -106,17 +92,15 @@ function Parser()
 
 	        case TOKEN_OPENBRACKET: this.matchToken(TOKEN_OPENBRACKET);
 	        						// { indicates we are entering a new scope environment
-	        						this.scope++;
+	        						this.scopeManager.initializeNewScope();
 	        						this.parseStatementList();
 	        						this.matchToken(TOKEN_CLOSEBRACKET);
 	        						// } indicates we are leaving the current scope environment
-	        						this.scope--;
-	        						// Signify the end of a tree "branch"
-	        						this.cst.endChildren();
+	        						this.scopeManager.leaveCurrentScope();
 	        						break;
 
 	        // Invalid statement token
-	        default: invalidStatementError(); // Helper function below
+	        default: invalidStatementError(); // Found in errors-warnings.js
 	        		 break;
         }
     }
@@ -129,9 +113,6 @@ function Parser()
         this.matchToken(TOKEN_OPENPAREN);
         this.parseExpr();
         this.matchToken(TOKEN_CLOSEPAREN);
-
-        // Signify the end of a tree "branch"
-        this.cst.endChildren();
     }
 
     // Parse an Assignment production
@@ -146,19 +127,19 @@ function Parser()
 	    // The value of this id will be returned via parseExpr
 	    var expr = this.parseExpr();
 
+	    // Get the current scope
+	    var scope = this.scopeManager.currentScope;
+
 	    // If the id has been declared in this scope, add the value
 	    // Otherwise it is an undeclared variable
-	    if(_SymbolTableList[this.scope] && _SymbolTableList[this.scope].hasOwnProperty(id))
+	    if(_SymbolTableList[scope] && _SymbolTableList[scope].hasOwnProperty(id))
 	    {
-	    	_SymbolTableList[this.scope][id].value = expr;
+	    	_SymbolTableList[scope][id].value = expr;
 	    }
 	    else
 	    {
-		    undeclaredVariableError(id, line); // Helper function below
+		    undeclaredVariableError(id, line); // Found in errors-warnings.js
 	    }
-
-	    // Signify the end of a tree "branch"
-        this.cst.endChildren();
     }
 
     // Parse a VarDecl production
@@ -173,23 +154,24 @@ function Parser()
 	    var type = this.tokens[this.currentIndex - 2].value;
 	    var line = this.tokens[this.currentIndex - 1].line;
 
-	    // If the current scope object has not been initialized yet, initialize it
-	    if(!_SymbolTableList[this.scope])
-	    	_SymbolTableList[this.scope] = {};
+	    // Get the current scope
+	    var scope = this.scopeManager.currentScope;
+
+	    // If the current scope object has not been initialized yet, initialize it.
+	    // This would only be the case when this varDecl is not in a statement list
+	    if(!_SymbolTableList[scope])
+	    	_SymbolTableList[scope] = {};
 
 	    // If a variable of the same id and scope exists already it is being redeclared (error)
-	    if(_SymbolTableList[this.scope].hasOwnProperty(id))
+	    if(_SymbolTableList[scope].hasOwnProperty(id))
 	    {
-	    	redeclaredVariableError(id, line); // Helper function below
+	    	redeclaredVariableError(id, line); // Found in errors-warnings.js
  	    }
 	    else
 	    {
 		    // Add all data known at this point to this scope's symbol table (format is id : {information})
-		    _SymbolTableList[this.scope][id] = {"type": type, "line": line, "scope": this.scope};
+		    _SymbolTableList[scope][id] = {"type": type, "line": line, "scope": scope};
 	    }
-
-	    // Signify the end of a tree "branch"
-        this.cst.endChildren();
     }
 
     // Parse a StatementList production (where the recursive magic happens)
@@ -215,7 +197,7 @@ function Parser()
 	    else
 	    {
 		    // Invalid statement token
-		    invalidStatementError(); // Helper function below
+		    invalidStatementError(); // Found in errors-warnings.js
 	    }
     }
 
@@ -225,9 +207,6 @@ function Parser()
     // Id
     this.parseExpr = function()
     {
-    	// Add an Expr to the cst
-    	this.cst.addNode("Expr", "branch");
-
     	// The expression to return to varDecl
     	var expr;
 
@@ -249,12 +228,9 @@ function Parser()
 	        					break;
 
 	        // Invalid expression
-	        default: invalidExprError(); // Helper function below
+	        default: invalidExprError(); // Found in errors-warnings.js
 	        		 break;
         }
-
-        // Signify the end of a tree "branch"
-        this.cst.endChildren();
 
         return expr;
     }
@@ -274,7 +250,7 @@ function Parser()
         }
     }
 
-    // Parse a CharExpr production
+    // Parse a StringExpr production
     // " CharList "
     this.parseStringExpr = function()
     {
@@ -294,17 +270,13 @@ function Parser()
         	// Token found
         	_OutputManager.addTraceEvent("Found token '" + expectedTokenKind + "'!", "green");
 
-        	// Add non-terminal to the cst
-        	var t = this.tokens[this.currentIndex];
-        	this.cst.addNode("<kind: " + t.kind + (t.kind === TOKEN_ID ? " name: " + t.name : "") + " value: " + t.value +">", "leaf");
-
         	// Consume token
         	this.currentIndex++;
     	}
     	else
     	{
     		// Token not found
-	    	tokenMismatchError(expectedTokenKind); // Helper function below
+	    	tokenMismatchError(expectedTokenKind); // Found in errors-warnings.js
     	}
     }
 }
@@ -322,7 +294,7 @@ function isStatement(tokenKind)
 		   tokenKind === TOKEN_OPENBRACKET;
 }
 
-// Helper function that taked the first index of an arbitrarily long IntExpr and concatenates it for value assignment
+// Helper function that takes the first index of an arbitrarily long IntExpr and concatenates it for value assignment
 function concatenateIntExpr(index)
 {
 	// The string int expression return value
@@ -339,6 +311,7 @@ function concatenateIntExpr(index)
 			exprString += currentToken.value; // Int or Op
 		else
 			exprString += currentToken.name;  // Id
+
 		// Increment to get the next token
 		currentToken = _Parser.tokens[++index];
 	}
@@ -353,10 +326,11 @@ function concatenateIntExpr(index)
 	 */
 
 	 // If the exprString is only digits and ops (no Ids), we can evaluate it and return an int representation rather than returning a long string representation
+	 // Otherwise just return the expString
 	if(/^[0-9+-]+$/.test(exprString))
 		return eval(exprString).toString();
-
-	return exprString;
+	else
+		return exprString;
 }
 
 // Helper function to check the symbol table for declared but unused variables
@@ -368,73 +342,9 @@ function checkForUnusedVariables()
 		// Iterate each symbol in the scope's symbol table
 		for(symbol in _SymbolTableList[i])
 		{
-			// If the symbol table entry exists and has no value, it is unused.  warn the user
+			// If the symbol table entry exists and has no value, it is unused.  Warn the user.
 			if(_SymbolTableList[i][symbol].value === undefined)
 				unusedVariableWarning(symbol, i);
 		}
 	}
-}
-
-//
-// Warning Helper Functions
-//
-
-function unusedVariableWarning(symbol, scope)
-{
-	// Get the scope specific symbol table entry
-	var symbolTableEntry = _SymbolTableList[scope][symbol];
-
-	// Warn user
-	_OutputManager.addWarning("Variable, " + symbol + ", on line " + symbolTableEntry.line + " is declared but unused.")
-}
-
-//
-// Error Helper Functions
-//
-
-// Helper function to perform necessary tasks when an invalid statement error occurs
-function invalidStatementError()
-{
-	_OutputManager.addError("Parse Error: invalid statement on line " + _Parser.tokens[_Parser.currentIndex].line + ", expecting a print, Id, Type, or {...");
-    _OutputManager.addTraceEvent("Expecting token print, Id, Type, or {");
-    _OutputManager.addTraceEvent("Expected token, print, Id, Type, or {, not found", "red");
-    _Parser.errorCount++;
-    _Parser.currentIndex++; // Consume invalid token
-}
-
-// Helper function to perform necessary tasks when an invalid expr error occurs
-function invalidExprError()
-{
-	_OutputManager.addError("Parse Error: invalid expression on line " + _Parser.tokens[_Parser.currentIndex].line + ", expecting an IntExpr, StringExpr, or Id...");
-	_OutputManager.addTraceEvent("Expecting token int, char, or Id");
-	_OutputManager.addTraceEvent("Expected token, int, char, or Id, not found", "red");
-	_Parser.errorCount++;
-	_Parser.currentIndex++; // Consume the invalid token
-}
-
-// Helper function to perform necessary tasks when a token mismatch error occurs
-function tokenMismatchError(expectedTokenKind)
-{
-	_OutputManager.addTraceEvent("'" + expectedTokenKind + "' not found...", "red");
-	_OutputManager.addError("Parse Error: token mismatch on line " + _Parser.tokens[_Parser.currentIndex].line + ", expecting token '" + expectedTokenKind + "'");
-	_Parser.errorCount++;
-	_Parser.currentIndex++; // Consume token
-}
-
-// Helper function to perform necessary tasks when an undeclared variable error occurs
-// Take the undeclared variable and the line it is on as parameters to report to the user
-function undeclaredVariableError(undeclaredVar, line)
-{
-	_OutputManager.addError("Parse Error: assignment attempted on undeclared variable, " + undeclaredVar + ", found on line " + line);
-	_OutputManager.addTraceEvent("Found undeclared variable in assignment statement", "red");
-	_Parser.errorCount++;
-}
-
-// Helper function to perform necessary tasks when an redeclared variable error occurs
-// Take the redeclard variable and the line it is on as parameters to report to the user
-function redeclaredVariableError(redeclaredVar, line)
-{
-	_OutputManager.addError("Parse Error: attempted redeclaration of variable, " + redeclaredVar + ", on line " + line);
-	_OutputManager.addTraceEvent("Found redeclared variable in VarDecl statement", "red");
-	_Parser.errorCount++;
 }
