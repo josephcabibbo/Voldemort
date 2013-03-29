@@ -79,7 +79,7 @@ function Tree()
 		return traversalResult;
 	}
 
-	// Alternative toString function for the syntax stree generator
+	// Alternative toString function for the syntax tree generator
 	this.toStringAlt = function()
 	{
 		var traversalResult = "";
