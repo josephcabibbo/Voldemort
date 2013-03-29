@@ -28,14 +28,14 @@ $(document).ready(function() {
 	// Click event to show the appropriate interaction element and compile if necessary
 	$(".button").click(function() {
 
-		// Compile code if necessary
+		// Compile code
 		if(this.innerText === "Compile Source Code")
 		{
 		    // Clear all result boxes
 		    _OutputManager.clearAllOutput();
 		    // Clear the symbol table list
 		    _SymbolTableList = [];
-		    // Add trace start up message
+		    // Add trace start-up message
 		    _OutputManager.addTraceEvent("Compiler is initialized and ready...", "green");
 
 			// Lexical analysis
@@ -43,11 +43,12 @@ $(document).ready(function() {
 			// Parse
 			if(isLexSuccessful)
 				var isParseSuccessful = _Parser.parse();
-			// AST creation and semantic analysis
+			// CST, AST, and semantic analysis
 			if(isParseSuccessful)
 			{
+				createCST();
 				createAST();
-				// TODO: SemanticAnalysis
+				// TODO: checkSemantics(); // Semantic Analysis
 			}
 		}
 
