@@ -1,11 +1,13 @@
-/*  ----------------------------------------------------------------------------
+/*  ----------------------------------------------------------------------------------
  *	Filename: ast.js
  *	Author: Joey Cabibbo
  *	Requires: tree.js
- *	Description: Facilitates the creation of an AST using lex's stream of tokens
+ *	Description: Facilitates the creation of an AST using lex's stream of tokens looks
+ *				 more or less like a condensed recursive-descent parse
  *	Note: The AST is only created after a successful parse, so we can make assumptions
- *		  about the location of tokens.
- *	---------------------------------------------------------------------------- */
+ *		  about the location of tokens.  This could have been done at the same time as
+ *		  parse but it makes the code ugly and adds complexity.
+ *	---------------------------------------------------------------------------------- */
 
 function createAST()
 {
@@ -19,19 +21,22 @@ function createAST()
 	// Index used for iterating the token list
 	var index = 0;
 
-	// Maybe switch to a while not EOF
-
 	// Iterate tokens
 	while(getToken().kind !== TOKEN_EOF)
 	{
-		// We only want additions to the AST when we have an item in First(Statement) (excluding })
+		// We only want additions to the AST when we have an item in First(Statement)
 		switch(getToken().kind)
 		{
 			case TOKEN_PRINT:		 addPrint(); 		 break;
 	        case TOKEN_ID:		 	 addAssignment(); 	 break;
 	        case TOKEN_TYPE:	 	 addVarDecl();		 break;
 	        case TOKEN_OPENBRACKET:  addStatementList(); break;
+	        // This is not part of First(Statement), but we need it in order to end the statementList (scope)
 	        case TOKEN_CLOSEBRACKET: endStatementList(); break;
+
+	        // Should never occur because our parse was successful, but it's here just to avoid an infinite
+	        // loop when we get a heisenbug (which of course will happen), so just move to the next token
+	        default: index++; break;
 		}
 	}
 
@@ -105,7 +110,7 @@ function createAST()
 		_AST.endChildren();
 	}
 
-	// Function to add an IntExpr production 5 + 5
+	// Function to add an IntExpr production
 	function addIntExpr()
 	{
 		// op
@@ -133,7 +138,7 @@ function createAST()
 		_AST.endChildren();
 	}
 
-	// Function to start a statementList production to the AST
+	// Function to start a statementList production
 	function addStatementList()
 	{
 		// Add a StatementList branch
@@ -145,7 +150,7 @@ function createAST()
 	// Function to end a statementList production
 	function endStatementList()
 	{
-		// Jump up a level in the ast (leave the current scope)
+		// Finished with statementList
 		_AST.endChildren();
 		// Move to the next statement
 		index++;
@@ -164,8 +169,8 @@ function createAST()
 		// Negative values (look behind)
 		else if(distanceFromCurrentIndex < 0)
 			return tokens[index - Math.abs(distanceFromCurrentIndex)];
-
-		// No number provided, return the current token
-		return tokens[index];
+		// No number or 0 provided, return the current token
+		else
+			return tokens[index];
 	}
 }
