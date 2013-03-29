@@ -108,15 +108,15 @@ function OutputManager()
 	   // Iterate symbol tables by scope
 	   for(var i = 0; i < _SymbolTableList.length; i++)
 	   {
-	   	   // Display the table title (scope 1, 2, 3, ...)
+	   	   // Display the table title (scope 0, 1, 2, ...)
 	   	   // Do not put a line break if it is the first thing added to the result box
 	   	   if($("#symbolTable").html())
-	   	       $("#symbolTable").append("<br/><div>------------------- Scope " + (i + 1).toString() + " -------------------</div>");
+	   	       $("#symbolTable").append("<br/><div>------------------- Scope " + i.toString() + " -------------------</div>");
 	   	   else
-	   	   	   $("#symbolTable").append("<div>------------------- Scope " + (i + 1).toString() + " -------------------</div>");
+	   	   	   $("#symbolTable").append("<div>------------------- Scope " + i.toString() + " -------------------</div>");
 
-		   // Concatenate the appropriate id for this scopes table (i + 1 because scope 0 doesn't exist)
-		   var tableId = "symbolTable" + (i + 1).toString();
+		   // Concatenate the appropriate id for this scopes table
+		   var tableId = "symbolTable" + i.toString();
 		   // Create a table for this scope
 		   var newTable = "<table id='" + tableId + "'>" +
 			                    "<tr>" +
