@@ -37,4 +37,5 @@ var _OutputManager     = null;	// Object responsible for all output to user
 var _Lexer             = null;  // Object responsible for lexical analysis
 var _Parser        	   = null;  // Object responsible for parsing
 var _SymbolTableList   = null;  // Array that contains each scope's hash symbol table object
-var _AST			   = null;	// Abstract Syntax Tree resulting from the CST
+var _CST			   = null;	// Concrete Syntax Tree
+var _AST			   = null;	// Abstract Syntax Tree
