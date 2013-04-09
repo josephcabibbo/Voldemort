@@ -48,13 +48,39 @@ $(document).ready(function() {
 			{
 				createCST();
 				createAST();
-				// TODO: checkSemantics(); // Semantic Analysis
+				var isSemanticAnalysisSuccessful = checkSemantics();
+			}
+			// Code generation
+			if(isSemanticAnalysisSuccessful)
+			{
+				// Code Gen
 			}
 		}
 
 		displayCorrectElement(this);
 		dispayCorrectInteractionLabel();
 		displayCorrectButton();
+	});
+
+	// Keydown event for the source code area to allow tabs
+	$("#sourceCode").keydown(function(event) {
+
+		// Tab event
+		if(event.which === 9)
+		{
+			// Get the start and end position
+		    var start = this.selectionStart;
+            var end   = this.selectionEnd;
+
+            // Set the textarea value to [text before tab] + tab + [text after tab]
+	        $(this).val($(this).val().substring(0, start) + "\t" + $(this).val().substring(end));
+
+	        // Put cursor at right position again
+	        this.selectionStart = this.selectionEnd = start + 1;
+
+			// Prevent the default action which is tab away and lose focus
+			event.preventDefault();
+		}
 	});
 
 	//
