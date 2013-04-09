@@ -63,27 +63,13 @@ function checkSemantics()
       switch(type)
 	  {
 		  case "int": 	 return isIntExpr(value);    break;
-		  case "string": return isStringExpr(value); break;
+		  case "string": return isString(value); break;
 	  }
-   }
-
-   function isStringExpr(value)
-   {
-   	   // If the variable is uninitialized, return true so we dont create a semantic error
-   	   // Otherwise the value is defined, check if its value is a string
-	   if(value === undefined)
-	       return true;
-	   else
-		   return isString(value); //  Found in tokenIntrospection.js
    }
 
    // Function that takes an int expr, breaks it down (if necessary), and validates that all operands are of type int
    function isIntExpr(value)
    {
-   	  // If the variable is uninitialized, return true so we dont create a semantic error
-   	  if(value === undefined)
-   	  	  return true;
-
    	  // If the expr is not a single value, split it up
   	  if(value.search(/[+-]/) != -1)
   	  {
