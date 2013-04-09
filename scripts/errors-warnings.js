@@ -9,26 +9,42 @@
 // Warnings
 //
 
-//
-// Parse Warnings
-//
-
+// Semantic Warnings
 function unusedVariableWarning(symbol, scope)
 {
 	// Get the scope specific symbol table entry
 	var symbolTableEntry = _SymbolTableList[scope][symbol];
 
-	// Warn user
-	_OutputManager.addWarning("Variable, " + symbol + ", on line " + symbolTableEntry.line + " is declared but unused.")
+	_OutputManager.addWarning("Variable, '" + symbol + "', on line " + symbolTableEntry.line + " is unused.");
+}
+
+// Parse Warnings
+
+// Helper function to warn the user about uninitialized variables
+function uninitializedVariableWarning(symbol, scope)
+{
+	// Get the scope specific symbol table entry
+	var symbolTableEntry = _SymbolTableList[scope][symbol];
+
+	_OutputManager.addWarning("Variable, '" + symbol + "', on line " + symbolTableEntry.line + " is declared but uninitialized.");
 }
 
 //
 // Errors
 //
 
-//
+// Semantic Errors
+
+function typeMismatchError(symbol, scope)
+{
+	// Get the scope specific symbol table entry
+	var symbolTableEntry = _SymbolTableList[scope][symbol];
+
+	_OutputManager.addError("Semantic Error: type mismatch in the value of variable '" + symbol + "', its value must have only elements of type " + symbolTableEntry.type);
+	_OutputManager.addTraceEvent("Value does not match type " + symbolTableEntry.type , "red")
+}
+
 // Parse Errors
-//
 
 // Helper function to perform necessary tasks when an invalid statement error occurs
 function invalidStatementError()
