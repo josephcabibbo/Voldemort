@@ -146,7 +146,7 @@ function createCST()
 
     // Add a StringExpr production
     // " CharList "
-    function parseStringExpr()
+    function addStringExpr()
     {
         addTokenAndConsume(TOKEN_STRING);
     }

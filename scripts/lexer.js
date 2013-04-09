@@ -113,7 +113,7 @@ function Lexer()
 		    _OutputManager.addWarning("You forgot to place a $ at the end of your program. I'll let it slide this time...");
 		    _OutputManager.addTraceEvent("Adding EOF token to stream of tokens...");
 		    // Add EOF token to the tokenList
-		    this.tokenList.push(new Token(TOKEN_EOF, null, null, null, lastToken.line + 1));
+		    this.tokenList.push(new Token(TOKEN_EOF, null, "$", null, lastToken.line + 1, null));
 		    // Trace result message
 		    _OutputManager.addTraceEvent("EOF token has been added to steam of tokens!", "green");
 		}
@@ -190,7 +190,7 @@ function getTokenValue(token)
 // Helper function that takes a token and returns its type
 function getTokenType(token)
 {
-    // The only types we have are int and char
+    // The only types we have are int and string
     if(isInteger(token))
         return "int";
     else if(isString(token))

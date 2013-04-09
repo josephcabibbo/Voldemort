@@ -142,7 +142,9 @@ function createAST()
 	function addStatementList()
 	{
 		// Add a StatementList branch
+		// Adding this meta-symbol has given me more OCD anxiety than I care to admit...
 		_AST.addNode("StatementList", "branch");
+		//_AST.addNode("{}", "branch");
 		// Move to the next statement
 		index++;
 	}
