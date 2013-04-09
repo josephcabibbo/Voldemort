@@ -15,7 +15,7 @@ function Parser()
 	this.tokens = [];
 	// Current token index
 	this.currentIndex = 0;
-	// Number of errors found
+	// Reference to the number of errors found
 	this.errorCount = 0;
 	// The scope manager
 	this.scopeManager = new ScopeManager();
@@ -35,7 +35,9 @@ function Parser()
     	// Start the parse
         this.parseProgram();
 
-        // Check for declared but unused variables
+        // Check for declared but uninitialized variables
+        checkForUninitializedVariables();
+        // Check for variables that have not been unused
         checkForUnusedVariables();
 
         // Determine if it was a successful parse or a failure
@@ -130,11 +132,12 @@ function Parser()
 	    // Get the current scope
 	    var scope = this.scopeManager.currentScope;
 
-	    // If the id has been declared in this scope, add the value
+	    // If the id has been declared in this scope, add the value and mark as "used"
 	    // Otherwise it is an undeclared variable
 	    if(_SymbolTableList[scope] && _SymbolTableList[scope].hasOwnProperty(id))
 	    {
-	    	_SymbolTableList[scope][id].value = expr;
+	    	_SymbolTableList[scope][id].value  = expr;
+	    	_SymbolTableList[scope][id].isUsed = true;
 	    }
 	    else
 	    {
@@ -170,7 +173,9 @@ function Parser()
 	    else
 	    {
 		    // Add all data known at this point to this scope's symbol table (format is id : {information})
-		    _SymbolTableList[scope][id] = {"type": type, "line": line, "scope": scope};
+		    _SymbolTableList[scope][id] = {"type": type, "line": line, "scope": scope, "isUsed": false};
+		    // Display it in the trace
+		    _OutputManager.addTraceEvent("Added identifier '" + id + "' to the symbol table in scope " + scope);
 	    }
     }
 
@@ -223,8 +228,12 @@ function Parser()
 	        					break;
 
 	        case TOKEN_ID:		this.matchToken(TOKEN_ID);
+	        					// Get the id we just matched
+	        					var id = this.tokens[this.currentIndex - 1].name
 	        					// Assign the id as the expr value
-	        					expr = this.tokens[this.currentIndex - 1].name;
+	        					expr = id;
+	        					// Mark the id as used (if not done so already)
+	        					_SymbolTableList[this.scopeManager.currentScope][id].isUsed = true;
 	        					break;
 
 	        // Invalid expression
@@ -316,7 +325,6 @@ function concatenateIntExpr(index)
 		currentToken = _Parser.tokens[++index];
 	}
 
-	// Not very crazy about all the madness in this helper function, so it may be temporary...
 	// Make sure we did not catch any additional tokens part of the next statement that matched our case (int, op, or Id) by mistake
 	// a = 5 b = 5 would result in a having a value of 5b without this regex match
 	exprString = exprString.match(/[0-9]{1}([+-]{1}[a-z0-9]{1})*/)[0];
@@ -325,15 +333,27 @@ function concatenateIntExpr(index)
 	 * ([+-]{1}[a-z0-9]{1})* - an IntExpr can optionally be followed by an op (+|-) and either a digit or id
 	 */
 
-	 // If the exprString is only digits and ops (no Ids), we can evaluate it and return an int representation rather than returning a long string representation
-	 // Otherwise just return the expString
-	if(/^[0-9+-]+$/.test(exprString))
-		return eval(exprString).toString();
-	else
-		return exprString;
+	 // Return the expression
+	 return exprString;
 }
 
-// Helper function to check the symbol table for declared but unused variables
+// Helper function to check the symbol table for declared but uninitialized variables
+function checkForUninitializedVariables()
+{
+	// Iterate each scope's symbol table
+	for(var i = 0; i < _SymbolTableList.length; i++)
+	{
+		// Iterate each symbol in the scope's symbol table
+		for(symbol in _SymbolTableList[i])
+		{
+			// If the symbol table entry exists and has no value, it is uninitialized.  Warn the user.
+			if(_SymbolTableList[i][symbol].value === undefined)
+				uninitializedVariableWarning(symbol, i);
+		}
+	}
+}
+
+// Helper function to check the symbol table for unused variables
 function checkForUnusedVariables()
 {
 	// Iterate each scope's symbol table
@@ -342,8 +362,8 @@ function checkForUnusedVariables()
 		// Iterate each symbol in the scope's symbol table
 		for(symbol in _SymbolTableList[i])
 		{
-			// If the symbol table entry exists and has no value, it is unused.  Warn the user.
-			if(_SymbolTableList[i][symbol].value === undefined)
+			// If the symbol table entry's "isUsed" property is false it is not used.  Warn the user.
+			if(_SymbolTableList[i][symbol].isUsed === false)
 				unusedVariableWarning(symbol, i);
 		}
 	}
