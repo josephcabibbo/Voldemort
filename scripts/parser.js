@@ -346,11 +346,31 @@ function checkForUninitializedVariables()
 		// Iterate each symbol in the scope's symbol table
 		for(symbol in _SymbolTableList[i])
 		{
-			// If the symbol table entry exists and has no value, it is uninitialized.  Warn the user.
+			// If the symbol table entry exists and has no value, it is uninitialized.  Warn the user and initialized it to a default value.
 			if(_SymbolTableList[i][symbol].value === undefined)
+			{
 				uninitializedVariableWarning(symbol, i);
+				initializeToDefaultValue(symbol, i)
+			}
 		}
 	}
+}
+
+// Function called by checkForUninitializedVariables() to initialize uninitialized variables to default values
+function initializeToDefaultValue(symbol, scope)
+{
+	// Get the symbol table entry in the current scope
+	var symbolTableEntry = _SymbolTableList[scope][symbol];
+
+	// Set the value to a default value corresponding to its type
+	switch(symbolTableEntry.type)
+	{
+		case "int":    symbolTableEntry.value = "0"; break;
+		case "string": symbolTableEntry.value = "\"\"";  break;
+	}
+
+	// Display a trace event
+	_OutputManager.addTraceEvent("Initialized identifier '" + symbol + "' to a default " + symbolTableEntry.type + " value")
 }
 
 // Helper function to check the symbol table for unused variables
