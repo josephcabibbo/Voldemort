@@ -8,12 +8,12 @@
 // Function that checks every symbol table entry to ensure all entries have type-value matches
 function checkSemantics()
 {
-   // Reference to the number of errors found
-   var errorCount = 0;
+	// Reference to the number of errors found
+	var errorCount = 0;
 
-   // Iterate symbol tables by scope
-   for(var i = 0; i < _SymbolTableList.length; i++)
-   {
+	// Iterate symbol tables by scope
+	for(var i = 0; i < _SymbolTableList.length; i++)
+	{
 		// Get the scope's corresponding symbol table
 		var currentSymbolTable = _SymbolTableList[i];
 
@@ -42,37 +42,37 @@ function checkSemantics()
 				}
 			}
 		}
-   }
+	}
 
-    // Determine if it was a successful semantic analysis or a failure
-    if(errorCount === 0)
-    {
-        _OutputManager.addTraceEvent("Semantic analysis successful!", "green");
-        return true;
-    }
-    else
-    {
-        _OutputManager.addTraceEvent("Semantic analysis failed!", "red");
-        // Should I erase the incorrect symbol table?
-        return false;
-    }
+	// Determine if it was a successful semantic analysis or a failure
+	if(errorCount === 0)
+	{
+	    _OutputManager.addTraceEvent("Semantic analysis successful!", "green");
+	    return true;
+	}
+	else
+	{
+	    _OutputManager.addTraceEvent("Semantic analysis failed!", "red");
+	    // Should I erase the incorrect symbol table?
+	    return false;
+	}
 
-   // Function that sends a value of specified type to the correct validation function
-   function isMatchingType(type, value)
-   {
-      switch(type)
+	// Function that sends a value of specified type to the correct validation function
+	function isMatchingType(type, value)
+	{
+	  switch(type)
 	  {
 		  case "int": 	 return isIntExpr(value);    break;
 		  case "string": return isString(value); break;
 	  }
-   }
+	}
 
-   // Function that takes an int expr, breaks it down (if necessary), and validates that all operands are of type int
-   function isIntExpr(value)
-   {
-   	  // If the expr is not a single value, split it up
-  	  if(value.search(/[+-]/) != -1)
-  	  {
+	// Function that takes an int expr, breaks it down (if necessary), and validates that all operands are of type int
+	function isIntExpr(value)
+	{
+		  // If the expr is not a single value, split it up
+		  if(value.search(/[+-]/) != -1)
+		  {
 	  	  // Split on the operators
 		  var operandList = value.split(/[+-]/);
 		  // Boolean to be returned
@@ -109,5 +109,5 @@ function checkSemantics()
 	  	  else
 	      	  return isInteger(value);
 	  }
-   }
+	}
 }
