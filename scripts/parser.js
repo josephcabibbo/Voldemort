@@ -92,12 +92,10 @@ function Parser()
 	        case TOKEN_TYPE:	 	this.parseVarDecl();
 	        						break;
 
-	        case TOKEN_OPENBRACKET: this.matchToken(TOKEN_OPENBRACKET);
-	        						// { indicates we are entering a new scope environment
+	        case TOKEN_OPENBRACKET: this.matchToken(TOKEN_OPENBRACKET); // Entering a new scope environment
 	        						this.scopeManager.initializeNewScope();
 	        						this.parseStatementList();
-	        						this.matchToken(TOKEN_CLOSEBRACKET);
-	        						// } indicates we are leaving the current scope environment
+	        						this.matchToken(TOKEN_CLOSEBRACKET); // Leaving the current scope environment
 	        						this.scopeManager.leaveCurrentScope();
 	        						break;
 
@@ -312,26 +310,31 @@ function concatenateIntExpr(index)
 	// Get the first token of the IntExpr
 	var currentToken = _Parser.tokens[index];
 
-	// If the token is an int, op, or id, concatenate it as one string
-	while(currentToken.kind === TOKEN_INT || currentToken.kind === TOKEN_OP || currentToken.kind === TOKEN_ID)
+	// The first token has to be an int so append and increment
+	appendToken(currentToken);
+
+	// At this point we can only append the pair of and op and something that follows so keep looping until that format fails
+	while(currentToken.kind === TOKEN_OP)
 	{
-		// Integers and Ops have immediate values, ids have names (values determined at runtime)
-		if(currentToken.kind === TOKEN_INT || currentToken.kind === TOKEN_OP)
-			exprString += currentToken.value; // Int or Op
-		else
+		// Append the op
+		appendToken(currentToken);
+		// Append whatever follows the op
+		appendToken(currentToken);
+	}
+
+	// Internal function to append tokens to the exprString as long as they follow the
+	// format [int] [op] [whatever, but hopefully and int or id or else its a semantic error]
+	function appendToken(token)
+	{
+		// We want the name of an id not its value
+		if(currentToken.kind === TOKEN_ID)
 			exprString += currentToken.name;  // Id
+		else
+			exprString += currentToken.value;  // Integers, ops, and anything else
 
 		// Increment to get the next token
 		currentToken = _Parser.tokens[++index];
 	}
-
-	// Make sure we did not catch any additional tokens part of the next statement that matched our case (int, op, or Id) by mistake
-	// a = 5 b = 5 would result in a having a value of 5b without this regex match
-	exprString = exprString.match(/[0-9]{1}([+-]{1}[a-z0-9]{1})*/)[0];
-	/*
-	 * [0-9]{1} 			 - we know an IntExpr must start with one digit
-	 * ([+-]{1}[a-z0-9]{1})* - an IntExpr can optionally be followed by an op (+|-) and either a digit or id
-	 */
 
 	 // Return the expression
 	 return exprString;
