@@ -68,7 +68,7 @@ function Tree()
 				// Recursively expand the branch's children
 				for(var i = 0; i < node.children.length; i++)
 				{
-					expand(node.children[i], depth + 1)
+					expand(node.children[i], depth + 1);
 				}
 			}
 		}

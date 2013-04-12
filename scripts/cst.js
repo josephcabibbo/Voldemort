@@ -35,6 +35,7 @@ function createCST()
 	{
 		_CST.addNode("Statement", "branch")
 
+		// We only want additions to the CST when we have an item in First(Statement)
 		switch(tokens[index].kind)
 		{
 			case TOKEN_PRINT:		addPrint(); 		break;
