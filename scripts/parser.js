@@ -147,7 +147,7 @@ function Parser()
     // Type Id
     this.parseVarDecl = function()
     {
-	    this.matchToken(TOKEN_TYPE);
+    	this.matchToken(TOKEN_TYPE);
 	    this.matchToken(TOKEN_ID);
 
 	    // Get the Id and Type tokens we just matched and get the line they are on
@@ -155,13 +155,13 @@ function Parser()
 	    var type = this.tokens[this.currentIndex - 2].value;
 	    var line = this.tokens[this.currentIndex - 1].line;
 
+	    // If the current scope is -1 it has not been initialized yet, initialize it.
+	    // This would only be the case when this varDecl is not in a statement list
+	    if(this.scopeManager.currentScope === -1)
+	    	this.scopeManager.initializeNewScope();
+
 	    // Get the current scope
 	    var scope = this.scopeManager.currentScope;
-
-	    // If the current scope object has not been initialized yet, initialize it.
-	    // This would only be the case when this varDecl is not in a statement list
-	    if(!_SymbolTableList[scope])
-	    	_SymbolTableList[scope] = {};
 
 	    // If a variable of the same id and scope exists already it is being redeclared (error)
 	    if(_SymbolTableList[scope].hasOwnProperty(id))
@@ -170,7 +170,7 @@ function Parser()
  	    }
 	    else
 	    {
-		    // Add all data known at this point to this scope's symbol table (format is id : {information})
+		    // Add all data known at this point to this scope's symbol table entry(format is id : {information})
 		    _SymbolTableList[scope][id] = {"type": type, "line": line, "scope": scope, "isUsed": false};
 		    // Display it in the trace
 		    _OutputManager.addTraceEvent("Added identifier '" + id + "' to the symbol table in scope " + scope);
@@ -252,7 +252,7 @@ function Parser()
         // Look-ahead to determine which production we need
         if(this.tokens[this.currentIndex].kind === TOKEN_OP)
         {
-	        this.matchToken(TOKEN_OP)
+        	this.matchToken(TOKEN_OP)
 	        this.parseExpr();
         }
     }
@@ -349,8 +349,8 @@ function checkForUninitializedVariables()
 		// Iterate each symbol in the scope's symbol table
 		for(symbol in _SymbolTableList[i])
 		{
-			// If the symbol table entry exists and has no value, it is uninitialized.  Warn the user and initialized it to a default value.
-			if(_SymbolTableList[i][symbol].value === undefined)
+			// If the symbol table entry exists and has no value and is not the parentScope attribute, it is uninitialized.  Warn the user and initialized it to a default value.
+			if(_SymbolTableList[i][symbol].value === undefined && symbol !== "parentScope" )
 			{
 				uninitializedVariableWarning(symbol, i);
 				initializeToDefaultValue(symbol, i)
