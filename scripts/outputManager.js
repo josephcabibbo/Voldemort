@@ -141,8 +141,8 @@ function OutputManager()
 			// Iterate symbols and add it to the appropriate table
 			for(var symbol in currentSymbolTable)
 			{
-				// Filter out keys from the Object.prototype (if any)
-				if(currentSymbolTable.hasOwnProperty(symbol))
+				// Filter out keys from the Object.prototype (if any) and do not display the parentScope attribute
+				if(currentSymbolTable.hasOwnProperty(symbol) && symbol !== "parentScope")
 				{
 					var newContent = "<tr>" +
         								"<td><span class='regularText'>" + symbol + "</span></td>" +
