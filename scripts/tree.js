@@ -58,8 +58,14 @@ function Tree()
 			// If there are no children, we have a leaf node
 			if(!node.children || node.children.length === 0)
 			{
-				// Possibly use a ternary to disply kind when it is a token, and just the item when it is not a token
 				traversalResult +=  node.item + "\n";
+
+				// Ids in the AST have their symbol table attatched to the leaf, so just include the id
+				// Otherwise the leaf is not an id, just display the terminal
+				if(typeof node.item === "object")
+					traversalResult +=  node.item["id"] + "\n";
+				else
+					traversalResult +=  node.item + "\n";
 			}
 			else
 			{
@@ -90,8 +96,12 @@ function Tree()
 			// If there are no children, we have a leaf node
 			if(!node.children || node.children.length === 0)
 			{
-				// Possibly use a ternary to disply kind when it is a token, and just the item when it is not a token
-				traversalResult += "[" + node.item + "]";
+				// Ids in the AST have their symbol table attatched to the leaf, so just include the id
+				// Otherwise the leaf is not an id, just display the terminal
+				if(typeof node.item === "object")
+					traversalResult += "[" + node.item["id"] + "]";
+				else
+					traversalResult += "[" + node.item + "]";
 			}
 			else
 			{
