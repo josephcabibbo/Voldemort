@@ -8,7 +8,19 @@
 // If the id is not in the current scope, check the parent scope hierarchy until found
 function getSymbolTableEntry(id, scope)
 {
-	// Dafualt entry assuming this entry exists in this scope
+	// If the scope parameter is sent as undefined, get the highest scope in the program and start from there
+	if(scope === undefined)
+	{
+		scope = 0;
+
+		// See how many scopes we already have, and return that last index
+		for(var i = 0; i < _SymbolTableList.length - 1; i++)
+		{
+			scope++;
+		}
+	}
+
+	// Default entry assuming this entry exists in this scope
 	var entry = _SymbolTableList[scope][id];
 
 	// If the current scope does not have an entry associated with this id, check the parent scope until found
