@@ -190,13 +190,17 @@ function checkSemantics()
 			// Otherwise, make sure the single value is an int
 			// We get here when an Id's value is being checked out to make sure it is an int
 			// 1. The value is another Id, so recurse again with that Id's value
-			// 2. The value is an IntExpr, break it down and handle it similarly to isIntExpr, but without nodes
-			// 3. The value is a single int, check it
+			// 2. The value is a single int, check it
+			// 3. The value is an IntExpr, break it down and handle it similarly to isIntExpr, but without nodes
 			if(isIdentifier(valueNode))
 			{
 				return isIntExpr(getSymbolTableEntry(valueNode, scope).value, scope)
 			}
-			else if(valueNode.search(/[+=]/) != -1)
+			else if(isInteger(valueNode))
+			{
+				return true;
+			}
+			else(valueNode.search(/[+=]/) != -1)
 			{
 				// Split on the operators
 				var operandList = valueNode.split(/[+-]/);
@@ -220,10 +224,6 @@ function checkSemantics()
 				}
 
 				return containsOnlyIntegers;
-			}
-			else
-			{
-				return isInteger(valueNode);
 			}
 		}
 	}
