@@ -54,6 +54,17 @@ function isSymbol(token)
      */
 }
 
+// Helper function that takes a token string and returns whether it is a valid operator token
+function isOperator(token)
+{
+	return (/^[-+]$/).test(token);
+    /*
+     *  ^    - start of token
+     *  [-+] - one of the listed operators
+     *  $    - end of token
+     */
+}
+
 // Helper function that takes a token string and returns whether it is a reserved word
 function isReservedWord(token)
 {
