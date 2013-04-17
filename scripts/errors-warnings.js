@@ -35,13 +35,16 @@ function uninitializedVariableWarning(symbol, scope)
 
 // Semantic Errors
 
-function typeMismatchError(symbol, scope)
+function assignmentTypeMismatchError(id, value, type)
 {
-	// Get the scope specific symbol table entry
-	var symbolTableEntry = _SymbolTableList[scope][symbol];
+	_OutputManager.addError("Semantic Error: type mismatch in the attempted assignment of variable '" + id + "', its value, '" + value + "' must have only elements of type " + type);
+	_OutputManager.addTraceEvent("Value does not match type " + type , "red")
+}
 
-	_OutputManager.addError("Semantic Error: type mismatch in the value of variable '" + symbol + "', its value must have only elements of type " + symbolTableEntry.type);
-	_OutputManager.addTraceEvent("Value does not match type " + symbolTableEntry.type , "red")
+function printTypeMismatchError(value, type)
+{
+	_OutputManager.addError("Semantic Error: type mismatch in the attempted print of value '" + value + "', its value must have only elements of type " + type);
+	_OutputManager.addTraceEvent("Value does not match type " + type , "red")
 }
 
 // Parse Errors
