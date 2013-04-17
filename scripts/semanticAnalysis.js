@@ -214,7 +214,7 @@ function checkSemantics()
 					if(isIdentifier(operandList[index]))
 					{
 						// currentSymbolTable is available bc js has function scope, not block scope
-						if(!isIntExpr(currentSymbolTable[operandList[index]].value))
+						if(!isIntExpr(operandList[index], scope))
 						containsOnlyIntegers = false;
 					}
 					else if(!isInteger(operandList[index]))
