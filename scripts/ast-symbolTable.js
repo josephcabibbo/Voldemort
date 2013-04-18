@@ -41,18 +41,10 @@ function createSymbolTableAndAST()
 	        // loop when we get a heisenbug (which of course will happen), so just move to the next token
 	        default: index++; break;
 		}
+
+		// Update the symbolTable(s) display
+		_OutputManager.updateSymbolTable();
 	}
-
-	//
-	// Post creation...
-	//
-
-	// Check for declared but uninitialized variables (found in symbolTableUtils.js)
-    checkForUninitializedVariables();
-    // Check for variables that have not been unused (found in symbolTableUtils.js)
-    checkForUnusedVariables();
-    // Display the symbolTable(s)
-	_OutputManager.updateSymbolTable();
 
 	//
 	// AST and Symbol Table creation methods
