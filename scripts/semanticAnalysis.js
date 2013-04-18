@@ -1,5 +1,5 @@
 /*  --------------------------------------------------------------------------------------
- *	Filename: semanticAnalysis.js
+ *	Filename: semanticAnalysis2.js
  *	Author: Joey Cabibbo
  *  Requires: globals.js, symbolTableUtils.js, tokenIntrospection.js
  *	Description: Semantic analysis of the AST / symbol table
@@ -9,16 +9,25 @@
 // Function that checks every symbol table entry to ensure all entries have type-value matches
 function checkSemantics()
 {
-	// Reference to the number of errors found
+	// Check for declared but uninitialized variables (found in symbolTableUtils.js)
+    checkForUninitializedVariables();
+    // Check for variables that have not been unused (found in symbolTableUtils.js)
+    checkForUnusedVariables();
+
+    //
+    // Type Checking
+    //
+
+    // Reference to the number of errors found
 	var errorCount = 0;
 
-	// Function to traverse the tree and check specified cases
+	// Function to traverse the tree and check specific cases
 	function expand(node)
 	{
 		switch(node.item)
 		{
 			case "=": 	  checkAssignmentSemantics(node); break;
-			case "print": checkPrintSemantics(node); 	  break
+			case "print": checkPrintSemantics(node); 	  break;
 		}
 
 		// Recursively expand the branch's children
@@ -47,49 +56,49 @@ function checkSemantics()
 	// Function that makes sure the value of an assignment statement matches the type of variable
 	function checkAssignmentSemantics(node)
 	{
-		// Get the id
+		// Get the Id being assigned
 		var id = node.children[0].item["id"];
-		// Get the type
-		var type = node.children[0].item.symbolTableEntry.type;
+		// Get the type of the id
+		var type = node.children[0].item["symbolTableEntry"].type;
 		// Current scope in which we are checking semantics
-		var scope = node.children[0].item.symbolTableEntry.scope;
+		var scope = node.children[0].item["symbolTableEntry"].scope;
 		// Move to the value node (right child)
 		node = node.children[1];
-		// Get the value being assigned to the id
-		var value = getExprValueString(type, node);
+		// Get the value being assigned to the Id
+		var value = getValue(node);
 
 		_OutputManager.addTraceEvent("Checking semantics of " + type + " assignment statement, '" + id + "=" + value + "'");
 
 		// Determine if the value matches the type
-		if(isMatchingType(type, node, scope))
+		if(isMatchingType(type, value, scope))
 		{
 			_OutputManager.addTraceEvent("Value matches type " + type, "green");
 		}
 		else
 		{
-			// Send the id, its value, and type to the function in errors-warnings.js
+			// Send the id, value, and type to the function in errors-warnings.js
 			assignmentTypeMismatchError(id, value, type);
 			errorCount++;
 		}
 	}
 
-	function checkPrintSemantics(valueNode)
+	function checkPrintSemantics(node)
 	{
 		// Move to the actual value node
-		valueNode = valueNode.children[0]
+		node = node.children[0];
 
-		// The only case that can have a semantic error is printing an intExpr
+		// The only case that can have a semantic error for print is an intExpr
 		// All of the other cases cannot fail
-		if(isOperator(valueNode.item))
+		if(isOperator(node.item))
 		{
 			// Determine type and value
 			var type = "int";
-			var value = getExprValueString(type, valueNode);
+			var value = getValue(node);
 
 			_OutputManager.addTraceEvent("Checking print statement semantics of " + type + " value '" + value + "'");
 
 			// Determine if the value matches the type
-			if(isMatchingType(type, valueNode))
+			if(isMatchingType(type, node))
 			{
 				_OutputManager.addTraceEvent("Value matches type " + type, "green");
 			}
@@ -105,236 +114,132 @@ function checkSemantics()
 	// Function that sends a value node of specified type to the correct validation function
 	// This function gets the value node instead of just the value, bc for intExprs, the node
 	// is important for getting all of the operands.  Scope is sent in order to look up ids
-	function isMatchingType(type, valueNode, scope)
+	function isMatchingType(type, value, scope)
 	{
 		switch(type)
 		{
-			case "int":    return isIntExpr(valueNode, scope); break;
-			case "string": return isStringExpr(valueNode);  break;
+			case "int":    return isIntExpr(value, scope); break;
+			case "string": return isStringExpr(value, scope);  break;
+
+			// Should never happen, but you know how those heisenbugs work
+			default: return false; break;
 		}
 	}
 
-	// Function that validates our value of type string
-	function isStringExpr(valueNode)
+	// Function that validates a string value
+	function isStringExpr(value)
 	{
-		// If the node is not an object, it is being called recursively as just a value, handle accordingly
-		// Otherwise, it is an actual node, check if it is an actual string or an Id
-		if(typeof valueNode !== "object")
+		// Two cases:
+		// 1. String
+		// 2. Id
+		if(isString(value))
+			return true
+		else if(isIdentifier(value))
 		{
-			return isString(valueNode);
+			// Get the value of the Id
+			var idValue = getSymbolTableEntry(value, scope).value;
+			// Make a recursive call with the value of the Id
+			return isStringExpr(idvalue);
 		}
 		else
-		{
-			// If it is an Id, recursively call this function to make sure the Id's value is of type string
-			// Otherwise it is a literal string, check it
-			if(typeof valueNode.item === "object")
-			{
-				return isStringExpr(valueNode.item["symbolTableEntry"].value);
-			}
-			else
-			{
-				return isString(valueNode.item)
-			}
-		}
+			return false;
 	}
 
-	// Function that validates our value of type int
-	function isIntExpr(valueNode, scope)
+	// Function that validates an intExpr value
+	function isIntExpr(value, scope)
 	{
-		// If the function is being called by a node object determine what kind of node it is and proceed accordingly
-		// Otherwise, the function is being called recursively with just a value, check the value
-		if(typeof valueNode === "object")
+		// Three cases:
+		// 1. Integer
+		// 2. Id
+		// 3. IntExpr
+		if(isInteger(value))
+			return true;
+		else if(isIdentifier(value))
 		{
-			// There are two options for type int:
-			// 1. It is a single digit OR id- check appropriately and return whether it is of type int
-			// 2. It is an IntExpr - get all operands, check each one and return whether it is of type int
-			if(!isOperator(valueNode.item))
-			{
-				// If the value is an id, recursively call isIntExpr() to make sure the id's value is an int
-				// Otherwise, make sure the single value is an int
-				if(isIdentifier(valueNode.item["id"]))
-					return isIntExpr(valueNode.item["symbolTableEntry"].value, scope);
-				else
-					return isInteger(valueNode.item);
-			}
-			else
-			{
-				// Boolean to be returned
-				var containsOnlyIntegers = true;
+			// Get the value of the Id
+			var idValue = getSymbolTableEntry(value, scope).value;
+			// Make a recursive call with the value of the Id
+			return isIntExpr(idValue, scope);
+		}
+		else if(value.search(/[+=]/) != -1)
+		{
+			// Split on the operators
+			var operandList = value.split(/[+-]/);
+			// Boolean to be returned
+			var containsOnlyIntegers = true;
 
-				// Get the individual operands so we can make sure they are all of type int
-				var operandList = getIntExprOperands(valueNode);
-
-				for(index in operandList)
+			// Iterate the operands
+			for(index in operandList)
+			{
+				// Ensure all operands are ints
+				if(isIdentifier(operandList[index]))
 				{
-					// If the operand is an Id recursively call isIntExpr to make sure the Id's value is an int
-					// Otherwise, it is a single int, make sure it is an int
-					if(isIdentifier(operandList[index]))
-					{
-						// Recursively call isIntExpr() to make sure the Id's value is of type int
-						if(!isIntExpr(operandList[index], scope))
-							containsOnlyIntegers = false;
-					}
-					else if(!isInteger(operandList[index]))
-					{
+					if(!isIntExpr(operandList[index], scope))
 						containsOnlyIntegers = false;
-					}
 				}
-
-				return containsOnlyIntegers;
+				else if(!isInteger(operandList[index]))
+				{
+					containsOnlyIntegers = false;
+				}
 			}
+
+			return containsOnlyIntegers;
 		}
 		else
-		{
-			// If the single value is an id, recursively call isIntExpr() to make sure the id's value is an int
-			// Otherwise, make sure the single value is an int
-			// We get here when an Id's value is being checked out to make sure it is an int
-			// 1. The value is another Id, so recurse again with that Id's value
-			// 2. The value is a single int, check it
-			// 3. The value is an IntExpr, break it down and handle it similarly to isIntExpr, but without nodes
-			if(isIdentifier(valueNode))
-			{
-				return isIntExpr(getSymbolTableEntry(valueNode, scope).value, scope)
-			}
-			else if(isInteger(valueNode))
-			{
-				return true;
-			}
-			else(valueNode.search(/[+=]/) != -1)
-			{
-				// Split on the operators
-				var operandList = valueNode.split(/[+-]/);
-				// Boolean to be returned
-				var containsOnlyIntegers = true;
-
-				// Iterate the operands
-				for(index in operandList)
-				{
-					// Ensure all operands (digits & ids) are ints
-					if(isIdentifier(operandList[index]))
-					{
-						// currentSymbolTable is available bc js has function scope, not block scope
-						if(!isIntExpr(operandList[index], scope))
-						containsOnlyIntegers = false;
-					}
-					else if(!isInteger(operandList[index]))
-					{
-						containsOnlyIntegers = false;
-					}
-				}
-
-				return containsOnlyIntegers;
-			}
-		}
+			return false;
 	}
 
-	// Function that traverses an intExpr portion of the AST and returns a list of all operands in the statement
-	function getIntExprOperands(opNode)
+	// Function that gets the value from the AST and returns it in string form
+	function getValue(valueNode)
 	{
-		// List containing all operands of the intExpr
-		var operandList = [];
-		// Initial call
-		getOperands(opNode);
-		// Return the operands
-		return operandList;
+		// Four cases:
+		// 1. String - return the string
+		// 2. Id - return the Id
+		// 3. Integer - return the integer
+		// 4. IntExpr - traverse the nodes concatenating an intExpr string
 
-		function getOperands(opNode)
+		if(isString(valueNode.item))
+			return valueNode.item;
+		else if(typeof valueNode.item === "object")
+			return valueNode.item["id"];
+		else if(isInteger(valueNode.item))
+			return valueNode.item;
+		else
 		{
-			// If the right child is an operator there is more than just 1 op and 2 values, we must keep recursing
+			var valueString = "";
+			// Build the value string
+			getIntExpr(valueNode);
+			return valueString;
+		}
+
+		// Internal function that traverses the AST, building an intExpr value string
+		function getIntExpr(opNode)
+		{
+			// If the right child is an operator there is more than just 1 op and 2 values), we must keep recursing
 			// Otherwise the two children are single digits OR a single digit and Id
 			if(isOperator(opNode.children[1].item))
 			{
-				// The left child must be a single digit, so add it to the operandList
-				operandList.push(opNode.children[0].item);
+				// The left child must be a single digit, so add it to the value string
+				valueString += opNode.children[0].item;
+				// Add the operator to the valueString
+				valueString += opNode.item;
 				// Move to the right child (operator node)
 				opNode = opNode.children[1];
 				// Recursively call this function from the opNode
-				getOperands(opNode);
+				getIntExpr(opNode);
 			}
 			else
 			{
-				// Add the left child single digit to the operandList
-				operandList.push(opNode.children[0].item);
+				// Add the left child single digit to the valueString
+				valueString += opNode.children[0].item;
+				// Add the operator to the valueString
+				valueString += opNode.item;
 
-				// The right child is either a single int or an Id
-				// If it is an int, the item is the int value
-				// If it is an Id, the item is the Id name and the symbol table entry
+				// Determine if we have a single digit or Id right child
 				if(isInteger(opNode.children[1].item))
-					operandList.push(opNode.children[1].item);
+					valueString += opNode.children[1].item;
 				else
-					operandList.push(opNode.children[1].item["id"])
-			}
-		}
-	}
-
-	// Function that traverses an expression in the AST and returns the value in string form
-	function getExprValueString(type, valueNode)
-	{
-		// Two cases:
-		// 1. String - the value can either be an acutal string or an id
-		// 2. Int    - the value can be a single digit, Id, or IntExpr
-		if(type === "string")
-		{
-			// If it is an actual string return the string, otherwise it is an id
-			if(isString(valueNode.item))
-				return valueNode.item;
-			else
-				return valueNode.item["id"];
-		}
-		else if(type === "int")
-		{
-			// String value to be returned
-			var valueString = "";
-
-			// There are three options for type int:
-			// 1. It is a single digit - return the single digit in string form
-			// 2. It is an Id - return the id
-			// 3. It is an IntExpr - go the recursive route and return the entire expr string
-    		if(isInteger(valueNode.item))
-    		{
-	    		valueString = valueNode.item.toString();
-    		}
-    		else if(typeof valueNode.item === "object")
-    		{
-	    		valueString = valueNode.item["id"];
-    		}
-    		else if(isOperator(valueNode.item))
-    		{
-    			// This function builds the intExpr value string
-    			getIntExpr(valueNode);
-    		}
-
-			// Return the value string
-			return valueString;
-
-			function getIntExpr(opNode)
-			{
-				// If the right child is an operator there is more than just 1 op and 2 values), we must keep recursing
-				// Otherwise the two children are single digits OR a single digit and Id
-				if(isOperator(opNode.children[1].item))
-				{
-					// The left child must be a single digit, so add it to the value string
-					valueString += opNode.children[0].item;
-					// Add the operator to the valueString
-					valueString += opNode.item;
-					// Move to the right child (operator node)
-					opNode = opNode.children[1];
-					// Recursively call this function from the opNode
-					getIntExpr(opNode);
-				}
-				else
-				{
-					// Add the left child single digit to the valueString
-					valueString += opNode.children[0].item;
-					// Add the operator to the valueString
-					valueString += opNode.item;
-
-					// Determine if we have a single digit or Id right child
-					if(isInteger(opNode.children[1].item))
-						valueString += opNode.children[1].item;
-					else
-						valueString += opNode.children[1].item["id"];
-				}
+					valueString += opNode.children[1].item["id"];
 			}
 		}
 	}
