@@ -43,14 +43,25 @@ function isString(token)
      */
 }
 
+// Helper function that takes a token string and returns whether it is a valid boolean token
+function isBoolean(token)
+{
+	return (/^(true|false)$/).test(token)
+    /*
+     *  ^            - start of token
+     *  (true|false) - true or false
+     *  $            - end of token
+     */
+}
+
 // Helper function that takes a token string and returns whether it is a valid symbol token
 function isSymbol(token)
 {
-    return (/^[-$+=)(}{]$/).test(token);
+    return (/^([-$+)(}{]|={1,2})$/).test(token);
     /*
-     *  ^         - start of token
-     *  [-$+)(}{] - one of the listed symbols
-     *  $         - end of token
+     *  ^         		   - start of token
+     *  ([-$+)(}{]|={1,2}) - one of the listed symbols OR 1-2 '=' symbols
+     *  $         		   - end of token
      */
 }
 
@@ -69,10 +80,10 @@ function isOperator(token)
 function isReservedWord(token)
 {
     // TODO: Add more reserved words
-    return (/^(int|string|print)$/).test(token)
+    return (/^(int|string|print|boolean|if|while|true|false)$/).test(token)
     /*
-     *  ^                  - start of token
-     *  (int|string|print) - any of the listed reserved words
-     *  $                  - end of token
+     *  ^                  							   - start of token
+     *  (int|string|print|boolean|if|while|true|false) - any of the listed reserved words
+     *  $                  							   - end of token
      */
 }
