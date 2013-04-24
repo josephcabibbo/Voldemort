@@ -211,7 +211,7 @@ function getSymbolKind(token)
         case "-":  kind = TOKEN_OP;      	  break;
         case "$":  kind = TOKEN_EOF;          break;
         case "+":  kind = TOKEN_OP;        	  break;
-        case "==": kind = TOKEN_OP;			  break;
+        case "==": kind = TOKEN_EQUALITY;	  break;
         case "=":  kind = TOKEN_ASSIGN;       break;
         case ")":  kind = TOKEN_CLOSEPAREN;   break;
         case "(":  kind = TOKEN_OPENPAREN;    break;

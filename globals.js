@@ -26,6 +26,7 @@ var TOKEN_WHILE		   = "while";
 var TOKEN_IF		   = "if";
 var TOKEN_EOF          = "EOF";
 var TOKEN_ASSIGN       = "assignment";
+var TOKEN_EQUALITY	   = "equality"
 var TOKEN_OP		   = "operator";
 var TOKEN_OPENPAREN    = "open-parenthesis";
 var TOKEN_CLOSEPAREN   = "close-parenthesis";
