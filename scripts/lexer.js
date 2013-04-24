@@ -44,16 +44,17 @@ function Lexer()
 		for(var i = 0; i < lineArray.length; i++)
 		{
 		   // Split the current line into proper tokens using the ugliest regular expression in the world
-		   var tokenArray = lineArray[i].match(/"[^"]*"|print|[^$\s=\(\)\"\{\}+-]+|[$=\(\)\"\{\}+-]/g);
+		   //var tokenArray = lineArray[i].match(/"[^"]*"|[^$\s=\(\)\"\{\}+-]+|[$=\(\)\"\{\}+-]/g);
+		   var tokenArray = lineArray[i].match(/"[^"]*"|==|[^$\s=)(}{+-]+|[$=)(}{+-]/g);
 		   /*
-		    * "[^"]*"              - match a string (double quote followed by anything but a double quote followed by a double quote)
-		    * |                    - OR
-		    * print				   - match print
-		    * |                    - OR
-		    * [^$\s=\(\)\"\{\}\;]+ - match sets of substrings NOT containing these characters
-		    * |                    - OR
-		    * [$=\(\)\"\{\}\;]	   - match these characters
-		    * g                    - global match
+		    * "[^"]*"        - match a string (double quote followed by anything but a double quote followed by a double quote)
+		    * |              - OR
+		    * ==             - equality operator
+		    * |              - OR
+		    * [^$\s=)(}{+-]+ - match sets of substrings NOT containing these characters (everything else except the symbols)
+		    * |              - OR
+		    * [$=)(}{+-]	 - match these characters
+		    * g              - global match
 		    */
 
 		    // Iterate tokens on the line
@@ -173,7 +174,6 @@ function getTokenName(token)
 // Helper function that takes a token and returns its value
 function getTokenValue(token)
 {
-	// Should reserved words have values?  BC int and char are of kind "type" so it may be helpful to know their actual value
     if(isInteger(token))
         return parseInt(token);
     else if(isString(token))
@@ -189,11 +189,13 @@ function getTokenValue(token)
 // Helper function that takes a token and returns its type
 function getTokenType(token)
 {
-    // The only types we have are int and string
+    // The only types we have are int, string, and boolean
     if(isInteger(token))
         return "int";
     else if(isString(token))
     	return "string";
+    else if(isBoolean(token))
+    	return "boolean";
     else
         return null;
 }
@@ -206,15 +208,17 @@ function getSymbolKind(token)
 
     switch(token)
     {
-        case "-": kind = TOKEN_OP;      	 break;
-        case "$": kind = TOKEN_EOF;          break;
-        case "+": kind = TOKEN_OP;        	 break;
-        case "=": kind = TOKEN_ASSIGN;       break;
-        case ")": kind = TOKEN_CLOSEPAREN;   break;
-        case "(": kind = TOKEN_OPENPAREN;    break;
-        case "}": kind = TOKEN_CLOSEBRACKET; break;
-        case "{": kind = TOKEN_OPENBRACKET;  break;
-        default:  kind = undefined;          break;
+        case "-":  kind = TOKEN_OP;      	  break;
+        case "$":  kind = TOKEN_EOF;          break;
+        case "+":  kind = TOKEN_OP;        	  break;
+        case "==": kind = TOKEN_OP;			  break;
+        case "=":  kind = TOKEN_ASSIGN;       break;
+        case ")":  kind = TOKEN_CLOSEPAREN;   break;
+        case "(":  kind = TOKEN_OPENPAREN;    break;
+        case "}":  kind = TOKEN_CLOSEBRACKET; break;
+        case "{":  kind = TOKEN_OPENBRACKET;  break;
+
+        default:   kind = undefined;          break;
     }
 
     return kind;
@@ -228,10 +232,16 @@ function getReservedWordKind(token)
 
     switch(token)
     {
-        case "int":    kind = TOKEN_TYPE;  	break;
-        case "string": kind = TOKEN_TYPE;	break
-        case "print":  kind = TOKEN_PRINT;  break;
-        default:       kind = undefined;    break;
+        case "int":     kind = TOKEN_TYPE;  break;
+        case "string":  kind = TOKEN_TYPE;	break;
+        case "boolean": kind = TOKEN_TYPE;	break;
+        case "print":   kind = TOKEN_PRINT; break;
+        case "if":		kind = TOKEN_IF;	break;
+        case "while":	kind = TOKEN_WHILE; break;
+        case "true":	kind = TOKEN_BOOL;	break;
+        case "false":	kind = TOKEN_BOOL;	break;
+
+        default:        kind = undefined;   break;
     }
 
     return kind;
