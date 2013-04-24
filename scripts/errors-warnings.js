@@ -18,8 +18,6 @@ function unusedVariableWarning(symbol, scope)
 	_OutputManager.addWarning("Variable, '" + symbol + "', on line " + symbolTableEntry.line + " is unused.");
 }
 
-// Parse Warnings
-
 // Helper function to warn the user about uninitialized variables
 function uninitializedVariableWarning(symbol, scope)
 {

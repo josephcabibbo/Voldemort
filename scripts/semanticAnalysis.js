@@ -1,9 +1,8 @@
 /*  --------------------------------------------------------------------------------------
- *	Filename: semanticAnalysis2.js
+ *	Filename: semanticAnalysis.js
  *	Author: Joey Cabibbo
  *  Requires: globals.js, symbolTableUtils.js, tokenIntrospection.js
  *	Description: Semantic analysis of the AST / symbol table
- *  Note: I hate tree traversals... god bless the soul who trys to make sense of this code
  *	-------------------------------------------------------------------------------------- */
 
 // Function that checks every symbol table entry to ensure all entries have type-value matches

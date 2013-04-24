@@ -93,7 +93,6 @@ function Lexer()
 		        	    	tokenArray.splice(x + 1, tokenArray.length);
 
 		        	    // Remove content after the EOF token and display it
-		        	    //$("#sourceCode").val(sourceCode.substring(0, sourceCode.indexOf("$") + 1));
 		        	    // Trace result message
 		        	    _OutputManager.addTraceEvent("Content after EOF token has been removed from stream of tokens!", "green");
 		    	    }

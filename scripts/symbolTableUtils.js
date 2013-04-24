@@ -25,7 +25,6 @@ function getSymbolTableEntry(id, scope)
 
 	// If the current scope does not have an entry associated with this id, check the parent scope until found
 	// When found, return that symbol table entry
-	//if(!_SymbolTableList[scope].hasOwnProperty(id))
 	while(entry === undefined)
 		entry = getSymbolTableEntry(id, _SymbolTableList[scope].parentScope);
 
