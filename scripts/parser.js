@@ -3,7 +3,7 @@
  *	Author: Joey Cabibbo
  *	Requires: globals.js, outputManager.js, tree.js
  *	Description: A recursive-descent parser that takes the token list to check
- *				 that we have correct statement
+ *				 that we have correct statements
  *	--------------------------------------------------------------------------- */
 
 function Parser()
@@ -63,6 +63,8 @@ function Parser()
     // Id = Expr
     // VarDecl
     // { StatementList }
+    // while BooleanExpr { StatementList }
+    // if BooleanExpr { StatementList }
     this.parseStatement = function()
     {
     	// Determine which statement we have and parse accordingly
@@ -80,6 +82,12 @@ function Parser()
 	        case TOKEN_OPENBRACKET: this.matchToken(TOKEN_OPENBRACKET);
 	        						this.parseStatementList();
 	        						this.matchToken(TOKEN_CLOSEBRACKET);
+	        						break;
+
+	        case TOKEN_WHILE:		this.parseWhile();
+	        						break;
+
+	        case TOKEN_IF:			this.parseIf();
 	        						break;
 
 	        // Invalid statement token
@@ -142,18 +150,44 @@ function Parser()
 	    }
     }
 
+    // Parse a while statement production
+    // while BooleanExpr { StatementList }
+    this.parseWhile = function()
+    {
+	    this.matchToken(TOKEN_WHILE);
+	    this.parseBooleanExpr();
+	    this.matchToken(TOKEN_OPENBRACKET);
+	    this.parseStatementList();
+	    this.matchToken(TOKEN_CLOSEBRACKET);
+	}
+
+    // Parse an if statement produciton
+    // if BooleanExpr { StatementList }
+    this.parseIf = function()
+    {
+	    this.matchToken(TOKEN_IF);
+	    this.parseBooleanExpr();
+	    this.matchToken(TOKEN_OPENBRACKET);
+	    this.parseStatementList();
+	    this.matchToken(TOKEN_CLOSEBRACKET);
+    }
+
     // Parse an Expr production
     // IntExpr
     // StringExpr
+    // BooleanExpr
     // Id
     this.parseExpr = function()
     {
     	// Determine which expr we have and parse accordingly
         switch(this.tokens[this.currentIndex].kind)
         {
-	        case TOKEN_INT:		this.parseIntExpr(); 		break;
-	        case TOKEN_STRING:	this.parseStringExpr();		break;
-	        case TOKEN_ID:		this.matchToken(TOKEN_ID); 	break;
+	        case TOKEN_INT:		  this.parseIntExpr(); 		 break;
+	        case TOKEN_STRING:	  this.parseStringExpr();	 break;
+	        // BooleanExpr can start with either a ( or a bool value (true | false)
+	        case TOKEN_OPENPAREN: this.parseBooleanExpr();	 break;
+	        case TOKEN_BOOL: 	  this.parseBooleanExpr();	 break;
+	        case TOKEN_ID:		  this.matchToken(TOKEN_ID); break;
 
 	        // Invalid expression
 	        default: invalidExprError(); // Found in errors-warnings.js
@@ -181,6 +215,26 @@ function Parser()
     this.parseStringExpr = function()
     {
         this.matchToken(TOKEN_STRING);
+    }
+
+    // Parse a BooleanExpr production
+    // ( Expr == Expr )
+    // boolVal
+    this.parseBooleanExpr = function()
+    {
+    	// Lookahead to determine which produciton we need
+	 	if(this.tokens[this.currentIndex].kind === TOKEN_OPENPAREN)
+	 	{
+		 	this.matchToken(TOKEN_OPENPAREN);
+		 	this.parseExpr();
+		 	this.matchToken(TOKEN_EQUALITY);
+		 	this.parseExpr();
+		 	this.matchToken(TOKEN_CLOSEPAREN);
+	 	}
+	 	else
+	 	{
+		 	this.matchToken(TOKEN_BOOL);
+	 	}
     }
 
     // Function to determine if the expected token is a match to the actual token
@@ -217,5 +271,7 @@ function isStatement(tokenKind)
 	return tokenKind === TOKEN_PRINT 		||
 		   tokenKind === TOKEN_ID	 		||
 		   tokenKind === TOKEN_TYPE  		||
-		   tokenKind === TOKEN_OPENBRACKET;
+		   tokenKind === TOKEN_OPENBRACKET	||
+		   tokenKind === TOKEN_WHILE		||
+		   tokenKind === TOKEN_IF;
 }
