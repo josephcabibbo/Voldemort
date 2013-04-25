@@ -87,3 +87,14 @@ function isReservedWord(token)
      *  $                  							   - end of token
      */
 }
+
+// Helper function to determine if the next token is the start of a statement
+function isStatement(tokenKind)
+{
+	return tokenKind === TOKEN_PRINT 		||
+		   tokenKind === TOKEN_ID	 		||
+		   tokenKind === TOKEN_TYPE  		||
+		   tokenKind === TOKEN_OPENBRACKET	||
+		   tokenKind === TOKEN_WHILE		||
+		   tokenKind === TOKEN_IF;
+}

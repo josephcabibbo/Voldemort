@@ -1,7 +1,7 @@
 /*  ---------------------------------------------------------------------------
  *	Filename: parser.js
  *	Author: Joey Cabibbo
- *	Requires: globals.js, outputManager.js, tree.js
+ *	Requires: globals.js, outputManager.js, tree.js, tokenIntrospection.js
  *	Description: A recursive-descent parser that takes the token list to check
  *				 that we have correct statements
  *	--------------------------------------------------------------------------- */
@@ -222,7 +222,7 @@ function Parser()
     // boolVal
     this.parseBooleanExpr = function()
     {
-    	// Lookahead to determine which produciton we need
+    	// Lookahead to determine which production we need
 	 	if(this.tokens[this.currentIndex].kind === TOKEN_OPENPAREN)
 	 	{
 		 	this.matchToken(TOKEN_OPENPAREN);
@@ -259,19 +259,4 @@ function Parser()
 	    	tokenMismatchError(expectedTokenKind); // Found in errors-warnings.js
     	}
     }
-}
-
-//
-//	Helper Functions
-//
-
-// Helper function to determine if the next token is the start of a statement
-function isStatement(tokenKind)
-{
-	return tokenKind === TOKEN_PRINT 		||
-		   tokenKind === TOKEN_ID	 		||
-		   tokenKind === TOKEN_TYPE  		||
-		   tokenKind === TOKEN_OPENBRACKET	||
-		   tokenKind === TOKEN_WHILE		||
-		   tokenKind === TOKEN_IF;
 }
