@@ -126,7 +126,7 @@ function checkSemantics()
 	}
 
 	// Function that validates a string value
-	function isStringExpr(value)
+	function isStringExpr(value, scope)
 	{
 		// Two cases:
 		// 1. String
