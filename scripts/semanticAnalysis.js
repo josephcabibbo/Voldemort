@@ -135,8 +135,13 @@ function checkSemantics()
 			return true
 		else if(isIdentifier(value))
 		{
-			// Get the value of the Id
-			var idValue = getSymbolTableEntry(value, scope).value;
+			/// Get the symbol table entry for the Id
+			var entry = getSymbolTableEntry(value, scope);
+
+			// If the entry exists get the value of the Id
+			if(entry !== undefined)
+				var idValue = entry.value;
+				
 			// Make a recursive call with the value of the Id
 			return isStringExpr(idvalue);
 		}
@@ -155,12 +160,17 @@ function checkSemantics()
 			return true;
 		else if(isIdentifier(value))
 		{
-			// Get the value of the Id
-			var idValue = getSymbolTableEntry(value, scope).value;
+			// Get the symbol table entry for the Id
+			var entry = getSymbolTableEntry(value, scope);
+
+			// If the entry exists get the value of the Id
+			if(entry !== undefined)
+				var idValue = entry.value;
+				
 			// Make a recursive call with the value of the Id
 			return isIntExpr(idValue, scope);
 		}
-		else if(value.search(/[+=]/) != -1)
+		else if(value !== undefined && value.search(/[+=]/) != -1)
 		{
 			// Split on the operators
 			var operandList = value.split(/[+-]/);
