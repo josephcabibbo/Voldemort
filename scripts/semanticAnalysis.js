@@ -143,7 +143,7 @@ function checkSemantics()
 				var idValue = entry.value;
 				
 			// Make a recursive call with the value of the Id
-			return isStringExpr(idvalue);
+			return isStringExpr(idValue);
 		}
 		else
 			return false;
