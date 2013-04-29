@@ -147,11 +147,14 @@ function createSymbolTableAndAST()
 			index += 3;
 		}
 
-	    // If the id has been declared in this scope, add the value and mark as "used"
+	    // Get the symbol table entry for this Id (assuming it exists)
+		var symbolTableEntry = getSymbolTableEntry(id, scope);
+
+	    // If a symbol table entry exists for this Id (it has been declared in this scope or in the parent scope hierarchy), add the value and mark as "used"
 	    // Otherwise it is an undeclared variable
-	    if(_SymbolTableList[scope] && _SymbolTableList[scope].hasOwnProperty(id))
+	    if(symbolTableEntry)
 	    {
-	    	_SymbolTableList[scope][id].value  = value;
+	    	symbolTableEntry.value  = value;
 	    	setIdentifierAsUsed(id, scope);
 	    }
 	    else
