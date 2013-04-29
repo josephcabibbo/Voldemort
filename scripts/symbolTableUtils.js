@@ -8,24 +8,12 @@
 // If the id is not in the current scope, check the parent scope hierarchy until found
 function getSymbolTableEntry(id, scope)
 {
-	// If the scope parameter is sent as undefined, get the highest scope in the program and start from there
-	if(scope === undefined)
-	{
-		scope = 0;
-
-		// See how many scopes we already have, and return that last index
-		for(var i = 0; i < _SymbolTableList.length - 1; i++)
-		{
-			scope++;
-		}
-	}
-
-	// Default entry assuming this entry exists in this scope
+	// Get the symbol table entry assuming the entry exists in this scope
 	var entry = _SymbolTableList[scope][id];
 
-	// If the current scope does not have an entry associated with this id, check the parent scope until found
+	// If the current scope does not have an entry associated with this id AND we are not at the base scope (0), check the parent scope until found
 	// When found, return that symbol table entry
-	while(entry === undefined)
+	if(entry === undefined && scope !== 0)
 		entry = getSymbolTableEntry(id, _SymbolTableList[scope].parentScope);
 
 	return entry;
@@ -37,12 +25,14 @@ function setIdentifierAsUsed(id, scope)
 	// Dafualt entry assuming this entry exists in this scope
 	var entry = _SymbolTableList[scope][id];
 
-	// If the current scope does not have an entry associated with this id call getSymbolTableEntry()
-	// to look in the parent hierarchy until found.  When found set it as "used"
+	// If the current scope does not have an entry associated with this Id call getSymbolTableEntry()
+	// to look in the parent hierarchy until found.  If no entry exists, do nothing
 	if(!_SymbolTableList[scope].hasOwnProperty(id))
 		entry = getSymbolTableEntry(id, scope);
 
-	entry.isUsed = true;
+	// We can only set an Id as used if it exists
+	if(entry !== undefined)
+		entry.isUsed = true;
 }
 
 // Function to check the symbol table for declared but uninitialized variables
