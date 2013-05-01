@@ -1,7 +1,7 @@
 /*  ----------------------------------------------------------------------------------
  *	Filename: cst.js
  *	Author: Joey Cabibbo
- *	Requires: tree.js
+ *	Requires: tree.js, globals.js, tokenIntrospection.js
  *	Description: Facilitates the creation of a CST using lex's stream of tokens looks
  *				 more or less like a condensed recursive-descent parse
  *	Note: The CST is only created after a successful parse, so we can make assumptions
@@ -41,6 +41,8 @@ function createCST()
 			case TOKEN_PRINT:		addPrint(); 		break;
 	        case TOKEN_ID:			addAssignment();	break;
 	        case TOKEN_TYPE:	 	addVarDecl(); 		break;
+	        case TOKEN_WHILE:		addWhile();			break;
+	        case TOKEN_IF:			addIf();			break;
 
 	        case TOKEN_OPENBRACKET: addTokenAndConsume(TOKEN_OPENBRACKET);
 	        						addStatementList();
@@ -87,6 +89,34 @@ function createCST()
         _CST.endChildren();
     }
 
+    // Add a WhileStatement production
+    // while BooleanExpr { StatementList }
+    function addWhile()
+    {
+	    addTokenAndConsume(TOKEN_WHILE);
+	    addBooleanExpr();
+	    addTokenAndConsume(TOKEN_OPENBRACKET);
+	    addStatementList();
+	    addTokenAndConsume(TOKEN_CLOSEBRACKET);
+
+	    // Finished with WhileStatement
+        _CST.endChildren();
+    }
+
+    // Add an IfStatement production
+    // if BooleanExpr { StatementList }
+    function addIf()
+    {
+	    addTokenAndConsume(TOKEN_IF);
+	    addBooleanExpr();
+	    addTokenAndConsume(TOKEN_OPENBRACKET);
+	    addStatementList();
+	    addTokenAndConsume(TOKEN_CLOSEBRACKET);
+
+	    // Finished with IfStatement
+        _CST.endChildren();
+    }
+
     // Add a StatementList production
     // { Statement StatementList }
     // { ε } // aka nothing
@@ -121,9 +151,12 @@ function createCST()
     	// Determine which expr we have and add accordingly
         switch(tokens[index].kind)
         {
-	        case TOKEN_INT:		addIntExpr(); break;
-	        case TOKEN_STRING:	addStringExpr(); break;
+	        case TOKEN_INT:		addIntExpr(); 				  break;
+	        case TOKEN_STRING:	addStringExpr(); 			  break;
 	        case TOKEN_ID:		addTokenAndConsume(TOKEN_ID); break;
+	        // BooleanExpr can start with either a ( or a bool value (true | false)
+	        case TOKEN_OPENPAREN: addBooleanExpr();	 		  break;
+	        case TOKEN_BOOL: 	  addBooleanExpr();	 		  break;
         }
 
         // Finished with Expr
@@ -152,6 +185,26 @@ function createCST()
         addTokenAndConsume(TOKEN_STRING);
     }
 
+    // Add a BooleanExpr production
+    // ( Expr == Expr )
+    // boolVal
+    function addBooleanExpr()
+    {
+	    // Lookahead to determine which production we need
+	 	if(tokens[index].kind === TOKEN_OPENPAREN)
+	 	{
+		 	addTokenAndConsume(TOKEN_OPENPAREN);
+		 	addExpr();
+		 	addTokenAndConsume(TOKEN_EQUALITY);
+		 	addExpr();
+		 	addTokenAndConsume(TOKEN_CLOSEPAREN);
+	 	}
+	 	else
+	 	{
+		 	addTokenAndConsume(TOKEN_BOOL);
+	 	}
+    }
+
     // Add terminals to the CST and increment the index
 	function addTokenAndConsume(token)
 	{
@@ -161,14 +214,5 @@ function createCST()
 
     	// Consume token
     	index++;
-	}
-
-	// Helper function to determine if the next token is the start of a statement
-	function isStatement(tokenKind)
-	{
-		return tokenKind === TOKEN_PRINT 		||
-			   tokenKind === TOKEN_ID	 		||
-			   tokenKind === TOKEN_TYPE  		||
-			   tokenKind === TOKEN_OPENBRACKET;
 	}
 }
