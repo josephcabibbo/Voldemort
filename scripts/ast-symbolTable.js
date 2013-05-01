@@ -24,31 +24,38 @@ function createSymbolTableAndAST()
 	// Index used for iterating the token list
 	var index = 0;
 
-	// Iterate tokens
+	// Iterate tokens and add every statement
 	while(getToken().kind !== TOKEN_EOF)
 	{
-		// We only want additions to the AST when we have an item in First(Statement)
-		switch(getToken().kind)
-		{
-			case TOKEN_PRINT:		 addPrint(); 		 break;
-	        case TOKEN_ID:		 	 addAssignment(); 	 break;
-	        case TOKEN_TYPE:	 	 addVarDecl();		 break;
-	        case TOKEN_OPENBRACKET:  addStatementList(); break;
-	        // This is not part of First(Statement), but we need it in order to end the statementList (scope)
-	        case TOKEN_CLOSEBRACKET: endStatementList(); break;
-
-	        // Should never occur because our parse was successful, but it's here just to avoid an infinite
-	        // loop when we get a heisenbug (which of course will happen), so just move to the next token
-	        default: index++; break;
-		}
-
-		// Update the symbolTable(s) display
-		_OutputManager.updateSymbolTable();
+		addStatement();
 	}
 
-	//
-	// AST and Symbol Table creation methods
-	//
+	// Add a statement branch and add the appropriate statement
+	function addStatement()
+	{
+		console.log(index);
+
+		// Determine what type of statement it is
+		switch(tokens[index].kind)
+		{
+			case TOKEN_PRINT:		addPrint(); 		break;
+	        case TOKEN_ID:			addAssignment();	break;
+	        case TOKEN_TYPE:	 	addVarDecl(); 		break;
+	        case TOKEN_WHILE:		addWhile();			break;
+	        case TOKEN_IF:			addIf();			break;
+
+	        case TOKEN_OPENBRACKET: _AST.addNode("StatementList", "branch");
+	        						scopeManager.initializeNewScope();
+	        						// Move to the next statement
+	        						index++;
+	        						addStatementList();
+	        						// Finished with statementList
+	        						_AST.endChildren();
+	        						// Leave the current scope environment
+	        						scopeManager.leaveCurrentScope();
+	        						break;
+		}
+	}
 
 	// Function to add a print production to the AST
 	function addPrint()
@@ -94,7 +101,7 @@ function createSymbolTableAndAST()
 		_AST.endChildren();
 	}
 
-	// Function to add an assignment production to the AST and its value to the symbol table
+    // Function to add an assignment production to the AST and its value to the symbol table
 	function addAssignment()
 	{
 		// =
@@ -126,14 +133,23 @@ function createSymbolTableAndAST()
 			// Otherwise (single digit or string) just add the value
 			if(getToken(+2).kind === TOKEN_ID)
 			{
-				// Add the id and its symbol table entry to the AST in an object
-				_AST.addNode({"id": getToken(+2).name, "symbolTableEntry": getSymbolTableEntry(getToken(+2).name, scope)}, "leaf");
+				// If the symbolTable entry doesnt exist generate and undeclared variable error
+				// Otherwise add the node for the Id, set it as used, and assign the value
+				if(!getSymbolTableEntry(getToken(+2).name, scope))
+				{
+					_OutputManager.addError("Assignment error on line "  + line + ", '" + getToken(+2).name + "' is undeclared from the point of view of '" + id + "' in scope " + scope);
+				}
+				else
+				{
+					// Add the id and its symbol table entry to the AST in an object
+					_AST.addNode({"id": getToken(+2).name, "symbolTableEntry": getSymbolTableEntry(getToken(+2).name, scope)}, "leaf");
 
-				// Set the identifier value as "used" if not done so already
-				setIdentifierAsUsed(getToken(+2).name, scope);
+					// Set the identifier value as "used" if not done so already
+					setIdentifierAsUsed(getToken(+2).name, scope);
 
-				// The value is an id
-				value = getToken(+2).name;
+					// The value is an id
+					value = getToken(+2).name;
+				}
 			}
 			else
 			{
@@ -147,7 +163,7 @@ function createSymbolTableAndAST()
 			index += 3;
 		}
 
-	    // Get the symbol table entry for this Id (assuming it exists)
+		// Get the symbol table entry for this Id (assuming it exists)
 		var symbolTableEntry = getSymbolTableEntry(id, scope);
 
 	    // If a symbol table entry exists for this Id (it has been declared in this scope or in the parent scope hierarchy), add the value and mark as "used"
@@ -170,7 +186,7 @@ function createSymbolTableAndAST()
 	// Add a symbol table entry for this id
 	function addVarDecl()
 	{
-		// Type (int | string)
+		// Type (int | string | boolean)
 		_AST.addNode(getToken().value, "branch");
 
 		// Get the Id, Type, and the line they are on
@@ -209,7 +225,64 @@ function createSymbolTableAndAST()
 		_AST.endChildren();
 	}
 
-	// Function to add an IntExpr production
+    // Function to add a WhileStatement production
+    // {
+	function addWhile()
+	{
+		// while
+		_AST.addNode(getToken().value, "branch");
+		// Add the "equality branch" of the whileStatement
+		// Expr == Expr
+		addBooleanExpr();
+		// Add the "statementList branch" of the whileStatement
+		addStatement();
+
+		// Finished with WhileStatement
+		_AST.endChildren();
+	}
+
+
+    // Add an IfStatement production
+    function addIf()
+    {
+	    // if
+		_AST.addNode(getToken().value, "branch");
+		// Add the "equality branch" of the ifStatement
+		// Expr == Expr
+		addBooleanExpr();
+		// Add the "statementList branch" of the ifStatement
+		addStatement();
+
+		// Finished with ifStatement
+		_AST.endChildren();
+    }
+
+    // Add a StatementList production
+    function addStatementList()
+    {
+	    // Look-ahead to determine which production we need
+	    if(isStatement(getToken().kind))
+	    {
+		    addStatement();
+
+		    // Look-ahead to determine if we need to recurse on StatementList (more statements exist)
+		    if(isStatement(getToken().kind))
+	    	{
+		    	addStatementList();
+	    	}
+	    	else if(getToken().kind === TOKEN_CLOSEBRACKET)
+    		{
+    			// The only time we get to this point is when returning from an if or while statement, so just move to the next statement
+	    		index++;
+    		}
+	    }
+	    else(getToken().kind === TOKEN_CLOSEBRACKET)
+	    {
+		    // ε production aka do nothing
+	    }
+    }
+
+    // Function to add an IntExpr production
 	function addIntExpr()
 	{
 		// op
@@ -255,34 +328,94 @@ function createSymbolTableAndAST()
 		_AST.endChildren();
 	}
 
-	// Function to start a statementList production
-	function addStatementList()
+	// Function to add a BooleanExpr production
+	function addBooleanExpr()
 	{
-		// Add a StatementList branch
-		// Adding this meta-symbol has given me more OCD anxiety than I care to admit...
-		_AST.addNode("StatementList", "branch");
+		// ==
+		// Determine how many tokens away the equality token is from the current inde
+		var tempIndex = index;
+		var distanceToEquality = 0;
 
-		// Enter a new scope environment
-		scopeManager.initializeNewScope();
+		while(tokens[tempIndex].kind !== TOKEN_EQUALITY)
+		{
+			// Move to the next token
+			tempIndex++;
+			// Increment the distance counter
+			distanceToEquality++;
+		}
+
+		// ==
+		_AST.addNode(getToken(distanceToEquality).value, "branch");
+
+		// Two cases for an Expr in a booleanExpr
+		// 1. Expr is an intExpr
+		// 2. Expr is an int, boolean, or Id
+
+		// Expr 1
+		if(getToken(+3).kind === TOKEN_OP)
+		{
+			// Move to the op
+			index += 3;
+			addIntExpr();
+		}
+		else
+		{
+			// If the token is an Id we want to add its name to the AST and its symbol table entry
+			// Otherwise (single digit or boolean), just add the value
+			if(getToken(+2).kind === TOKEN_ID)
+			{
+				// Add the id and its symbol table entry to the AST in an object
+				_AST.addNode({"id": getToken(+2).name, "symbolTableEntry": getSymbolTableEntry(getToken(+2).name, scopeManager.currentScope)}, "leaf");
+
+				// Set the identifier value as "used" if not done so already
+				setIdentifierAsUsed(getToken(+2).name, scope);
+			}
+			else
+			{
+				_AST.addNode(getToken(+2).value, "leaf");
+			}
+
+			// Move to the next statement
+			index += 3;
+		}
+
+		// Expr 2
+		if(getToken(+2).kind === TOKEN_OP)
+		{
+			// Move to the op
+			index += 2;
+			addIntExpr();
+		}
+		else
+		{
+			// If the token is an Id we want to add its name to the AST and its symbol table entry
+			// Otherwise (single digit or boolean), just add the value
+			if(getToken(+1).kind === TOKEN_ID)
+			{
+				// Add the id and its symbol table entry to the AST in an object
+				_AST.addNode({"id": getToken(+1).name, "symbolTableEntry": getSymbolTableEntry(getToken(+1).name, scopeManager.currentScope)}, "leaf");
+
+				// Set the identifier value as "used" if not done so already
+				setIdentifierAsUsed(getToken(+1).name, scope);
+			}
+			else
+			{
+				_AST.addNode(getToken(+1).value, "leaf");
+			}
+
+			// Move to the next statement
+			index += 2;
+		}
 
 		// Move to the next statement
 		index++;
-	}
 
-	// Function to end a statementList production
-	function endStatementList()
-	{
-		// Finished with statementList
+		// Finished with BooleanExpr
 		_AST.endChildren();
-
-		// Leave the current scope environment
-		scopeManager.leaveCurrentScope();
-
-		// Move to the next statement
-		index++;
 	}
 
-	//
+
+    //
 	// Helper functions
 	//
 
