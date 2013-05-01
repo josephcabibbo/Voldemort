@@ -141,7 +141,7 @@ function checkSemantics()
 			// If the entry exists get the value of the Id
 			if(entry !== undefined)
 				var idValue = entry.value;
-				
+
 			// Make a recursive call with the value of the Id
 			return isStringExpr(idValue);
 		}
@@ -166,7 +166,7 @@ function checkSemantics()
 			// If the entry exists get the value of the Id
 			if(entry !== undefined)
 				var idValue = entry.value;
-				
+
 			// Make a recursive call with the value of the Id
 			return isIntExpr(idValue, scope);
 		}
