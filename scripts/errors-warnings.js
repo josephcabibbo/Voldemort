@@ -45,6 +45,12 @@ function printTypeMismatchError(value, type)
 	_OutputManager.addTraceEvent("Value does not match type " + type , "red")
 }
 
+function booleanTypeMismatchError(valueOne, valueTwo, type)
+{
+	_OutputManager.addError("Semantic Error: type mismatch in the boolean statement, '" + valueOne + " == " + valueTwo + "', both values must have only elements of the same type");
+	_OutputManager.addTraceEvent("Values are not of the same type", "red")
+}
+
 // Parse Errors
 
 // Helper function to perform necessary tasks when an invalid statement error occurs

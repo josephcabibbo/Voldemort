@@ -26,6 +26,7 @@ function checkSemantics()
 		switch(node.item)
 		{
 			case "=": 	  checkAssignmentSemantics(node); break;
+			case "==":	  checkBooleanSemantics(node);	  break;
 			case "print": checkPrintSemantics(node); 	  break;
 		}
 
@@ -81,6 +82,48 @@ function checkSemantics()
 		}
 	}
 
+	// Function that makes sure the values of a boolean expr are of the same type
+	function checkBooleanSemantics(node)
+	{
+		// Get both Exprs
+		var exprOne = node.children[0];
+		var exprTwo = node.children[1];
+
+		// Get both of their types
+		var exprOneType = getExprType(exprOne.item);
+		var exprTwoType = getExprType(exprTwo.item);
+
+		_OutputManager.addTraceEvent("Checking semantics of boolean expression, '" + getValue(exprOne) + " == " + getValue(exprTwo) + "'");
+
+		// Type check individually
+		// Only supply a scope value if the value is an Id
+		var exprOneTypeCheck = isMatchingType(exprOneType, getValue(exprOne), typeof exprOne.item === "object" ? exprOne.item["symbolTableEntry"].scope : undefined);
+		var exprTwoTypeCheck = isMatchingType(exprTwoType, getValue(exprTwo), typeof exprTwo.item === "object" ? exprTwo.item["symbolTableEntry"].scope : undefined);
+
+		// If both exprs are of the same type and both were individually type checked successfully, valid booleanExpr
+		if(exprOneType == exprTwoType && exprOneTypeCheck && exprTwoTypeCheck)
+		{
+			_OutputManager.addTraceEvent("Values match type " + exprOneType, "green");
+		}
+		else
+		{
+			booleanTypeMismatchError(getValue(exprOne), getValue(exprTwo), exprOneType);
+			errorCount++;
+		}
+
+		function getExprType(expr)
+		{
+			if(isInteger(expr) || isOperator(expr))
+				return "int";
+			else if(isBoolean(expr))
+				return "boolean"
+			else if(typeof expr === "object")
+				return expr["symbolTableEntry"].type;
+				//getExprType(expr["symbolTableEntry"].value);
+		}
+
+	}
+
 	function checkPrintSemantics(node)
 	{
 		// Move to the actual value node
@@ -117,8 +160,9 @@ function checkSemantics()
 	{
 		switch(type)
 		{
-			case "int":    return isIntExpr(value, scope); break;
-			case "string": return isStringExpr(value, scope);  break;
+			case "int":     return isIntExpr(value, scope); break;
+			case "string":  return isStringExpr(value, scope);  break;
+			case "boolean": return isBooleanExpr(value, scope); break;
 
 			// Should never happen, but you know how those heisenbugs work
 			default: return false; break;
@@ -144,6 +188,31 @@ function checkSemantics()
 
 			// Make a recursive call with the value of the Id
 			return isStringExpr(idValue);
+		}
+		else
+			return false;
+	}
+
+	// Function that validates a boolean value
+	function isBooleanExpr(value, scope)
+	{
+		// Two Cases:
+		// 1. Boolean
+		// 2. Id
+
+		if(isBoolean(value))
+			return true;
+		else if(isIdentifier(value))
+		{
+			// Get the symbol table entry for the Id
+			var entry = getSymbolTableEntry(value, scope);
+
+			// If the entry exists get the value of the Id
+			if(entry !== undefined)
+				var idValue = entry.value;
+
+			// Make a recursive call with the value of the Id
+			return isBooleanExpr(idValue);
 		}
 		else
 			return false;
@@ -204,13 +273,16 @@ function checkSemantics()
 		// Four cases:
 		// 1. String - return the string
 		// 2. Id - return the Id
-		// 3. Integer - return the integer
-		// 4. IntExpr - traverse the nodes concatenating an intExpr string
+		// 3. Boolean
+		// 4. Integer - return the integer
+		// 5. IntExpr - traverse the nodes concatenating an intExpr string
 
 		if(isString(valueNode.item))
 			return valueNode.item;
 		else if(typeof valueNode.item === "object")
 			return valueNode.item["id"];
+		else if(isBoolean(valueNode.item))
+			return valueNode.item;
 		else if(isInteger(valueNode.item))
 			return valueNode.item;
 		else

@@ -48,7 +48,7 @@ $(document).ready(function() {
 			{
 				createCST();
 				createSymbolTableAndAST();
-				//var isSemanticAnalysisSuccessful = checkSemantics();
+				var isSemanticAnalysisSuccessful = checkSemantics();
 			}
 			// Code generation
 			if(isSemanticAnalysisSuccessful)
