@@ -54,6 +54,9 @@ function createSymbolTableAndAST()
 	        						// Leave the current scope environment
 	        						scopeManager.leaveCurrentScope();
 	        						break;
+
+	        // Not sure when we would get to this, but just move to the next token until a statement is found
+	        default: index++;
 		}
 	}
 
@@ -368,7 +371,7 @@ function createSymbolTableAndAST()
 				_AST.addNode({"id": getToken(+2).name, "symbolTableEntry": getSymbolTableEntry(getToken(+2).name, scopeManager.currentScope)}, "leaf");
 
 				// Set the identifier value as "used" if not done so already
-				setIdentifierAsUsed(getToken(+2).name, scope);
+				setIdentifierAsUsed(getToken(+2).name, scopeManager.currentScope);
 			}
 			else
 			{
@@ -396,7 +399,7 @@ function createSymbolTableAndAST()
 				_AST.addNode({"id": getToken(+1).name, "symbolTableEntry": getSymbolTableEntry(getToken(+1).name, scopeManager.currentScope)}, "leaf");
 
 				// Set the identifier value as "used" if not done so already
-				setIdentifierAsUsed(getToken(+1).name, scope);
+				setIdentifierAsUsed(getToken(+1).name, scopeManager.currentScope);
 			}
 			else
 			{
