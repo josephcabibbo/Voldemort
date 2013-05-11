@@ -1,9 +1,9 @@
-/*  --------------------------------------------------------------------------------------
+/*  -----------------------------------------------------------------
  *	Filename: semanticAnalysis.js
  *	Author: Joey Cabibbo
  *  Requires: globals.js, symbolTableUtils.js, tokenIntrospection.js
  *	Description: Semantic analysis of the AST / symbol table
- *	-------------------------------------------------------------------------------------- */
+ *	----------------------------------------------------------------- */
 
 // Function that checks every symbol table entry to ensure all entries have type-value matches
 function checkSemantics()
@@ -140,7 +140,7 @@ function checkSemantics()
 			_OutputManager.addTraceEvent("Checking print statement semantics of " + type + " value '" + value + "'");
 
 			// Determine if the value matches the type
-			if(isMatchingType(type, node))
+			if(isMatchingType(type, value))
 			{
 				_OutputManager.addTraceEvent("Value matches type " + type, "green");
 			}
@@ -187,7 +187,7 @@ function checkSemantics()
 				var idValue = entry.value;
 
 			// Make a recursive call with the value of the Id
-			return isStringExpr(idValue);
+			return isStringExpr(idValue, scope);
 		}
 		else
 			return false;
@@ -212,7 +212,7 @@ function checkSemantics()
 				var idValue = entry.value;
 
 			// Make a recursive call with the value of the Id
-			return isBooleanExpr(idValue);
+			return isBooleanExpr(idValue, scope);
 		}
 		else
 			return false;
