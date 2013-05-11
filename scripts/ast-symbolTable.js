@@ -13,8 +13,6 @@ function createSymbolTableAndAST()
 {
 	// Initialize as a new tree
 	_AST = new Tree();
-	// Set the root
-	_AST.addNode("Program", "branch");
 
 	// The scope manager to be used when creating the symbol table
 	var scopeManager = new ScopeManager();
@@ -30,11 +28,12 @@ function createSymbolTableAndAST()
 		addStatement();
 	}
 
+	// Display the symbol table
+	_OutputManager.updateSymbolTable();
+
 	// Add a statement branch and add the appropriate statement
 	function addStatement()
 	{
-		console.log(index);
-
 		// Determine what type of statement it is
 		switch(tokens[index].kind)
 		{
@@ -44,7 +43,7 @@ function createSymbolTableAndAST()
 	        case TOKEN_WHILE:		addWhile();			break;
 	        case TOKEN_IF:			addIf();			break;
 
-	        case TOKEN_OPENBRACKET: _AST.addNode("StatementList", "branch");
+	        case TOKEN_OPENBRACKET: _AST.addNode("{}", "branch");
 	        						scopeManager.initializeNewScope();
 	        						// Move to the next statement
 	        						index++;
