@@ -162,39 +162,30 @@ function OutputManager()
 	   }
 	}
 
-	// Take the opcodeList and display it
-	this.displayOutput = function(opcodeList)
+	// Take the byteCodeList and display it
+	this.displayOutput = function()
 	{
-		// TODO
+		// Join the array elements into a string separated by spaces
+		var codeString = _ByteCodeList.join(" ");
+
+		// Display the codeString in the output result box
+		$("#output").html("<span>Machine Code Length: " + _ByteCodeList.length + "<br /><br />" + codeString + "<span>");
 	}
 
 	// Log the appropriate success messages
 	this.denoteSuccess = function()
 	{
-		// Error Box
-		if($("#errors").html())
-		{
-			// Use this only if context already exists
-			var newContent = $("#errors").html() + "<span class='successText'>No errors found!</span>";
-			$("#errors").html(newContent);
-		}
-		else
-		{
-			var newContent = "<span class='successText'>No errors found!</span>";
-			$("#errors").html(newContent);
-		}
-
 		// Trace Box
 		if($("#trace").html())
 		{
 			// Use this only if context already exists
-			var newContent = $("#trace").html() + "<br/><span class='successText'>Compilation Successful!</span>";
+			var newContent = $("#trace").html() + "<br/><span class='successText'>Compilation successful!</span>";
 			$("#trace").html(newContent);
 		}
 		else
 		{
 			// No need to add old content and a line break if there is no content yet
-			var newContent = "<span class='successText'>Compilation Successful!</span>";
+			var newContent = "<span class='successText'>Compilation successful!</span>";
 			$("#trace").html(newContent);
 		}
 	}
