@@ -43,3 +43,4 @@ var _Parser        	   = null;  // Object responsible for parsing
 var _SymbolTableList   = null;  // Array that contains each scope's hash symbol table object
 var _CST			   = null;	// Concrete Syntax Tree
 var _AST			   = null;	// Abstract Syntax Tree
+var _ByteCodeList	   = null;	// List containing the generated 6502a byte code

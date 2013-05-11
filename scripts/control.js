@@ -53,7 +53,9 @@ $(document).ready(function() {
 			// Code generation
 			if(isSemanticAnalysisSuccessful)
 			{
-				// Code Gen
+				generateCode();
+				// Great success
+				_OutputManager.denoteSuccess();
 			}
 		}
 
