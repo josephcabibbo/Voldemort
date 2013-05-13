@@ -175,6 +175,29 @@ function OutputManager()
 	// Log the appropriate success messages
 	this.denoteSuccess = function()
 	{
+		// Error Box
+		if($("#errors").html())
+		{
+			var newContent = "<tr>" +
+								"<td><span class='successText'>Success:</span></td>" +
+								"<td><span class='regularText'> No errors found!</span></td>" +
+							 "</tr>";
+
+			$("#errorsTable").append(newContent);
+		}
+		else
+		{
+			// First add, creates the table
+			var newContent = "<table id='errorsTable'>" +
+								"<tr>" +
+								"<td><span class='successText'>Success:</span></td>" +
+								"<td><span class='regularText'> No errors found!</span></td>" +
+								"</tr>" +
+							 "</table>";
+
+			$("#errors").html(newContent);
+		}
+
 		// Trace Box
 		if($("#trace").html())
 		{
