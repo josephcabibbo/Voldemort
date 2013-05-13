@@ -277,21 +277,24 @@ $(document).ready(function() {
 
 	function writeTestCases()
 	{
-    	var testCase1 = "Valid Program:<br/>{<br/>int a<br/>a = 5<br/>print ( 2 + a )<br/>{<br/>string c<br/>c = \"hello world\"<br/>print ( c )<br/>}<br/>int k<br/>" +
-    	                "k = 2 + 3<br/>int x<br/>x = 9 - k<br/>print(k)<br/>}<br/>$<br/>";
+    	var testCase1 = "Valid Programs:<br />{<br />int a<br />a = 5<br />print ( a )<br />int b<br />b = 1 + 2 + 3 + 4 + a<br />print ( b )<br />print ( \"done\" )<br />}<br />$<br />";
 
-    	var testCase2 = "Valid Program:<br/>{{{{{{{{{{}}}}}}}}}}<br/>$<br/>";
+    	var testCase2 = "Scope Tests:<br />{<br />int b<br />b = 2<br />print ( \"in scope zero b is \" )<br />print ( b )<br />{<br />int b<br />b = 9<br />print ( \"in scope one b is \" )<br />print ( b )<br />{<br />int b <br />b = 7<br />print ( \"in scope two b is \" )<br />print ( b )<br />}<br />}<br />print ( \"make changes to scope zero b and it is \" )<br />b = 3<br />print ( b )<br />}<br />$<br />";
 
-    	var testCase3 = "Lets test some scope:<br/>{<br/>int a<br/>int b<br/>a = 5<br/>b = 2<br/>print(a)<br/>{<br/>print(b)<br/>int a<br/>a = 1<br/>print(a)<br/>}<br/>print(a)<br/>}<br/>$<br/>";
+    	var testCase3 = "{<br/>int a<br/>int b<br/>a = 5<br/>b = 2<br/>print(a)<br/>{<br/>print(b)<br/>int a<br/>a = 1<br/>print(a)<br/>}<br/>print(a)<br/>}<br/>$<br/>";
 
-    	var testCase4 = "This will cause lex to fail:<br/>{<br/>int a<br/>a = #<br/>hello<br/>char c<br/>c=\"LETTERS\"<br/>}<br/>$<br/>";
+    	var testCase4 = "Conditional Tests:<br />{<br />int a<br />a = 5 + 3 + 4<br />int b<br />b = 3<br />if ( b == 3 )<br />{<br />print ( a )<br />}<br />print ( \"done\" )<br />}<br />$<br />";
 
-    	var testCase5 = "This will pass lex but cause parse to fail:<br/>{<br/>int a<br/>a = int<br/>print { 2 + a }<br/>{<br/>string c<br/>c = \"hello\"<br/>print ( + )<br/>}" +
+    	var testCase5 = "{<br />int a<br />a = 5<br />while( a == 5 )<br />{<br />print ( 1 )<br />print ( 1 + 1 )<br />print ( 1 + 1 + 1 )<br />a = 1<br />}<br />print ( \"done\" )<br />}<br />$<br />";
+
+    	var testCase6 = "This will cause lex to fail:<br/>{<br/>int a<br/>a = #<br/>hello<br/>string s<br/>s=\"LETTERS\"<br/>}<br/>$<br/>";
+
+    	var testCase7 = "This will pass lex but cause parse to fail:<br/>{<br/>int a<br/>a = int<br/>print { 2 + a }<br/>{<br/>string s<br/>s = \"hello\"<br/>print ( + )<br/>}" +
     					"<br/>int k<br/>k = 7<br/>int x<br/>x = 3 - k<br/>print(k)<br/>}<br/>$<br/>";
 
     	var proTip	  = "Pro Tip: If you leave the EOF token ($) out of the source code, the lexer will warn you and add it for you."
 
-    	$("#testCases").html(testCase1 + "<br/>" + testCase2 + "<br/>" + testCase3 + "<br/>" + testCase4 + "<br/>" + testCase5 + "<br/>" + proTip);
+    	$("#testCases").html(testCase1 + "<br/>" + testCase2 + "<br/>" + testCase3 + "<br/>" + testCase4 + "<br/>" + testCase5 + "<br/>" + testCase6 + "<br/>" +  testCase7 + "<br/>" + proTip);
 	}
 
 	//
