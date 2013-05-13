@@ -226,8 +226,8 @@ function generateCode()
 			// After the system call, force a false comparison so we can jump past the string
 			addFalseComparisonCode();
 
-			// Calculate the length on the string + 1(for the "00" at the end) in hex, this is our jump value
-			var jumpValue = (asciiList.length + 1).toString(16).toUpperCase();
+			// Calculate the length on the string in hex, this is our jump value
+			var jumpValue = asciiList.length.toString(16).toUpperCase();
 			// Make sure the jump value is two hex digits
 			if(jumpValue.length === 1)
 				jumpValue = "0" + jumpValue;
@@ -386,7 +386,6 @@ function generateCode()
 
 		// Place a No Op after the statement list ends to aid in backpatching the jump
 		_ByteCodeList.push("EA");
-
 	}
 
 	// Function to generate code for a while block
@@ -520,6 +519,14 @@ function generateCode()
 	// Function that replaces all placeholder / temporary static locations with the actual memory locations
 	function performReferenceBackpatching()
 	{
+		// Before we backpatch, delete the string entries, because their addresses and offsets have already been determined
+		for(key in referenceTable)
+		{
+			// Delete string entries
+			if(referenceTable[key].type === "string")
+				delete referenceTable[key];
+		}
+
 		// Iterate the reference table
 		for(key in referenceTable)
 		{
